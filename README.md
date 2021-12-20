@@ -21,7 +21,7 @@ serverless-builder is an object oriented builder of the `serverless.yml` file wi
 - monitoring support (wip)
 - easy resource manipulation with troposphere lib https://github.com/cloudtools/troposphere
 - easier IAM management with predefine permission sets
-- build-in support for any serverless attributes  
+- build-in support for any serverless attributes
 
 
 # Example
