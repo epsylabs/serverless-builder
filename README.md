@@ -58,10 +58,10 @@ table = Table(
 service.enable(XRay())
 service.provider.iam.apply(DynamoDBReader(table))
 
-service.provider.functions.generic("test", "description")
-service.provider.functions.http("test", "description", "/", HTTPFunction.POST)
+service.builder.function.generic("test", "description")
+service.builder.function.http("test", "description", "/", HTTPFunction.POST)
 
-event_bridge_function = service.provider.functions.event_bridge(
+event_bridge_function = service.builder.function.event_bridge(
     "event_bridge_function",
     "sample event bridge function",
     "epsy",
