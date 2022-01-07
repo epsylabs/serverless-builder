@@ -1,0 +1,4 @@
+[flake8]
+exclude = .venv,.git,node_modules,dist,docs
+max-line-length = 120
+extend-ignore = E203

@@ -2,7 +2,8 @@
 name = "serverless-builder"
 version = "0.1.0"
 description = ""
-authors = ["Michal Przytulski <michal@przytulski.pl>"]
+keywords = ["library"]
+authors = ["Epsy <engineering@epsyhealth.com>"]
 
 packages = [
     { include = "serverless" }
