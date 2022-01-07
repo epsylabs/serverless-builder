@@ -99,7 +99,7 @@ class Provider(BaseProvider, yaml.YAMLObject):
 
     @classmethod
     def to_yaml(cls, dumper, data):
-        data.pop("functions", None)
         data.pop("service", None)
+        data.pop("function_builder", None)
 
         return dumper.represent_dict(data)
