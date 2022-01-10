@@ -14,7 +14,7 @@ class PythonRequirements(Generic):
         dockerImage=None,
         pipCmdExtraArgs=None,
     ):
-        super().__init__("serverless-plugin-python-requirements")
+        super().__init__("serverless-python-requirements")
 
         self.dockerImage = dockerImage
         self.dockerizePip = dockerizePip
