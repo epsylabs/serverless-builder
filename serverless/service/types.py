@@ -31,6 +31,9 @@ class SmartString:
 
         return f"{self.prefix}{self.val}{self.suffix}"
 
+    def __call__(self, prefix="", suffix=""):
+        return SmartString(self.val, prefix=prefix, suffix=suffix)
+
 
 class Identifier(yaml.YAMLObject):
     yaml_tag = "Identifier"
@@ -73,6 +76,10 @@ class Provider(YamlOrderedDict, abc.ABC, metaclass=ProviderMetadata):
 
     def __getattr__(self, item):
         return self.get(item)
+
+    @abc.abstractmethod
+    def configure(self, service):
+        pass
 
 
 class Feature(abc.ABC):
