@@ -7,14 +7,14 @@ from serverless.service.types import YamlOrderedDict
 class RetryPolicy(YamlOrderedDict):
     yaml_tag = "RetryPolicy"
 
-    def __init__(self, maximumRetryAttempts=3, maximumEventAge=3600):
+    def __init__(self, maximumRetryAttempts=2, maximumEventAge=3600):
         super().__init__()
         self.maximumEventAge = maximumEventAge
         self.maximumRetryAttempts = maximumRetryAttempts
 
 
 class EventBridgeEvent(YamlOrderedDict):
-    yaml_tag = "http"
+    yaml_tag = "eventBridge"
 
     def __init__(self, eventBus, pattern=None, deadLetterQueueArn=None, retryPolicy=None):
         super().__init__()
@@ -24,8 +24,8 @@ class EventBridgeEvent(YamlOrderedDict):
         if deadLetterQueueArn:
             self.deadLetterQueueArn = deadLetterQueueArn
 
-        if retryPolicy:
-            self.retryPolicy = retryPolicy
+        # if retryPolicy:
+        self.retryPolicy = retryPolicy
 
 
 class EventBridgeFunction(Function):

@@ -1,6 +1,5 @@
-from troposphere.sqs import Queue
-
 from serverless.service.types import Identifier, YamlOrderedDict
+from troposphere.sqs import Queue
 
 
 class Function(YamlOrderedDict):
@@ -27,21 +26,15 @@ class Function(YamlOrderedDict):
     def trigger(self, event):
         self.events.append(event)
 
-    def use_async_dlq(self, dlqArn=None, maximumEventAge=3600, maximumRetryAttempts=3):
-        if not dlqArn:
+        return event
+
+    def use_async_dlq(self, onFailuredlqArn=None, maximumEventAge=3600, maximumRetryAttempts=3):
+        if not onFailuredlqArn:
             queue = Queue(QueueName=f"{self.name.spinal}-dlq", title=f"{self.name.pascal}DLQ")
             self.service.resources.add(queue)
-            dlqArn = queue.get_att("Arn").to_dict()
+            onFailuredlqArn = queue.get_att("Arn").to_dict()
 
-        self.destinations = dict(onFailure=dlqArn)
-
-        if maximumRetryAttempts:
-            self.maximumRetryAttempts = maximumRetryAttempts
-
-        if maximumEventAge:
-            self.maximumEventAge = maximumEventAge
-
-        return self
+        self.destinations = dict(onFailure=onFailuredlqArn)
 
     @classmethod
     def to_yaml(cls, dumper, data):
