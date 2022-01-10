@@ -15,7 +15,7 @@ class SQSArn(GenericArn):
         self.name = name
 
     def __str__(self):
-        return f"arn:aws:sqs:${{AWS::Region}}:${{AWS::AccountId}}:{self.name}"
+        return f"arn:aws:sqs:${{aws:region}}:${{aws:accountId}}:{self.name}"
 
 
 class EventBridgeBusArn(GenericArn):
@@ -25,4 +25,4 @@ class EventBridgeBusArn(GenericArn):
         self.name = name
 
     def __str__(self):
-        return f"arn:aws:events:${{AWS::Region}}:${{AWS::AccountId}}:event-bus/{self.name}"
+        return f"arn:aws:events:${{aws:region}}:${{aws:accountId}}:event-bus/{self.name}"
