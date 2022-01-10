@@ -30,9 +30,10 @@ class Function(YamlOrderedDict):
 
     def use_async_dlq(self, onFailuredlqArn=None, maximumEventAge=3600, maximumRetryAttempts=3):
         if not onFailuredlqArn:
+            name = f"{self.name.spinal}-dlq"
             queue = Queue(QueueName=f"{self.name.spinal}-dlq", title=f"{self.name.pascal}DLQ")
             self.service.resources.add(queue)
-            onFailuredlqArn = queue.get_att("Arn").to_dict()
+            onFailuredlqArn = f"arn:aws:sqs:${{AWS::Region}}:${{AWS::AccountId}}:{name}"
 
         self.destinations = dict(onFailure=onFailuredlqArn)
 
