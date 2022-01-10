@@ -93,9 +93,11 @@ class Provider(BaseProvider, yaml.YAMLObject):
         self.deploymentBucket = dict(name="sls-deployments.${self:custom.region}.${self:custom.stage}")
         self.tags = tags
         self.lambdaHashingVersion = 20201221
-        self.shouldStartNameWithService = True
         self.environment = environment or Environment()
         self.iam = None
+        self.apiGateway = dict(
+            shouldStartNameWithService=True
+        )
         self.eventBridge = dict(
             useCloudFormation=True
         )
