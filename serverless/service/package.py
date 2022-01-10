@@ -10,4 +10,4 @@ class Package(yaml.YAMLObject):
 
     @classmethod
     def to_yaml(cls, dumper, data):
-        return dumper.represent_list(data.patterns)
+        return dumper.represent_dict({"patterns": data.patterns})
