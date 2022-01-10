@@ -81,7 +81,7 @@ class Provider(BaseProvider, yaml.YAMLObject):
     ):
         super().__init__(**kwds)
 
-        tags = {"SERVICE": "sls-deployments.${self:provider.region}.${self:custom.stage}"}
+        tags = {"SERVICE": "sls-deployments.${self:custom.region}.${self:custom.stage}"}
         if extra_tags:
             tags.update(extra_tags)
 
@@ -90,12 +90,15 @@ class Provider(BaseProvider, yaml.YAMLObject):
         self.stackName = "${self:service}"
         self.timeout = timeout
         self.stage = stage
-        self.deploymentBucket = dict(name="sls-deployments.${self:provider.region}.${self:custom.stage}")
+        self.deploymentBucket = dict(name="sls-deployments.${self:custom.region}.${self:custom.stage}")
         self.tags = tags
-        self.lambdaHashingVersion: 20201221
+        self.lambdaHashingVersion = 20201221
         self.shouldStartNameWithService = True
         self.environment = environment or Environment()
         self.iam = None
+        self.eventBridge = dict(
+            useCloudFormation=True
+        )
 
     @classmethod
     def to_yaml(cls, dumper, data):

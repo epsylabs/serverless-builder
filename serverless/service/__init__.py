@@ -25,11 +25,15 @@ class Service(OrderedDict, yaml.YAMLObject):
     def __init__(self, name: str, description: str, provider: Provider, /, **kwds):
         super().__init__(**kwds)
         self.service = Identifier(name)
-        self.package = Package(["!./**/**", f"{name}/**"])
+        self.package = Package(["!./**/**", f"{self.service.snake}/**"])
+        self.variablesResolutionMode = 20210326
         self.provider = provider
         self.provider.iam = IAMManager(self)
         self.provider.function_builder = FunctionBuilder(self)
-        self.custom = YamlOrderedDict(stage="${opt:stage, self:provider.stage}")
+        self.custom = YamlOrderedDict(
+            stage="${opt:stage, self:provider.stage}",
+            region="${opt:region, 'us-east-1'}"
+        )
         self.plugins = PluginsManager(self)
         self.functions = FunctionManager(self)
         self.resources = ResourceManager(self, description)
