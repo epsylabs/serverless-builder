@@ -28,7 +28,8 @@ class Service(OrderedDict, yaml.YAMLObject):
         self.variablesResolutionMode = 20210326
         self.custom = YamlOrderedDict(
             stage="${opt:stage, self:provider.stage}",
-            region="${opt:region, 'us-east-1'}"
+            region="${opt:region, 'us-east-1'}",
+            vars="${file(./variables.${opt:stage, self:provider.stage}.yml)}"
         )
 
         provider.configure(self)
@@ -65,7 +66,7 @@ class Service(OrderedDict, yaml.YAMLObject):
         tmp_buf = io.StringIO()
 
         for line in buf:
-            if line.split(":")[0] in ("provider", "plugins", "package", "custom", "functions", "resources"):
+            if line.split(":")[0] in ("provider", "plugins", "package", "custom", "functions", "resources", "vars"):
                 tmp_buf.write("\n")
 
             tmp_buf.write(line)
