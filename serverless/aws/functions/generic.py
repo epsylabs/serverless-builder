@@ -1,3 +1,4 @@
+from serverless.aws.types import SQSArn
 from serverless.service.types import Identifier, YamlOrderedDict
 from troposphere.sqs import Queue
 
@@ -33,7 +34,7 @@ class Function(YamlOrderedDict):
             name = f"{self.name.spinal}-dlq"
             queue = Queue(QueueName=f"{self.name.spinal}-dlq", title=f"{self.name.pascal}DLQ")
             self._service.resources.add(queue)
-            onFailuredlqArn = f"arn:aws:sqs:${{AWS::Region}}:${{AWS::AccountId}}:{name}"
+            onFailuredlqArn = SQSArn(name)
 
         self.destinations = dict(onFailure=onFailuredlqArn)
 
