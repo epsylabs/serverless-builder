@@ -19,6 +19,19 @@ class YamlOrderedDict(OrderedDict, yaml.YAMLObject):
         return dumper.represent_dict(data)
 
 
+class SmartString:
+    def __init__(self, val, prefix="", suffix=""):
+        self.val = val
+        self.prefix = prefix
+        self.suffix = suffix
+
+    def __str__(self):
+        if not self.val:
+            return ""
+
+        return f"{self.prefix}{self.val}{self.suffix}"
+
+
 class Identifier(yaml.YAMLObject):
     yaml_tag = "Identifier"
 

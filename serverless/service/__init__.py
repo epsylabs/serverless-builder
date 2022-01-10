@@ -4,8 +4,7 @@ from pathlib import Path
 
 import yaml
 
-from serverless.aws.iam import IAMManager
-from serverless.aws.provider import FunctionBuilder
+from serverless.service.configuration import Configuration
 from serverless.service.functions import FunctionManager
 from serverless.service.package import Package
 from serverless.service.plugins import PluginsManager
@@ -22,21 +21,23 @@ class Builder:
 class Service(OrderedDict, yaml.YAMLObject):
     yaml_tag = "!Service"
 
-    def __init__(self, name: str, description: str, provider: Provider, /, **kwds):
+    def __init__(self, name: str, description: str, provider: Provider, config=None, /, **kwds):
         super().__init__(**kwds)
         self.service = Identifier(name)
         self.package = Package(["!./**/**", f"{self.service.snake}/**"])
         self.variablesResolutionMode = 20210326
-        self.provider = provider
-        self.provider.iam = IAMManager(self)
-        self.provider.function_builder = FunctionBuilder(self)
         self.custom = YamlOrderedDict(
             stage="${opt:stage, self:provider.stage}",
             region="${opt:region, 'us-east-1'}"
         )
+
+        provider.configure(self)
+        self.provider = provider
+
         self.plugins = PluginsManager(self)
         self.functions = FunctionManager(self)
         self.resources = ResourceManager(self, description)
+
         self.builder = Builder(self)
 
     def __setattr__(self, key, value):
@@ -75,4 +76,6 @@ class Service(OrderedDict, yaml.YAMLObject):
     @classmethod
     def to_yaml(cls, dumper, data):
         data.pop("builder", None)
+        data.pop("config", None)
+        data.pop("function_builder", None)
         return dumper.represent_dict(data)

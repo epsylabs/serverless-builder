@@ -20,7 +20,7 @@ class IAMManager(YamlOrderedDict):
     def __init__(self, service, other=(), /, **kwds):
         super().__init__(other, **kwds)
         self.statements = []
-        self.service = service
+        self._service = service
 
     def allow(self, permissions, resources):
         self.statements.append(dict(Effect="Allow", Action=permissions, Resource=resources))
@@ -29,7 +29,7 @@ class IAMManager(YamlOrderedDict):
         pass
 
     def apply(self, preset: IAMPreset):
-        preset.apply(self.service)
+        preset.apply(self._service)
 
     @classmethod
     def to_yaml(cls, dumper, data):

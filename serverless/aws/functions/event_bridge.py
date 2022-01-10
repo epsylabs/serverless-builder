@@ -50,7 +50,7 @@ class EventBridgeFunction(Function):
     def use_delivery_dql(self, dlqArn=None, retryPolicy=None):
         if not dlqArn:
             queue = Queue(QueueName=f"{self.name.spinal}-delivery-dlq", title=f"{self.name.pascal}DeliveryDLQ")
-            self.service.resources.add(queue)
+            self._service.resources.add(queue)
             dlqArn = queue.get_att("Arn").to_dict()
 
         for event in self.events:

@@ -3,6 +3,7 @@ import yaml
 from serverless.aws.functions.event_bridge import EventBridgeFunction
 from serverless.aws.functions.generic import Function
 from serverless.aws.functions.http import HTTPFunction
+from serverless.aws.iam import IAMManager
 from serverless.service.environment import Environment
 from serverless.service.types import Provider as BaseProvider
 
@@ -37,7 +38,7 @@ class FunctionBuilder:
         return fn
 
     def http(
-        self, name, description, path, method, authorizer=None, handler=None, timeout=None, layers=None
+            self, name, description, path, method, authorizer=None, handler=None, timeout=None, layers=None
     ) -> HTTPFunction:
         fn = HTTPFunction(self.service, name, description, path, method, authorizer, handler, timeout, layers)
         self.service.functions.add(fn)
@@ -45,16 +46,16 @@ class FunctionBuilder:
         return fn
 
     def event_bridge(
-        self,
-        name,
-        description,
-        eventBus,
-        pattern=None,
-        deadLetterQueueArn=None,
-        retryPolicy=None,
-        handler=None,
-        timeout=None,
-        layers=None,
+            self,
+            name,
+            description,
+            eventBus,
+            pattern=None,
+            deadLetterQueueArn=None,
+            retryPolicy=None,
+            handler=None,
+            timeout=None,
+            layers=None,
     ) -> EventBridgeFunction:
         fn = EventBridgeFunction(
             self.service,
@@ -77,21 +78,21 @@ class Provider(BaseProvider, yaml.YAMLObject):
     yaml_tag = "!Provider"
 
     def __init__(
-        self, runtime=Runtime.PYTHON_3_8, extra_tags=None, timeout=60, stage="development", environment=None, /, **kwds
+            self, runtime=Runtime.PYTHON_3_8, extra_tags=None, timeout=60, stage="development", environment=None, /,
+            **kwds
     ):
         super().__init__(**kwds)
 
-        tags = {"SERVICE": "sls-deployments.${self:custom.region}.${self:custom.stage}"}
-        if extra_tags:
-            tags.update(extra_tags)
+        self.deploymentBucket = None
+        self._service = None
+        self.function_builder = None
 
         self.name = "aws"
         self.runtime = runtime
         self.stackName = "${self:service}"
         self.timeout = timeout
         self.stage = stage
-        self.deploymentBucket = dict(name="sls-deployments.${self:custom.region}.${self:custom.stage}")
-        self.tags = tags
+        self.tags = extra_tags or {}
         self.lambdaHashingVersion = 20201221
         self.environment = environment or Environment()
         self.iam = None
@@ -102,9 +103,16 @@ class Provider(BaseProvider, yaml.YAMLObject):
             useCloudFormation=True
         )
 
+    def configure(self, service):
+        self._service = service
+        self.deploymentBucket = dict(name="sls-deployments.${AWS::Region}.${self:custom.stage}")
+        self.tags["SERVICE"] = self._service.service.spinal
+        self.iam = IAMManager(self._service)
+        self.function_builder = FunctionBuilder(self._service)
+
     @classmethod
     def to_yaml(cls, dumper, data):
-        data.pop("service", None)
+        data.pop("_service", None)
         data.pop("function_builder", None)
 
         return dumper.represent_dict(data)

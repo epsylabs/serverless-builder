@@ -7,12 +7,12 @@ class Function(YamlOrderedDict):
 
     def __init__(self, service, name, description, handler=None, timeout=None, layers=None):
         super().__init__()
-        self.service = service
+        self._service = service
         self.name = Identifier(name)
         self.description = description
 
         if not handler:
-            handler = f"{self.service.service.snake}/{self.name.snake}:handler"
+            handler = f"{self._service.service.snake}/{self.name.snake}:handler"
 
         self.handler = handler
         self.events = []
@@ -32,7 +32,7 @@ class Function(YamlOrderedDict):
         if not onFailuredlqArn:
             name = f"{self.name.spinal}-dlq"
             queue = Queue(QueueName=f"{self.name.spinal}-dlq", title=f"{self.name.pascal}DLQ")
-            self.service.resources.add(queue)
+            self._service.resources.add(queue)
             onFailuredlqArn = f"arn:aws:sqs:${{AWS::Region}}:${{AWS::AccountId}}:{name}"
 
         self.destinations = dict(onFailure=onFailuredlqArn)
@@ -40,7 +40,7 @@ class Function(YamlOrderedDict):
     @classmethod
     def to_yaml(cls, dumper, data):
         events = data.events
-        data.pop("service", None)
+        data.pop("_service", None)
 
         data.events = [{event.yaml_tag: event} for event in events]
 
