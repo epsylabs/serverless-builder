@@ -12,8 +12,12 @@ class ResourceManager(yaml.YAMLObject):
         self.resources = []
 
     def add(self, resource: AWSObject):
-        resource.validate()
+        # resource.validate()
         self.resources.append(resource)
+
+    def add_all(self, resources):
+        for resource in resources:
+            self.add(resource)
 
     def all(self):
         return self.resources
