@@ -13,6 +13,7 @@ class PythonRequirements(Generic):
         layer=True,
         dockerImage=None,
         pipCmdExtraArgs=None,
+        dockerSsh=False,
     ):
         super().__init__("serverless-python-requirements")
 
@@ -23,6 +24,7 @@ class PythonRequirements(Generic):
         self.useStaticCache = useStaticCache
         self.layer = layer
         self.pipCmdExtraArgs = pipCmdExtraArgs or []
+        self.dockerSsh = dockerSsh
 
     def enable(self, service):
         export = dict(self)
