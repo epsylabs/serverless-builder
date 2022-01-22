@@ -32,6 +32,7 @@ class HTTPFunction(Function):
     PUT = "PUT"
     DELETE = "DELETE"
     OPTIONS = "OPTIONS"
+    ANY = "ANY"
 
     def __init__(
         self, service, name, description, path, method, authorizer=None, handler=None, timeout=None, layers=None
