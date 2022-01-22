@@ -29,7 +29,7 @@ class Service(OrderedDict, yaml.YAMLObject):
         self.custom = YamlOrderedDict(
             stage="${opt:stage, self:provider.stage}",
             region="${opt:region, 'us-east-1'}",
-            vars="${file(./variables.${opt:stage, self:provider.stage}.yml)}"
+            vars="${file(./variables.yml):{opt:stage, self:provider.stage}}"
         )
 
         provider.configure(self)
