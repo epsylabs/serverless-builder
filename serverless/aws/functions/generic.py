@@ -6,7 +6,7 @@ from troposphere.sqs import Queue
 class Function(YamlOrderedDict):
     yaml_tag = "!Function"
 
-    def __init__(self, service, name, description, handler=None, timeout=None, layers=None):
+    def __init__(self, service, name, description, handler=None, timeout=None, layers=None, **kwargs):
         super().__init__()
         self._service = service
         self.name = Identifier(name)
@@ -23,6 +23,9 @@ class Function(YamlOrderedDict):
 
         if timeout:
             self.timeout = timeout
+
+        for name, value in kwargs.items():
+            setattr(self, name, value)
 
     def trigger(self, event):
         self.events.append(event)

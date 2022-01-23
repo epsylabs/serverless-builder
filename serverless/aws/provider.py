@@ -31,16 +31,16 @@ class FunctionBuilder:
         super().__init__()
         self.service = service
 
-    def generic(self, name, description, handler=None, timeout=None, layers=None) -> Function:
-        fn = Function(self.service, name, description, handler, timeout, layers)
+    def generic(self, name, description, handler=None, timeout=None, layers=None, **kwargs) -> Function:
+        fn = Function(self.service, name, description, handler, timeout, layers, **kwargs)
         self.service.functions.add(fn)
 
         return fn
 
     def http(
-            self, name, description, path, method, authorizer=None, handler=None, timeout=None, layers=None
+            self, name, description, path, method, authorizer=None, handler=None, timeout=None, layers=None, **kwargs
     ) -> HTTPFunction:
-        fn = HTTPFunction(self.service, name, description, path, method, authorizer, handler, timeout, layers)
+        fn = HTTPFunction(self.service, name, description, path, method, authorizer, handler, timeout, layers, **kwargs)
         self.service.functions.add(fn)
 
         return fn
@@ -56,6 +56,7 @@ class FunctionBuilder:
             handler=None,
             timeout=None,
             layers=None,
+            **kwargs
     ) -> EventBridgeFunction:
         fn = EventBridgeFunction(
             self.service,
@@ -68,6 +69,7 @@ class FunctionBuilder:
             handler,
             timeout,
             layers,
+            **kwargs
         )
         self.service.functions.add(fn)
 

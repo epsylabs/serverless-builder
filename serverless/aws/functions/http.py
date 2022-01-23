@@ -35,7 +35,7 @@ class HTTPFunction(Function):
     ANY = "ANY"
 
     def __init__(
-        self, service, name, description, path, method, authorizer=None, handler=None, timeout=None, layers=None
+        self, service, name, description, path, method, authorizer=None, handler=None, timeout=None, layers=None, **kwargs
     ):
-        super().__init__(service, name, description, handler, timeout, layers)
+        super().__init__(service, name, description, handler, timeout, layers, **kwargs)
         self.trigger(HTTPEvent(path, method, authorizer))

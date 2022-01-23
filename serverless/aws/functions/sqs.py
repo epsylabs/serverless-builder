@@ -31,6 +31,7 @@ class SQSFunction(Function):
         handler=None,
         timeout=None,
         layers=None,
+        **kwargs
     ):
-        super().__init__(service, name, description, handler, timeout, layers)
+        super().__init__(service, name, description, handler, timeout, layers, **kwargs)
         self.trigger(SQSEvent(arn, batchSize, maximumBatchingWindow, enabled, filterPatterns))

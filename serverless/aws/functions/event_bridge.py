@@ -43,8 +43,9 @@ class EventBridgeFunction(Function):
         handler=None,
         timeout=None,
         layers=None,
+        **kwargs
     ):
-        super().__init__(service, name, description, handler, timeout, layers)
+        super().__init__(service, name, description, handler, timeout, layers, **kwargs)
         self.trigger(EventBridgeEvent(eventBus, pattern, deadLetterQueueArn, retryPolicy))
 
     def use_delivery_dql(self, dlqArn=None, retryPolicy=None):
