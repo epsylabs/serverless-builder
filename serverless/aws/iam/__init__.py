@@ -22,11 +22,11 @@ class IAMManager(YamlOrderedDict):
         self.statements = []
         self._service = service
 
-    def allow(self, permissions, resources):
-        self.statements.append(dict(Effect="Allow", Action=permissions, Resource=resources))
+    def allow(self, sid, permissions, resources):
+        self.statements.append(dict(Sid=sid, Effect="Allow", Action=permissions, Resource=resources))
 
-    def deny(self, permissions, resources):
-        pass
+    def deny(self, sid, permissions, resources):
+        self.statements.append(dict(Sid=sid, Effect="Deny", Action=permissions, Resource=resources))
 
     def apply(self, preset: IAMPreset):
         preset.apply(self._service)

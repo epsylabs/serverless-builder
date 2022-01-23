@@ -7,6 +7,7 @@ class XRayService(IAMPreset):
 
     def apply(self, service):
         service.provider.iam.allow(
+            "Xray",
             [
                 "xray:PutTraceSegments",
                 "xray:PutTelemetryRecords",
