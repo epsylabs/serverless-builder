@@ -9,7 +9,7 @@ class Function(YamlOrderedDict):
     def __init__(self, service, name, description, handler=None, timeout=None, layers=None, **kwargs):
         super().__init__()
         self._service = service
-        self.key = stringcase.camelcase(stringcase.spinalcase(name).lower())
+        self.key = stringcase.pascalcase(stringcase.snakecase(name).lower())
         self.name =  Identifier(self._service.service.spinal.lower() + "-" + stringcase.spinalcase(name).lower())
         self.description = description
 
