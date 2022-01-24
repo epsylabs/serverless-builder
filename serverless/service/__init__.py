@@ -32,6 +32,8 @@ class Service(OrderedDict, yaml.YAMLObject):
             vars="${file(./variables.yml):{opt:stage, self:provider.stage}}"
         )
 
+        self.config = config if config else Configuration()
+
         provider.configure(self)
         self.provider = provider
 
