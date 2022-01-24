@@ -4,6 +4,18 @@ version = "0.1.0"
 description = ""
 keywords = ["library"]
 authors = ["Epsy <engineering@epsyhealth.com>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/epsyhealth/serverless-builder"
+repository = "https://github.com/epsyhealth/serverless-builder"
+classifiers = [
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3 :: Only",
+]
 
 packages = [
     { include = "serverless" }
