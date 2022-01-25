@@ -109,7 +109,7 @@ class Provider(BaseProvider, yaml.YAMLObject):
             name=f"sls-deployments.${{self:custom.region}}."
                  f"${{self:custom.stage}}{self._service.config.domain(prefix='.')}"
         )
-        self.tags["SERVICE"] = self._service.service.spinal
+        self.tags["SERVICE"] = "${self:service}"
         self.iam = IAMManager(self._service)
         self.function_builder = FunctionBuilder(self._service)
 
