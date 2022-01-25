@@ -91,7 +91,6 @@ class Provider(BaseProvider, yaml.YAMLObject):
 
         self.name = "aws"
         self.runtime = runtime
-        self.stackName = "${self:service}"
         self.timeout = timeout
         self.stage = stage
         self.tags = extra_tags or {}
@@ -114,6 +113,7 @@ class Provider(BaseProvider, yaml.YAMLObject):
         self.tags["SERVICE"] = self._service.service.spinal
         self.iam = IAMManager(self._service)
         self.function_builder = FunctionBuilder(self._service)
+        self.stackName = self._service.service.pascal
 
     @classmethod
     def to_yaml(cls, dumper, data):

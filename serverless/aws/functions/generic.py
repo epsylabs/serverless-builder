@@ -46,6 +46,9 @@ class Function(YamlOrderedDict):
         events = data.events
         data.pop("_service", None)
 
-        data.events = [{event.yaml_tag: event} for event in events]
-
+        if not data.events:
+            del data["events"]
+        else:
+            data.events = [{event.yaml_tag: event} for event in events]
+        
         return dumper.represent_dict(data)
