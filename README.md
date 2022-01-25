@@ -15,13 +15,13 @@ due to multiple sections of the file which are affected.
 
 serverless-builder is an object oriented builder of the `serverless.yml` file with build in support for:
 
-- plugins management (with autoconfiguration)
-- function factory (with some best practice hints (DLQ)
+- plugin management (with autoconfiguration)
+- function factory (with some best practice hints (DLQ))
 - autoconfiguration of some provider specific features like AWS X-Ray
 - monitoring support (wip)
 - easy resource manipulation with troposphere lib https://github.com/cloudtools/troposphere
-- easier IAM management with predefine permission sets
-- build-in support for any serverless attributes
+- easier IAM management with predefined permission sets
+- built-in support for any serverless attributes
 
 
 # Example

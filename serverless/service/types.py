@@ -48,7 +48,7 @@ class Identifier(yaml.YAMLObject):
 
     @property
     def pascal(self):
-        return stringcase.pascalcase(self.identifier)
+        return stringcase.pascalcase(self.identifier.replace("-", "_"))
 
     @property
     def snake(self):
