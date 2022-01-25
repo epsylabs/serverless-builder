@@ -14,7 +14,7 @@ class VpcDiscovery(Generic):
     def __init__(self, vpc_name, subnet_names=None, subnets=None, security_group_names=None, security_groups=None):
         super().__init__("serverless-vpc-discovery")
 
-        self.vpc_name = vpc_name
+        self.vpcName = vpc_name
         if all((subnet_names, subnets)):
             raise Exception("You can use either subnet_names or subnets.")
         if all((security_group_names, security_groups)):
