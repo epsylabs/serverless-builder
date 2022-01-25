@@ -15,7 +15,7 @@ class HTTPAuthorizer(YamlOrderedDict):
 class HTTPEvent(YamlOrderedDict):
     yaml_tag = "http"
 
-    def __init__(self, path, method, authorizer=None):
+    def __init__(self, path, method, authorizer=None, request_parameters_querystrings=None):
         super().__init__()
         self.path = path
         self.method = method
@@ -23,6 +23,8 @@ class HTTPEvent(YamlOrderedDict):
         if authorizer:
             self.authorizer = authorizer
 
+        if request_parameters_querystrings:
+            self.request = {"parameters": {"querystrings": request_parameters_querystrings}}
 
 class HTTPFunction(Function):
     yaml_tag = "!HTTPFunction"
