@@ -80,11 +80,9 @@ class Provider(BaseProvider, yaml.YAMLObject):
     yaml_tag = "!Provider"
 
     def __init__(
-            self, runtime=Runtime.PYTHON_3_8, extra_tags=None, timeout=60, stage="development", environment=None, /,
-            **kwds
+            self, runtime=Runtime.PYTHON_3_8, extra_tags=None, timeout=60, stage="development", environment=None, **kwargs
     ):
-        super().__init__(**kwds)
-
+        super().__init__(**kwargs)
         self.deploymentBucket = None
         self._service = None
         self.function_builder = None
