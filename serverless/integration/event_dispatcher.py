@@ -29,3 +29,8 @@ class DLQ(Feature):
                 ComparisonOperator="GreaterThanOrEqualToThreshold",
             )
         )
+        service.provider.iam.allow(
+            "EventDispatcherDQLBatch",
+            "sqs:SendMessageBatch",
+            [{"Fn::GetAtt": ["EventDispatcherDLQ", "Arn"]}]
+        )
