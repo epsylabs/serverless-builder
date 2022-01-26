@@ -80,11 +80,9 @@ class Provider(BaseProvider, yaml.YAMLObject):
     yaml_tag = "!Provider"
 
     def __init__(
-            self, runtime=Runtime.PYTHON_3_8, extra_tags=None, timeout=60, stage="development", environment=None, /,
-            **kwds
+            self, runtime=Runtime.PYTHON_3_8, extra_tags=None, timeout=60, stage="development", environment=None, **kwargs
     ):
-        super().__init__(**kwds)
-
+        super().__init__(**kwargs)
         self.deploymentBucket = None
         self._service = None
         self.function_builder = None
@@ -111,7 +109,7 @@ class Provider(BaseProvider, yaml.YAMLObject):
             name=f"sls-deployments.${{self:custom.region}}."
                  f"${{self:custom.stage}}{self._service.config.domain(prefix='.')}"
         )
-        self.tags["SERVICE"] = self._service.service.spinal
+        self.tags["SERVICE"] = "${self:service}"
         self.iam = IAMManager(self._service)
         self.function_builder = FunctionBuilder(self._service)
 

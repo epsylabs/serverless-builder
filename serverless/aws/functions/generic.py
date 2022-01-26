@@ -1,7 +1,7 @@
 from serverless.aws.types import SQSArn
 from serverless.service.types import Identifier, YamlOrderedDict
 from troposphere.sqs import Queue
-
+import stringcase
 
 class Function(YamlOrderedDict):
     yaml_tag = "!Function"
@@ -9,11 +9,12 @@ class Function(YamlOrderedDict):
     def __init__(self, service, name, description, handler=None, timeout=None, layers=None, **kwargs):
         super().__init__()
         self._service = service
-        self.name = Identifier(name)
+        self.key = stringcase.pascalcase(stringcase.snakecase(name).lower())
+        self.name = Identifier(self._service.service.spinal.lower() + "-" + stringcase.spinalcase(name).lower())
         self.description = description
 
         if not handler:
-            handler = f"{self._service.service.snake}/{self.name.snake}:handler"
+            handler = f"{self._service.service.snake}.{stringcase.snakecase(name)}.handler"
 
         self.handler = handler
         self.events = []
@@ -45,6 +46,7 @@ class Function(YamlOrderedDict):
     def to_yaml(cls, dumper, data):
         events = data.events
         data.pop("_service", None)
+        data.pop("key", None)
 
         if not data.events:
             del data["events"]
