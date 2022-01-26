@@ -10,8 +10,8 @@ class DefaultFourHundredResponse(Feature):
             GatewayResponse(
                 "GatewayResponseDefault4XX",
                 ResponseParameters={
-                    "gatewayresponse.header.Access-Control-Allow-Origin": "*",
-                    "gatewayresponse.header.Access-Control-Allow-Headers": "*",
+                    "gatewayresponse.header.Access-Control-Allow-Origin": "\'*\'",
+                    "gatewayresponse.header.Access-Control-Allow-Headers": "\'*\'",
                 },
                 ResponseType="DEFAULT_4XX",
                 RestApiId=Ref("ApiGatewayRestApi"),
