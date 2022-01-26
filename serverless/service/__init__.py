@@ -1,6 +1,5 @@
 import io
 from collections import OrderedDict
-from functools import partial
 from pathlib import Path
 
 import yaml
@@ -31,7 +30,10 @@ class PreSetAttributesBuilder(Builder):
         pass
 
     def __getattr__(self, item):
-        return partial(getattr(self.function, item))
+        def wrapper(*args, **kwargs):
+            return getattr(self.function, item)(*args, **{**kwargs, **self._preset})
+
+        return wrapper
 
 
 class Service(OrderedDict, yaml.YAMLObject):
