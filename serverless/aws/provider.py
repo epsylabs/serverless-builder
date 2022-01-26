@@ -45,6 +45,54 @@ class FunctionBuilder:
 
         return fn
 
+    def http_post(
+            self, name, description, path, authorizer=None, handler=None, timeout=None, layers=None, **kwargs
+    ) -> HTTPFunction:
+        fn = HTTPFunction(self.service, name, description, path, HTTPFunction.POST, authorizer, handler, timeout, layers, **kwargs)
+        self.service.functions.add(fn)
+
+        return fn
+
+    def http_get(
+            self, name, description, path, authorizer=None, handler=None, timeout=None, layers=None, **kwargs
+    ) -> HTTPFunction:
+        fn = HTTPFunction(self.service, name, description, path, HTTPFunction.GET, authorizer, handler, timeout, layers, **kwargs)
+        self.service.functions.add(fn)
+
+        return fn
+
+    def http_put(
+            self, name, description, path, authorizer=None, handler=None, timeout=None, layers=None, **kwargs
+    ) -> HTTPFunction:
+        fn = HTTPFunction(self.service, name, description, path, HTTPFunction.PUT, authorizer, handler, timeout, layers, **kwargs)
+        self.service.functions.add(fn)
+
+        return fn
+
+    def http_delete(
+            self, name, description, path, authorizer=None, handler=None, timeout=None, layers=None, **kwargs
+    ) -> HTTPFunction:
+        fn = HTTPFunction(self.service, name, description, path, HTTPFunction.DELETE, authorizer, handler, timeout, layers, **kwargs)
+        self.service.functions.add(fn)
+
+        return fn
+
+    def http_options(
+            self, name, description, path, authorizer=None, handler=None, timeout=None, layers=None, **kwargs
+    ) -> HTTPFunction:
+        fn = HTTPFunction(self.service, name, description, path, HTTPFunction.OPTIONS, authorizer, handler, timeout, layers, **kwargs)
+        self.service.functions.add(fn)
+
+        return fn
+
+    def http_any(
+            self, name, description, path, authorizer=None, handler=None, timeout=None, layers=None, **kwargs
+    ) -> HTTPFunction:
+        fn = HTTPFunction(self.service, name, description, path, HTTPFunction.ANY, authorizer, handler, timeout, layers, **kwargs)
+        self.service.functions.add(fn)
+
+        return fn
+
     def event_bridge(
             self,
             name,
