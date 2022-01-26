@@ -18,7 +18,7 @@ class DLQ(Feature):
             Alarm(
                 "EventDispatcherDLQCloudWatchAlarm",
                 AlarmDescription="Unable to send event from handler.",
-                AlarmActions=["arn:aws:sns:${aws:region}:${aws:accountId}:foxglove-${self:custom.stage}-cloudwatch-alerts"],
+                AlarmActions=["arn:aws:sns:${aws:region}:${aws:accountId}:foxglove-${sls:stage}-cloudwatch-alerts"],
                 Namespace="AWS/SQS",
                 MetricName="ApproximateNumberOfMessagesVisible",
                 Dimensions=[MetricDimension(Name="QueueName", Value=GetAtt("EventDispatcherDLQ", "QueueName"))],
