@@ -1,3 +1,4 @@
+from troposphere import Ref
 from troposphere.apigateway import GatewayResponse
 
 from serverless.service.types import Feature
@@ -13,6 +14,6 @@ class DefaultFourHundredResponse(Feature):
                     "gatewayresponse.header.Access-Control-Allow-Headers": "*",
                 },
                 ResponseType="DEFAULT_4XX",
-                RestApiId="!Ref ApiGatewayRestApi",
+                RestApiId=Ref("ApiGatewayRestApi"),
             )
         )
