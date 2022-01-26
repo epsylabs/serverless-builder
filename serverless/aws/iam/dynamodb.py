@@ -8,7 +8,7 @@ class DynamoDBReader(IAMPreset):
 
     def apply(self, service, sid=None):
         if not sid:
-            sid=self.resource.name
+            sid = self.resource.name
         service.provider.iam.allow(
             sid,
             [

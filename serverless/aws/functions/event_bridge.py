@@ -43,7 +43,7 @@ class EventBridgeFunction(Function):
         handler=None,
         timeout=None,
         layers=None,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(service, name, description, handler, timeout, layers, **kwargs)
         self.trigger(EventBridgeEvent(eventBus, pattern, deadLetterQueueArn, retryPolicy))

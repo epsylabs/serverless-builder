@@ -9,5 +9,5 @@ class SecretsManagerReader(IAMPreset):
         service.provider.iam.allow(
             "secretsmanager",
             ["secretsmanager:GetSecretValue"],
-            "arn:aws:secretsmanager:${aws:region}:${aws:accountId}:secret:"+self.resource,
+            "arn:aws:secretsmanager:${aws:region}:${aws:accountId}:secret:" + self.resource,
         )

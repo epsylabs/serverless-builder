@@ -11,7 +11,7 @@ class DLQ(Integration):
             Queue(
                 "EventDispatcherDLQ",
                 QueueName="${self:service}-event-dispatcher-dlq",
-                MessageRetentionPeriod=1209600  # 14 days in seconds
+                MessageRetentionPeriod=1209600,  # 14 days in seconds
             )
         )
         service.resources.add(
@@ -30,7 +30,5 @@ class DLQ(Integration):
             )
         )
         service.provider.iam.allow(
-            "EventDispatcherDQLBatch",
-            "sqs:SendMessageBatch",
-            [{"Fn::GetAtt": ["EventDispatcherDLQ", "Arn"]}]
+            "EventDispatcherDQLBatch", "sqs:SendMessageBatch", [{"Fn::GetAtt": ["EventDispatcherDLQ", "Arn"]}]
         )

@@ -1,7 +1,9 @@
+import stringcase
+from troposphere.sqs import Queue
+
 from serverless.aws.types import SQSArn
 from serverless.service.types import Identifier, YamlOrderedDict
-from troposphere.sqs import Queue
-import stringcase
+
 
 class Function(YamlOrderedDict):
     yaml_tag = "!Function"
@@ -52,5 +54,5 @@ class Function(YamlOrderedDict):
             del data["events"]
         else:
             data.events = [{event.yaml_tag: event} for event in events]
-        
+
         return dumper.represent_dict(data)

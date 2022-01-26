@@ -38,7 +38,7 @@ class FunctionBuilder:
         return fn
 
     def http(
-            self, name, description, path, method, authorizer=None, handler=None, timeout=None, layers=None, **kwargs
+        self, name, description, path, method, authorizer=None, handler=None, timeout=None, layers=None, **kwargs
     ) -> HTTPFunction:
         fn = HTTPFunction(self.service, name, description, path, method, authorizer, handler, timeout, layers, **kwargs)
         self.service.functions.add(fn)
@@ -46,65 +46,77 @@ class FunctionBuilder:
         return fn
 
     def http_post(
-            self, name, description, path, authorizer=None, handler=None, timeout=None, layers=None, **kwargs
+        self, name, description, path, authorizer=None, handler=None, timeout=None, layers=None, **kwargs
     ) -> HTTPFunction:
-        fn = HTTPFunction(self.service, name, description, path, HTTPFunction.POST, authorizer, handler, timeout, layers, **kwargs)
+        fn = HTTPFunction(
+            self.service, name, description, path, HTTPFunction.POST, authorizer, handler, timeout, layers, **kwargs
+        )
         self.service.functions.add(fn)
 
         return fn
 
     def http_get(
-            self, name, description, path, authorizer=None, handler=None, timeout=None, layers=None, **kwargs
+        self, name, description, path, authorizer=None, handler=None, timeout=None, layers=None, **kwargs
     ) -> HTTPFunction:
-        fn = HTTPFunction(self.service, name, description, path, HTTPFunction.GET, authorizer, handler, timeout, layers, **kwargs)
+        fn = HTTPFunction(
+            self.service, name, description, path, HTTPFunction.GET, authorizer, handler, timeout, layers, **kwargs
+        )
         self.service.functions.add(fn)
 
         return fn
 
     def http_put(
-            self, name, description, path, authorizer=None, handler=None, timeout=None, layers=None, **kwargs
+        self, name, description, path, authorizer=None, handler=None, timeout=None, layers=None, **kwargs
     ) -> HTTPFunction:
-        fn = HTTPFunction(self.service, name, description, path, HTTPFunction.PUT, authorizer, handler, timeout, layers, **kwargs)
+        fn = HTTPFunction(
+            self.service, name, description, path, HTTPFunction.PUT, authorizer, handler, timeout, layers, **kwargs
+        )
         self.service.functions.add(fn)
 
         return fn
 
     def http_delete(
-            self, name, description, path, authorizer=None, handler=None, timeout=None, layers=None, **kwargs
+        self, name, description, path, authorizer=None, handler=None, timeout=None, layers=None, **kwargs
     ) -> HTTPFunction:
-        fn = HTTPFunction(self.service, name, description, path, HTTPFunction.DELETE, authorizer, handler, timeout, layers, **kwargs)
+        fn = HTTPFunction(
+            self.service, name, description, path, HTTPFunction.DELETE, authorizer, handler, timeout, layers, **kwargs
+        )
         self.service.functions.add(fn)
 
         return fn
 
     def http_options(
-            self, name, description, path, authorizer=None, handler=None, timeout=None, layers=None, **kwargs
+        self, name, description, path, authorizer=None, handler=None, timeout=None, layers=None, **kwargs
     ) -> HTTPFunction:
-        fn = HTTPFunction(self.service, name, description, path, HTTPFunction.OPTIONS, authorizer, handler, timeout, layers, **kwargs)
+        fn = HTTPFunction(
+            self.service, name, description, path, HTTPFunction.OPTIONS, authorizer, handler, timeout, layers, **kwargs
+        )
         self.service.functions.add(fn)
 
         return fn
 
     def http_any(
-            self, name, description, path, authorizer=None, handler=None, timeout=None, layers=None, **kwargs
+        self, name, description, path, authorizer=None, handler=None, timeout=None, layers=None, **kwargs
     ) -> HTTPFunction:
-        fn = HTTPFunction(self.service, name, description, path, HTTPFunction.ANY, authorizer, handler, timeout, layers, **kwargs)
+        fn = HTTPFunction(
+            self.service, name, description, path, HTTPFunction.ANY, authorizer, handler, timeout, layers, **kwargs
+        )
         self.service.functions.add(fn)
 
         return fn
 
     def event_bridge(
-            self,
-            name,
-            description,
-            eventBus,
-            pattern=None,
-            deadLetterQueueArn=None,
-            retryPolicy=None,
-            handler=None,
-            timeout=None,
-            layers=None,
-            **kwargs
+        self,
+        name,
+        description,
+        eventBus,
+        pattern=None,
+        deadLetterQueueArn=None,
+        retryPolicy=None,
+        handler=None,
+        timeout=None,
+        layers=None,
+        **kwargs,
     ) -> EventBridgeFunction:
         fn = EventBridgeFunction(
             self.service,
@@ -117,7 +129,7 @@ class FunctionBuilder:
             handler,
             timeout,
             layers,
-            **kwargs
+            **kwargs,
         )
         self.service.functions.add(fn)
 
@@ -128,7 +140,7 @@ class Provider(BaseProvider, yaml.YAMLObject):
     yaml_tag = "!Provider"
 
     def __init__(
-            self, runtime=Runtime.PYTHON_3_8, extra_tags=None, timeout=60, stage="development", environment=None, **kwargs
+        self, runtime=Runtime.PYTHON_3_8, extra_tags=None, timeout=60, stage="development", environment=None, **kwargs
     ):
         super().__init__(**kwargs)
         self.deploymentBucket = None
@@ -144,18 +156,14 @@ class Provider(BaseProvider, yaml.YAMLObject):
         self.lambdaHashingVersion = 20201221
         self.environment = environment or Environment()
         self.iam = None
-        self.apiGateway = dict(
-            shouldStartNameWithService=True
-        )
-        self.eventBridge = dict(
-            useCloudFormation=True
-        )
+        self.apiGateway = dict(shouldStartNameWithService=True)
+        self.eventBridge = dict(useCloudFormation=True)
 
     def configure(self, service):
         self._service = service
         self.deploymentBucket = dict(
             name=f"sls-deployments.${{self:custom.region}}."
-                 f"${{self:custom.stage}}{self._service.config.domain(prefix='.')}"
+            f"${{self:custom.stage}}{self._service.config.domain(prefix='.')}"
         )
         self.tags["SERVICE"] = "${self:service}"
         self.iam = IAMManager(self._service)

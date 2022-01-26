@@ -5,6 +5,7 @@ class DomainManager(Generic):
     """
     Plugin homepage: https://github.com/amplify-education/serverless-domain-manager
     """
+
     yaml_tag = u"!DomainManagerPlugin"
 
     def __init__(self, domain, api="rest", stage="${sls:stage}", basePath=None, createRoute53Record=False):

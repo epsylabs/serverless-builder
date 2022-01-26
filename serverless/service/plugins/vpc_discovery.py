@@ -9,6 +9,7 @@ class VpcDiscovery(Generic):
     service.plugins.add(VpcDiscovery("main", subnets=[{"tagKey": "Name", "tagValues": ["private-a", "private-b"]}]))
     ```
     """
+
     yaml_tag = u"!VpcDiscovery"
 
     def __init__(self, vpc_name, subnet_names=None, subnets=None, security_group_names=None, security_groups=None):
@@ -21,16 +22,12 @@ class VpcDiscovery(Generic):
             raise Exception("You can use either security_group_names or security_groups.")
 
         if subnet_names:
-            self.subnets = [
-                {"tagKey": "Name", "tagValues": subnet_names}
-            ]
+            self.subnets = [{"tagKey": "Name", "tagValues": subnet_names}]
         if subnets:
             self.subnets = subnets
 
         if security_group_names:
-            self.subnets = [
-                {"tagKey": "Name", "tagValues": security_group_names}
-            ]
+            self.subnets = [{"tagKey": "Name", "tagValues": security_group_names}]
         if security_groups:
             self.securityGroups = security_groups
 

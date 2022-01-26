@@ -2,7 +2,6 @@ from serverless.service import YamlOrderedDict
 
 
 class GenericArn(YamlOrderedDict):
-
     @classmethod
     def to_yaml(cls, dumper, data):
         return dumper.represent_str(str(data))

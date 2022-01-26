@@ -46,9 +46,7 @@ class Service(OrderedDict, yaml.YAMLObject):
         self.package = Package(["!./**/**", f"{self.service.snake}/**"])
         self.variablesResolutionMode = 20210326
         self.custom = YamlOrderedDict(
-            stage="${sls:stage}",
-            region="${opt:region, 'us-east-1'}",
-            vars="${file(./variables.yml):${sls:stage}}"
+            stage="${sls:stage}", region="${opt:region, 'us-east-1'}", vars="${file(./variables.yml):${sls:stage}}"
         )
 
         self.config = config if config else Configuration()
@@ -89,6 +87,7 @@ class Service(OrderedDict, yaml.YAMLObject):
             return
 
         import __main__ as main
+
         with open(Path(main.__file__).stem, "w+") as f:
             f.write(str(self))
 
