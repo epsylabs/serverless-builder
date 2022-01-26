@@ -17,4 +17,4 @@ class FunctionManager(yaml.YAMLObject):
 
     @classmethod
     def to_yaml(cls, dumper, data):
-        return dumper.represent_dict({function.name.pascal: function for function in data.functions})
+        return dumper.represent_dict({function.key: function for function in data.functions})

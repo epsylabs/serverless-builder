@@ -32,7 +32,7 @@ class VpcDiscovery(Generic):
                 {"tagKey": "Name", "tagValues": security_group_names}
             ]
         if security_groups:
-            self.security_groups = security_groups
+            self.securityGroups = security_groups
 
     def enable(self, service):
         export = dict(self)
