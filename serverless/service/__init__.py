@@ -18,11 +18,30 @@ class Builder:
         self.function = service.provider.function_builder
 
 
+class PreSetAttributesBuilder(Builder):
+    def __init__(self, service, preset):
+        super().__init__(service)
+        self._preset = preset
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        pass
+
+    def __getattr__(self, item):
+        def wrapper(*args, **kwargs):
+            return getattr(self.function, item)(*args, **{**kwargs, **self._preset})
+
+        return wrapper
+
+
 class Service(OrderedDict, yaml.YAMLObject):
     yaml_tag = "!Service"
 
     def __init__(self, name: str, description: str, provider: Provider, config=None, /, **kwds):
         super().__init__(**kwds)
+
         self.service = Identifier(name)
         self.package = Package(["!./**/**", f"{self.service.snake}/**"])
         self.variablesResolutionMode = 20210326
@@ -48,6 +67,18 @@ class Service(OrderedDict, yaml.YAMLObject):
 
     def __getattr__(self, item):
         return self.get(item)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.builder = Builder(self)
+        return self
+
+    def preset(self, **kwargs):
+        self.builder = PreSetAttributesBuilder(self, kwargs)
+
+        return self.builder
 
     def enable(self, feature):
         feature.enable(self)
