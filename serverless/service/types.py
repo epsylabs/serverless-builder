@@ -88,6 +88,12 @@ class Feature(abc.ABC):
         pass
 
 
+class Integration(abc.ABC):
+    @abc.abstractmethod
+    def enable(self, service):
+        pass
+
+
 class PluginMetadata(type(YamlOrderedDict), type(abc.ABC)):
     pass
 

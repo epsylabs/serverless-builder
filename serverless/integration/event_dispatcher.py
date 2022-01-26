@@ -2,10 +2,10 @@ from troposphere import GetAtt
 from troposphere.cloudwatch import Alarm, MetricDimension
 from troposphere.sqs import Queue
 
-from serverless.service.types import Feature
+from serverless.service.types import Integration
 
 
-class DLQ(Feature):
+class DLQ(Integration):
     def enable(self, service):
         service.resources.add(
             Queue(
