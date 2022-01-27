@@ -12,7 +12,7 @@ class Function(YamlOrderedDict):
         super().__init__()
         self._service = service
         self.key = stringcase.pascalcase(stringcase.snakecase(name).lower())
-        self.name = Identifier(self._service.service.spinal.lower() + "-" + stringcase.spinalcase(name).lower())
+        self.name = Identifier(self._service.service.spinal.lower() + "-${sls:stage}" + "-" + stringcase.spinalcase(name).lower())
         self.description = description
 
         if not handler:
