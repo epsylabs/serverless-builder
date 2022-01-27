@@ -6,8 +6,7 @@ class Environment(YamlOrderedDict):
 
     def __init__(self, envs=None):
         super().__init__()
-        if envs:
-            self.envs = envs
+        self.envs = envs or {}
 
     @classmethod
     def to_yaml(cls, dumper, data):
