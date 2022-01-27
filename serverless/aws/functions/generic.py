@@ -12,7 +12,9 @@ class Function(YamlOrderedDict):
         super().__init__()
         self._service = service
         self.key = stringcase.pascalcase(stringcase.snakecase(name).lower())
-        self.name = Identifier(self._service.service.spinal.lower() + "-${sls:stage}" + "-" + stringcase.spinalcase(name).lower())
+        self.name = Identifier(
+            self._service.service.spinal.lower() + "-${sls:stage}" + "-" + stringcase.spinalcase(name).lower()
+        )
         self.description = description
 
         if not handler:
@@ -34,6 +36,11 @@ class Function(YamlOrderedDict):
         self.events.append(event)
 
         return event
+
+    def apply(self, **kwargs):
+        for event in self.events:
+            for k, v in kwargs.items():
+                event[k] = v
 
     def use_async_dlq(self, onFailuredlqArn=None, maximumEventAge=3600, maximumRetryAttempts=3):
         if not onFailuredlqArn:
