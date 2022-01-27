@@ -162,8 +162,7 @@ class Provider(BaseProvider, yaml.YAMLObject):
     def configure(self, service):
         self._service = service
         self.deploymentBucket = dict(
-            name=f"sls-deployments.${{aws:region}}."
-            f"${{sls:stage}}{self._service.config.domain(prefix='.')}"
+            name=f'sls-deployments.${{aws:region}}.${{sls:stage}}.${{self:custom.vars.domain, "app"}}'
         )
         self.tags["SERVICE"] = "${self:service}"
         self.iam = IAMManager(self._service)
