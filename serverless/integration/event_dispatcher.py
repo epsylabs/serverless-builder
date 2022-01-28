@@ -30,5 +30,5 @@ class DLQ(Integration):
             )
         )
         service.provider.iam.allow(
-            "EventDispatcherDQLBatch", "sqs:SendMessageBatch", [{"Fn::GetAtt": ["EventDispatcherDLQ", "Arn"]}]
+            "EventDispatcherDLQBatch", "sqs:SendMessageBatch", [{"Fn::GetAtt": ["EventDispatcherDLQ", "Arn"]}]
         )
