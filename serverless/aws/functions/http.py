@@ -1,3 +1,5 @@
+import itertools
+
 from serverless.aws.functions.generic import Function
 from serverless.service.types import YamlOrderedDict
 
@@ -52,4 +54,12 @@ class HTTPFunction(Function):
         **kwargs
     ):
         super().__init__(service, name, description, handler, timeout, layers, **kwargs)
-        self.trigger(HTTPEvent(path, method, authorizer, request_parameters_querystrings))
+
+        if isinstance(path, str):
+            path = [path]
+        if isinstance(method, str):
+            method = [method]
+
+        # Set up an HTTP event on all combinations of path and method
+        for p, m in itertools.product(path, method):
+            self.trigger(HTTPEvent(p, m, authorizer, request_parameters_querystrings))
