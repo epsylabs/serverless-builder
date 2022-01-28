@@ -68,7 +68,7 @@ event_bridge_function = service.builder.function.event_bridge(
     {"source": ["saas.external"]},
 )
 
-event_bridge_function.use_delivery_dql(RetryPolicy(5, 300))
+event_bridge_function.use_delivery_dlq(RetryPolicy(5, 300))
 event_bridge_function.use_async_dlq()
 
 service.resources.add(table)
