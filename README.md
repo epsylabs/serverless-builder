@@ -61,6 +61,10 @@ service.provider.iam.apply(DynamoDBReader(table))
 service.builder.function.generic("test", "description")
 service.builder.function.http("test", "description", "/", HTTPFunction.POST)
 
+# Multiple events with different paths and/or methods can be set up for the same handler:
+service.builder.function.http("test", "description", ["/", "/alias"], ["POST", "PUT"], handler="shared.handler")
+# This will add the same handler to all of these: POST /, POST /alias, PUT /, PUT /alias
+
 event_bridge_function = service.builder.function.event_bridge(
     "event_bridge_function",
     "sample event bridge function",
