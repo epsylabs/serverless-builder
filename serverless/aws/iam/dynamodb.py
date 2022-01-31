@@ -8,7 +8,7 @@ class DynamoDBReader(IAMPreset):
 
     def apply(self, service, sid=None):
         if not sid:
-            sid = self.resource.name
+            sid = self.resource.name+"Reader"
         service.provider.iam.allow(
             sid,
             [
@@ -20,5 +20,17 @@ class DynamoDBReader(IAMPreset):
 
 
 class DynamoDBWriter(IAMPreset):
-    def apply(self, service):
-        pass
+    def apply(self, service, sid=None):
+        if not sid:
+            sid = self.resource.name+"Writer"
+        service.provider.iam.allow(
+            sid,
+            [
+                "dynamodb:BatchWriteItem",
+                "dynamodb:CreateTable",
+                "dynamodb:DeleteItem",
+                "dynamodb:UpdateItem",
+                "dynamodb:PutItem"
+            ],
+            [self.resource.get_att("Arn").to_dict()],
+        )
