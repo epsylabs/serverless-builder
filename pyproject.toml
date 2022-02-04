@@ -2,12 +2,12 @@
 name = "serverless-builder"
 version = "1.0.0"
 description = "Python interface to easily generate `serverless.yml`."
-keywords = ["library"]
+keywords = ["library", "serverless"]
 authors = ["Epsy <engineering@epsyhealth.com>"]
 license = "MIT"
 readme = "README.md"
-homepage = "https://github.com/epsyhealth/serverless-builder"
-repository = "https://github.com/epsyhealth/serverless-builder"
+homepage = "https://github.com/epsylabs/serverless-builder"
+repository = "https://github.com/epsylabs/serverless-builder"
 classifiers = [
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
