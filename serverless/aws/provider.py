@@ -75,6 +75,16 @@ class FunctionBuilder:
 
         return fn
 
+    def http_patch(
+            self, name, description, path, authorizer=None, handler=None, timeout=None, layers=None, **kwargs
+    ) -> HTTPFunction:
+        fn = HTTPFunction(
+            self.service, name, description, path, HTTPFunction.PATCH, authorizer, handler, timeout, layers, **kwargs
+        )
+        self.service.functions.add(fn)
+
+        return fn
+
     def http_delete(
         self, name, description, path, authorizer=None, handler=None, timeout=None, layers=None, **kwargs
     ) -> HTTPFunction:
