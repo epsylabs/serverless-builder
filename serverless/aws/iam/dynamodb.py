@@ -9,7 +9,7 @@ class DynamoDBReader(IAMPreset):
 
     def apply(self, service, sid=None):
         if not sid:
-            sid = self.resource.name+"Reader"
+            sid = self.resource.name + "Reader"
         service.provider.iam.allow(
             sid,
             [
@@ -17,17 +17,14 @@ class DynamoDBReader(IAMPreset):
                 "dynamodb:Query",
                 "dynamodb:Scan",
             ],
-            [
-                self.resource.get_att("Arn"),
-                Join(delimiter="", values=[self.resource.get_att("Arn"), "/index/*"])
-            ],
+            [self.resource.get_att("Arn"), Join(delimiter="", values=[self.resource.get_att("Arn"), "/index/*"])],
         )
 
 
 class DynamoDBWriter(IAMPreset):
     def apply(self, service, sid=None):
         if not sid:
-            sid = self.resource.name+"Writer"
+            sid = self.resource.name + "Writer"
         service.provider.iam.allow(
             sid,
             [
@@ -35,7 +32,7 @@ class DynamoDBWriter(IAMPreset):
                 "dynamodb:CreateTable",
                 "dynamodb:DeleteItem",
                 "dynamodb:UpdateItem",
-                "dynamodb:PutItem"
+                "dynamodb:PutItem",
             ],
             [self.resource.get_att("Arn").to_dict()],
         )
