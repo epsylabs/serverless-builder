@@ -5,6 +5,7 @@ from pathlib import Path
 import yaml
 
 from serverless.service.configuration import Configuration
+from serverless.service.custom import Custom
 from serverless.service.functions import FunctionManager
 from serverless.service.package import Package
 from serverless.service.plugins import PluginsManager
@@ -39,13 +40,15 @@ class PreSetAttributesBuilder(Builder):
 class Service(OrderedDict, yaml.YAMLObject):
     yaml_tag = "!Service"
 
-    def __init__(self, name: str, description: str, provider: Provider, config=None, /, **kwds):
+    def __init__(self, name: str, description: str, provider: Provider, config=None, custom: Custom = None, /, **kwds):
         super().__init__(**kwds)
 
         self.service = Identifier(name)
         self.package = Package(["!./**/**", f"{self.service.snake}/**"])
         self.variablesResolutionMode = 20210326
-        self.custom = YamlOrderedDict(vars="${file(./variables.yml):${sls:stage}}")
+        self.custom = YamlOrderedDict(
+            **dict(vars="${file(./variables.yml):${sls:stage}}", **custom.custom if custom else None)
+        )
 
         self.config = config if config else Configuration()
 
