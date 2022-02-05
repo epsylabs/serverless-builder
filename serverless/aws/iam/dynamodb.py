@@ -29,7 +29,6 @@ class DynamoDBWriter(IAMPreset):
             sid,
             [
                 "dynamodb:BatchWriteItem",
-                "dynamodb:CreateTable",
                 "dynamodb:DeleteItem",
                 "dynamodb:UpdateItem",
                 "dynamodb:PutItem",
