@@ -1,3 +1,4 @@
+from troposphere import Join
 from troposphere.dynamodb import Table
 
 from serverless.aws.iam import IAMPreset
@@ -16,7 +17,10 @@ class DynamoDBReader(IAMPreset):
                 "dynamodb:Query",
                 "dynamodb:Scan",
             ],
-            [self.resource.get_att("Arn").to_dict()],
+            [
+                self.resource.get_att("Arn"),
+                Join(delimiter="", values=[self.resource.get_att("Arn"), "/index/*"])
+            ],
         )
 
 
