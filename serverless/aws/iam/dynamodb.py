@@ -12,8 +12,9 @@ class DynamoDBReader(IAMPreset):
         service.provider.iam.allow(
             sid,
             [
-                "dynamodb:Query",
                 "dynamodb:GetItem",
+                "dynamodb:Query",
+                "dynamodb:Scan",
             ],
             [self.resource.get_att("Arn").to_dict()],
         )
