@@ -171,9 +171,8 @@ class Provider(BaseProvider, yaml.YAMLObject):
 
     def configure(self, service):
         self._service = service
-        self.deploymentBucket = dict(
-            name=f'sls-deployments.${{aws:region}}.${{sls:stage}}.${{self:custom.vars.domain, "app"}}'
-        )
+        if service.config.domain:
+            self.deploymentBucket = dict(name=f"sls-deployments.${{aws:region}}.${{sls:stage}}.{service.config.domain}")
         self.tags["SERVICE"] = "${self:service}"
         self.iam = IAMManager(self._service)
         self.function_builder = FunctionBuilder(self._service)
@@ -182,5 +181,7 @@ class Provider(BaseProvider, yaml.YAMLObject):
     def to_yaml(cls, dumper, data):
         data.pop("_service", None)
         data.pop("function_builder", None)
+        if not data["deploymentBucket"]:
+            data.pop("deploymentBucket", None)
 
         return dumper.represent_dict(data)
