@@ -35,6 +35,7 @@ class HTTPFunction(Function):
     POST = "POST"
     GET = "GET"
     PUT = "PUT"
+    PATCH = "PATCH"
     DELETE = "DELETE"
     OPTIONS = "OPTIONS"
     ANY = "ANY"
