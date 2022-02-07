@@ -17,7 +17,7 @@ class DynamoDBReader(IAMPreset):
                 "dynamodb:Query",
                 "dynamodb:Scan",
             ],
-            [self.resource.get_att("Arn"), Join(delimiter="", values=[self.resource.get_att("Arn"), "/index/*"])],
+            [self.resource.get_att("Arn").to_dict(), Join(delimiter="", values=[self.resource.get_att("Arn").to_dict(), "/index/*"]).to_dict()],
         )
 
 
