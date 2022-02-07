@@ -44,7 +44,6 @@ class Service(OrderedDict, yaml.YAMLObject):
         self, name: str, description: str, provider: Provider, config=None, custom: Union[dict, None] = None, /, **kwds
     ):
         super().__init__(**kwds)
-        custom = custom if custom else {}
 
         self.service = Identifier(name)
         self.package = Package(["!./**/**", f"{self.service.snake}/**"])
