@@ -45,7 +45,6 @@ class Function(YamlOrderedDict):
     def use_async_dlq(self, onErrorDLQArn=None):
         if not onErrorDLQArn:
             name = f"{self.name.spinal}-dlq"
-            print(f"Name: {name}")
             queue = Queue(QueueName=f"{self.name.spinal}-dlq", title=f"{self.name.pascal}DLQ")
             self._service.resources.add(queue)
             onErrorDLQArn = SQSArn(name)
