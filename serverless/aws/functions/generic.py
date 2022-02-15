@@ -42,7 +42,16 @@ class Function(YamlOrderedDict):
             for k, v in kwargs.items():
                 event[k] = v
 
-    def use_async_dlq(self, onFailuredlqArn=None, maximumEventAge=3600, maximumRetryAttempts=3):
+    def use_async_dlq(self, onErrorDLQArn=None):
+        if not onErrorDLQArn:
+            name = f"{self.name.spinal}-dlq"
+            queue = Queue(QueueName=f"{self.name.spinal}-dlq", title=f"{self.name.pascal}DLQ")
+            self._service.resources.add(queue)
+            onErrorDLQArn = SQSArn(name)
+
+        self.onError=onErrorDLQArn
+
+    def use_destination_dlq(self, onFailuredlqArn=None):
         if not onFailuredlqArn:
             name = f"{self.name.spinal}-dlq"
             queue = Queue(QueueName=f"{self.name.spinal}-dlq", title=f"{self.name.pascal}DLQ")
