@@ -1,5 +1,6 @@
 import stringcase
 from troposphere.sqs import Queue
+from typing import Optional
 
 from serverless.aws.types import SQSArn
 from serverless.service.types import Identifier, YamlOrderedDict
@@ -42,19 +43,37 @@ class Function(YamlOrderedDict):
             for k, v in kwargs.items():
                 event[k] = v
 
-    def use_async_dlq(self, onErrorDLQArn=None):
+    def use_async_dlq(self, onErrorDLQArn: Optional[str] = None, MessageRetentionPeriod: int = 1209600) -> None:
+        """
+        @param onErrorDLQArn: Optional[str]
+        @param MessageRetentionPeriod: integer – defaults to 14 days in seconds
+        @return None
+        """
         if not onErrorDLQArn:
             name = f"{self.name.spinal}-dlq"
-            queue = Queue(QueueName=f"{self.name.spinal}-dlq", title=f"{self.name.pascal}DLQ")
+            queue = Queue(
+                QueueName=f"{self.name.spinal}-dlq",
+                title=f"{self.name.pascal}DLQ",
+                MessageRetentionPeriod=MessageRetentionPeriod,
+            )
             self._service.resources.add(queue)
             onErrorDLQArn = SQSArn(name)
 
-        self.onError=onErrorDLQArn
+        self.onError = onErrorDLQArn
 
-    def use_destination_dlq(self, onFailuredlqArn=None):
+    def use_destination_dlq(self, onFailuredlqArn: Optional[str] = None, MessageRetentionPeriod: int = 1209600) -> None:
+        """
+        @param onFailuredlqArn: Optional[str]
+        @param MessageRetentionPeriod: integer – defaults to 14 days in seconds
+        @return None
+        """
         if not onFailuredlqArn:
             name = f"{self.name.spinal}-dlq"
-            queue = Queue(QueueName=f"{self.name.spinal}-dlq", title=f"{self.name.pascal}DLQ")
+            queue = Queue(
+                QueueName=f"{self.name.spinal}-dlq",
+                title=f"{self.name.pascal}DLQ",
+                MessageRetentionPeriod=MessageRetentionPeriod,
+            )
             self._service.resources.add(queue)
             onFailuredlqArn = SQSArn(name)
 
