@@ -57,7 +57,13 @@ class Function(YamlOrderedDict):
                 MessageRetentionPeriod=MessageRetentionPeriod,
             )
             self._service.resources.add(queue)
+
             onErrorDLQArn = SQSArn(name)
+            self._service.provider.iam.allow(
+                sid=f"{queue.title}Writer",
+                permissions=["sqs:GetQueueUrl", "sqs:SendMessageBatch", "sqs:SendMessage"],
+                resources=[onErrorDLQArn],
+            )
 
         self.onError = onErrorDLQArn
 
