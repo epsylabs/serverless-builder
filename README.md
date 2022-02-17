@@ -1,25 +1,29 @@
-# serverless-builder
+<h2 align="center">serverless-builder</h2>
+<p align="center">
+<a href="https://pypi.org/project/serverless-builder/"><img alt="PyPI" src="https://img.shields.io/pypi/v/serverless-builder"></a>
+<a href="https://pypi.org/project/serverless-builder/"><img alt="Python" src="https://img.shields.io/pypi/pyversions/serverless-builder.svg"></a>
+<a href="https://github.com/epsylabs/serverless-builder/blob/master/LICENSE"><img alt="License" src="https://img.shields.io/pypi/l/lucyna.svg"></a>
+</p>
 
-Python interface to easily generate `serverless.yml`.
+Python interface to easily generate [serverless.yml](https://www.serverless.com/) file.
 
 Massive thanks goes to [@dxd1](https://github.com/dxd1) for his original idea and implementation.
 
 ## Why
-`serverless.yml` easily can become a massive file with hundreds of lines even if you have only a couple of services.
-Adding plugins, features, naming patterns etc. become more and more complicated and each change can be really painful
-due to multiple sections of the file which are affected.
+`serverless.yml` easily can become a massive file with hundreds of lines, even if you have only a couple of services.
+
+Modifying even semi advanced project can be difficult. Adding plugins and configuration for it, making sure your endless resources are configured correctly, making sure that you follow best practices.
+If you will multiple that by all microservices you have, it can be really painful.
 
 ## How
-serverless-builder is an object-oriented builder of the `serverless.yml` file with build in support for:
-
+`serverless-builder` comes and tries to help you with those tasks.
 - plugin management (with autoconfiguration)
 - function factory (with some best practice hints (DLQ))
 - autoconfiguration of some provider specific features like AWS X-Ray
 - monitoring support (wip)
-- easy resource manipulation with troposphere lib https://github.com/cloudtools/troposphere
+- easy resource manipulation with troposphere lib https://github.com/cloudtools/troposphere (but if you want you can use old good dict)
 - easier IAM management with predefined permission sets
 - built-in support for any serverless attributes
-
 
 # Example
 
