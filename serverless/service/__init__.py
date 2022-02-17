@@ -1,7 +1,7 @@
 import io
 from collections import OrderedDict
 from pathlib import Path
-from typing import Union
+from typing import Optional, Union
 
 import yaml
 
@@ -41,7 +41,14 @@ class Service(OrderedDict, yaml.YAMLObject):
     yaml_tag = "!Service"
 
     def __init__(
-        self, name: str, description: str, provider: Provider, config=None, custom: Union[dict, None] = None, /, **kwds
+        self,
+        name: str,
+        description: str,
+        provider: Provider,
+        config: Optional[Configuration] = None,
+        custom: Optional[dict] = None,
+        /,
+        **kwds,
     ):
         super().__init__(**kwds)
 

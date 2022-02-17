@@ -15,8 +15,12 @@ class Function(YamlOrderedDict):
         self._service = service
 
         self.key = stringcase.pascalcase(stringcase.snakecase(name).lower())
-        self.name = force_name if force_name else Identifier(
-            self._service.service.spinal.lower() + "-${sls:stage}" + "-" + stringcase.spinalcase(name).lower()
+        self.name = (
+            force_name
+            if force_name
+            else Identifier(
+                self._service.service.spinal.lower() + "-${sls:stage}" + "-" + stringcase.spinalcase(name).lower()
+            )
         )
         self.description = description
 
