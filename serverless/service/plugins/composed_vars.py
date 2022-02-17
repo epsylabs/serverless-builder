@@ -2,7 +2,6 @@ from serverless.service.plugins.generic import Generic
 
 
 class ComposedVars(Generic):
-
     yaml_tag = u"!ComposedVarsPlugin"
 
     def __init__(self):
