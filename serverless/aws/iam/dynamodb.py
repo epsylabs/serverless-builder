@@ -17,7 +17,10 @@ class DynamoDBReader(IAMPreset):
                 "dynamodb:Query",
                 "dynamodb:Scan",
             ],
-            [self.resource.get_att("Arn").to_dict(), Join(delimiter="", values=[self.resource.get_att("Arn").to_dict(), "/index/*"]).to_dict()],
+            [
+                self.resource.get_att("Arn").to_dict(),
+                Join(delimiter="", values=[self.resource.get_att("Arn").to_dict(), "/index/*"]).to_dict(),
+            ],
         )
 
 
@@ -28,6 +31,25 @@ class DynamoDBWriter(IAMPreset):
         service.provider.iam.allow(
             sid,
             [
+                "dynamodb:BatchWriteItem",
+                "dynamodb:DeleteItem",
+                "dynamodb:UpdateItem",
+                "dynamodb:PutItem",
+            ],
+            [self.resource.get_att("Arn").to_dict()],
+        )
+
+
+class DynamoDBFulAccess(IAMPreset):
+    def apply(self, service, sid=None):
+        if not sid:
+            sid = self.resource.name + "FullAccess"
+        service.provider.iam.allow(
+            sid,
+            [
+                "dynamodb:GetItem",
+                "dynamodb:Query",
+                "dynamodb:Scan",
                 "dynamodb:BatchWriteItem",
                 "dynamodb:DeleteItem",
                 "dynamodb:UpdateItem",
