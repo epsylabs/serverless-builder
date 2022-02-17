@@ -13,13 +13,11 @@ class Function(YamlOrderedDict):
     def __init__(self, service, name, description, handler=None, timeout=None, layers=None, force_name=None, **kwargs):
         super().__init__()
         self._service = service
+
         self.key = stringcase.pascalcase(stringcase.snakecase(name).lower())
-        if force_name:
-            self.name = force_name
-        else:
-            self.name = Identifier(
-                self._service.service.spinal.lower() + "-${sls:stage}" + "-" + stringcase.spinalcase(name).lower()
-            )
+        self.name = force_name if force_name else Identifier(
+            self._service.service.spinal.lower() + "-${sls:stage}" + "-" + stringcase.spinalcase(name).lower()
+        )
         self.description = description
 
         if not handler:
