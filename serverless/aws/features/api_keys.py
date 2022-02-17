@@ -4,7 +4,7 @@ from serverless.service.types import Feature
 class ApiKey:
     def __init__(self, name=None, value=None, description=None):
         if not any([name, value]):
-            KeyError("You need to provide either name or value for key")
+            raise KeyError("You need to provide either name or value for key")
 
         self.name = name
         self.value = value
