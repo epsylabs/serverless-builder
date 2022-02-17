@@ -43,7 +43,7 @@ class DynamoDBWriter(IAMPreset):
 class DynamoDBFulAccess(IAMPreset):
     def apply(self, service, sid=None):
         if not sid:
-            sid = self.resource.name + "Writer"
+            sid = self.resource.name + "FullAccess"
         service.provider.iam.allow(
             sid,
             [
