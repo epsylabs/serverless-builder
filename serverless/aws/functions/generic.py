@@ -1,6 +1,7 @@
+from typing import Optional
+
 import stringcase
 from troposphere.sqs import Queue
-from typing import Optional
 
 from serverless.aws.types import SQSArn
 from serverless.service.types import Identifier, YamlOrderedDict
