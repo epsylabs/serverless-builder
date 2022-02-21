@@ -40,7 +40,7 @@ class DynamoDBWriter(IAMPreset):
         )
 
 
-class DynamoDBFulAccess(IAMPreset):
+class DynamoDBFullAccess(IAMPreset):
     def apply(self, service, sid=None):
         if not sid:
             sid = self.resource.name + "FullAccess"
