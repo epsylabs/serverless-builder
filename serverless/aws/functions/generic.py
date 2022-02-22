@@ -70,8 +70,7 @@ class Function(YamlOrderedDict):
                 permissions=["sqs:GetQueueUrl", "sqs:SendMessageBatch", "sqs:SendMessage"],
                 resources=[onErrorDLQArn],
             )
-
-        self.onError = onErrorDLQArn
+        self.onError = {"Fn::Sub": onErrorDLQArn}
 
     def use_destination_dlq(self, onFailuredlqArn: Optional[str] = None, MessageRetentionPeriod: int = 1209600) -> None:
         """
