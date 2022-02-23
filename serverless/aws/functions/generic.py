@@ -1,26 +1,25 @@
 from typing import Optional
 
 import stringcase
-from troposphere.sqs import Queue
-
-from serverless.aws.types import SQSArn
-from serverless.service.environment import Environment
-from serverless.service.types import Identifier, YamlOrderedDict
-from serverless.aws.iam.dynamodb import DynamoDBReader
 from troposphere.dynamodb import (
     AttributeDefinition,
     KeySchema,
     Table,
-    GlobalSecondaryIndex,
-    Projection,
     TimeToLiveSpecification,
 )
+from troposphere.sqs import Queue
+
+from serverless.aws.iam.dynamodb import DynamoDBFullAccess
+from serverless.aws.types import SQSArn
+from serverless.service.environment import Environment
+from serverless.service.plugins.python_requirements import PythonRequirements
+from serverless.service.types import Identifier, YamlOrderedDict
 
 
 class Function(YamlOrderedDict):
     yaml_tag = "!Function"
 
-    def __init__(self, service, name, description, handler=None, timeout=None, layers=None, force_name=None, **kwargs):
+    def __init__(self, service, name, description, handler=None, timeout=None, layers=None, force_name=None, idempotency=None, **kwargs):
         super().__init__()
         self._service = service
 
@@ -40,11 +39,21 @@ class Function(YamlOrderedDict):
         self.handler = handler
         self.events = []
 
+        configured = list(filter(lambda x: x.get("Ref") == "PythonRequirementsLambdaLayer", layers or []))
+        if self._service.plugins.get(PythonRequirements) and not configured:
+            if not layers:
+                layers = []
+
+            layers.append({"Ref": "PythonRequirementsLambdaLayer"})
+
         if layers:
             self.layers = layers
 
         if timeout:
             self.timeout = timeout
+
+        if idempotency:
+            self.with_idempotency(idempotency)
 
         for name, value in kwargs.items():
             setattr(self, name, value)
@@ -82,6 +91,8 @@ class Function(YamlOrderedDict):
             )
         self.onError = {"Fn::Sub": onErrorDLQArn}
 
+        return self
+
     def use_destination_dlq(self, onFailuredlqArn: Optional[str] = None, MessageRetentionPeriod: int = 1209600) -> None:
         """
         @param onFailuredlqArn: Optional[str]
@@ -100,6 +111,16 @@ class Function(YamlOrderedDict):
 
         self.destinations = dict(onFailure=onFailuredlqArn)
 
+        return self
+
+    def with_vpc(self, security_group_names=None, subnet_names=None):
+        if security_group_names:
+            self.vpcDiscovery = dict(
+                securityGroups=[dict(tagKey="Name", tagValues=security_group_names.copy())]
+            )
+
+        return self
+
     def with_idempotency(self, table_name=None):
         table_name = table_name or f"{self.name.pascal}Idempotency"
         idempotency_table = Table(
@@ -115,9 +136,12 @@ class Function(YamlOrderedDict):
             ],
             TimeToLiveSpecification=TimeToLiveSpecification(AttributeName="expiration", Enabled=True),
         )
-        self.provider.iam.apply(DynamoDBFullAccess(idempotency_table))
-        self.resources.add(idempotency_table)
-        self.get("environment", Environment()).envs["IDEMPOTENCY_TABLE"] = idempotency_table.Ref().to_dict()
+        self._service.provider.iam.apply(DynamoDBFullAccess(idempotency_table))
+        self._service.resources.add(idempotency_table)
+        self.environment = dict(IDEMPOTENCY_TABLE= idempotency_table.Ref().to_dict())
+        # self.environment = self.get("environment", Environment())["IDEMPOTENCY_TABLE"] = idempotency_table.Ref().to_dict()
+
+        return self
 
     @classmethod
     def to_yaml(cls, dumper, data):
