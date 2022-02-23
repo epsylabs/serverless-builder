@@ -15,6 +15,11 @@ class PluginsManager(yaml.YAMLObject):
         plugin.enable(self._service)
         self._plugins.append(plugin)
 
+    def get(self, plugin):
+        for p in self._plugins:
+            if isinstance(p, plugin):
+                return p
+
     def all(self):
         return self._plugins
 

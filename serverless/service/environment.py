@@ -4,7 +4,7 @@ from serverless.service.types import YamlOrderedDict
 class Environment(YamlOrderedDict):
     yaml_tag = "Environment"
 
-    def __init__(self, envs=None):
+    def __init__(self, **envs):
         super().__init__()
         self.envs = envs or {}
 
