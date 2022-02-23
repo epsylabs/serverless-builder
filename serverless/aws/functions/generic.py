@@ -4,7 +4,17 @@ import stringcase
 from troposphere.sqs import Queue
 
 from serverless.aws.types import SQSArn
+from serverless.service.environment import Environment
 from serverless.service.types import Identifier, YamlOrderedDict
+from serverless.aws.iam.dynamodb import DynamoDBReader
+from troposphere.dynamodb import (
+    AttributeDefinition,
+    KeySchema,
+    Table,
+    GlobalSecondaryIndex,
+    Projection,
+    TimeToLiveSpecification,
+)
 
 
 class Function(YamlOrderedDict):
@@ -89,6 +99,25 @@ class Function(YamlOrderedDict):
             onFailuredlqArn = SQSArn(name)
 
         self.destinations = dict(onFailure=onFailuredlqArn)
+
+    def with_idempotency(self, table_name=None):
+        table_name = table_name or f"{self.name.pascal}Idempotency"
+        idempotency_table = Table(
+            title=table_name,
+            TableName=table_name,
+            # DeletionPolicy=Retain,  # temp
+            BillingMode="PAY_PER_REQUEST",
+            AttributeDefinitions=[
+                AttributeDefinition(AttributeName="id", AttributeType="S"),
+            ],
+            KeySchema=[
+                KeySchema(AttributeName="id", KeyType="HASH"),
+            ],
+            TimeToLiveSpecification=TimeToLiveSpecification(AttributeName="expiration", Enabled=True),
+        )
+        self.provider.iam.apply(DynamoDBFullAccess(idempotency_table))
+        self.resources.add(idempotency_table)
+        self.get("environment", Environment()).envs["IDEMPOTENCY_TABLE"] = idempotency_table.Ref().to_dict()
 
     @classmethod
     def to_yaml(cls, dumper, data):
