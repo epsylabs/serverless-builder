@@ -10,7 +10,7 @@ class VpcDiscovery(Generic):
     ```
     """
 
-    yaml_tag = u"!VpcDiscovery"
+    yaml_tag = "!VpcDiscovery"
 
     def __init__(self, vpc_name, subnet_names=None, subnets=None, security_group_names=None, security_groups=None):
         super().__init__("serverless-vpc-discovery")
