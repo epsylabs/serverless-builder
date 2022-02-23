@@ -1,5 +1,9 @@
+from typing import Union
+
 import yaml
 from troposphere import AWSObject
+
+from serverless.aws.resources import Resource
 
 
 class ResourceManager(yaml.YAMLObject):
@@ -11,9 +15,14 @@ class ResourceManager(yaml.YAMLObject):
         self._service = service
         self.resources = []
 
-    def add(self, resource: AWSObject):
-        # resource.validate()
-        self.resources.append(resource)
+    def add(self, resource: Union[AWSObject, Resource]):
+        if isinstance(resource, Resource):
+            self.add_all(resource.resources())
+
+            for preset in resource.permissions():
+                self._service.provider.iam.apply(preset)
+        else:
+            self.resources.append(resource)
 
     def add_all(self, resources):
         for resource in resources:
