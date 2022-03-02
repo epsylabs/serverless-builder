@@ -188,7 +188,7 @@ class Provider(BaseProvider, yaml.YAMLObject):
     def to_yaml(cls, dumper, data):
         data.pop("_service", None)
         data.pop("function_builder", None)
-        if not data["deploymentBucket"]:
+        if not data.get("deploymentBucket"):
             data.pop("deploymentBucket", None)
 
         return dumper.represent_dict(data)

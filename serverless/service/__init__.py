@@ -68,7 +68,7 @@ class Service(OrderedDict, yaml.YAMLObject):
         self.resources = ResourceManager(self, description)
 
         self.builder = Builder(self)
-        self.stepFunctions = StepFunctions()
+        self.stepFunctions = StepFunctions(self)
 
     def __setattr__(self, key, value):
         self[key] = value
