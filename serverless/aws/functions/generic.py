@@ -8,7 +8,6 @@ from troposphere.dynamodb import (
 )
 from troposphere.sqs import Queue
 
-from serverless.aws.iam.dynamodb import DynamoDBFullAccess
 from serverless.aws.resources.dynamodb import Table
 from serverless.aws.types import SQSArn
 from serverless.service.environment import Environment

@@ -123,8 +123,9 @@ class Definition(YamlOrderedDict):
 
     @classmethod
     def to_yaml(cls, dumper, data):
-        data["StartAt"] = list(data.States.keys())[0]
-        data.move_to_end("StartAt", last=False)
+        if data.States:
+            data["StartAt"] = list(data.States.keys())[0]
+            data.move_to_end("StartAt", last=False)
 
         fallback = None
         for step in data.States.values():
@@ -175,7 +176,7 @@ class StepFunctions(YamlOrderedDict):
         if name in self.stateMachines:
             return self.stateMachines.get(name)
 
-        machine = StateMachine(f"{self.service}-{name}", description)
+        machine = StateMachine(f"{self.service.service}-{name}", description)
         self.stateMachines[name] = machine
 
         return machine
