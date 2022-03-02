@@ -58,6 +58,15 @@ class Function(YamlOrderedDict):
         for name, value in kwargs.items():
             setattr(self, name, value)
 
+    def get_attr(self, attr):
+        return {"Fn::GetAtt": [self.resource_name(), attr]}
+
+    def arn(self):
+        return self.get_attr("Arn")
+
+    def resource_name(self):
+        return f"{self.key}LambdaFunction"
+
     def trigger(self, event):
         self.events.append(event)
 
