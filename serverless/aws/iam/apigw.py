@@ -16,5 +16,7 @@ class Execute(IAMPreset):
             arn = self.endpoint
 
         service.provider.iam.allow(
-            sid, ["execute-api:Invoke"], [arn],
+            sid,
+            ["execute-api:Invoke"],
+            [arn],
         )

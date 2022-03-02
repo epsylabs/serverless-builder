@@ -87,8 +87,9 @@ class Iterator(YamlOrderedDict):
 class Map(Stage):
     yaml_tag = "!Map"
 
-    def __init__(self, name, steps, items_path="$.items", input_path="$.body", result_path="$.results", concurrency=20,
-                 end=False):
+    def __init__(
+        self, name, steps, items_path="$.items", input_path="$.body", result_path="$.results", concurrency=20, end=False
+    ):
         super().__init__("Map")
         self.name = name
         self.InputPath = input_path
@@ -163,7 +164,7 @@ class StateMachine(YamlOrderedDict):
 
 
 class StepFunctions(YamlOrderedDict):
-    yaml_tag = '!StepFunctions'
+    yaml_tag = "!StepFunctions"
 
     def __init__(self):
         self.validate = True

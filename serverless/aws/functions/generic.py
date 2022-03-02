@@ -19,7 +19,18 @@ from serverless.service.types import Identifier, YamlOrderedDict
 class Function(YamlOrderedDict):
     yaml_tag = "!Function"
 
-    def __init__(self, service, name, description, handler=None, timeout=None, layers=None, force_name=None, idempotency=None, **kwargs):
+    def __init__(
+        self,
+        service,
+        name,
+        description,
+        handler=None,
+        timeout=None,
+        layers=None,
+        force_name=None,
+        idempotency=None,
+        **kwargs,
+    ):
         super().__init__()
         self._service = service
 
@@ -124,9 +135,7 @@ class Function(YamlOrderedDict):
 
     def with_vpc(self, security_group_names=None, subnet_names=None):
         if security_group_names:
-            self.vpcDiscovery = dict(
-                securityGroups=[dict(tagKey="Name", tagValues=security_group_names.copy())]
-            )
+            self.vpcDiscovery = dict(securityGroups=[dict(tagKey="Name", tagValues=security_group_names.copy())])
 
         return self
 
