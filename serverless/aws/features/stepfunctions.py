@@ -176,7 +176,7 @@ class StepFunctions(YamlOrderedDict):
         if name in self.stateMachines:
             return self.stateMachines.get(name)
 
-        machine = StateMachine(f"{self.service.service}-{name}", description)
+        machine = StateMachine(f"{self.service.service}-${{sls:stage}}-{name}", description)
         self.stateMachines[name] = machine
 
         return machine
