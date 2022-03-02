@@ -6,7 +6,12 @@ from serverless.aws.iam.dynamodb import DynamoDBFullAccess, DynamoDBReader, Dyna
 
 class Table(Resource):
     def __init__(self, TableName, **kwargs):
-        self.table = DynamoDBTable(title=TableName, TableName=TableName, **kwargs)
+        if "${sls:stage}" not in TableName:
+            TableName += "-${sls:stage}"
+
+        self.table = DynamoDBTable(
+            title=TableName.replace("${sls:stage}", "").strip("-"), TableName=TableName, **kwargs
+        )
         self.access = None
 
     def with_full_access(self):
@@ -23,6 +28,10 @@ class Table(Resource):
         self.access = DynamoDBWriter(self.table)
 
         return self
+
+    @property
+    def table_arn(self):
+        return self.table.Ref().to_dict()
 
     def resources(self):
         return [self.table]

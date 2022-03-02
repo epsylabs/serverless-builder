@@ -16,7 +16,7 @@ class DeploymentBucket(Generic):
     ```
     """
 
-    yaml_tag = u"!DeploymentBucketPlugin"
+    yaml_tag = "!DeploymentBucketPlugin"
 
     def __init__(
         self,

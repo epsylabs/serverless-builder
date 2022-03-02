@@ -2,7 +2,7 @@ from serverless.service.plugins.generic import Generic
 
 
 class Prune(Generic):
-    yaml_tag = u"!PrunePlugin"
+    yaml_tag = "!PrunePlugin"
 
     def __init__(self, automatic=True, number=3):
         super().__init__("serverless-prune-plugin")

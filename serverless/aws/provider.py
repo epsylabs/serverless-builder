@@ -157,7 +157,7 @@ class Provider(BaseProvider, yaml.YAMLObject):
     yaml_tag = "!Provider"
 
     def __init__(
-        self, runtime=Runtime.PYTHON_3_8, extra_tags=None, timeout=10, stage="${opt:stage}", environment=None, **kwargs
+        self, runtime=Runtime.PYTHON_3_8, extra_tags=None, timeout=10, stage="${sls:stage}", environment=None, **kwargs
     ):
         super().__init__(**kwargs)
         self.deploymentBucket = None
@@ -166,7 +166,7 @@ class Provider(BaseProvider, yaml.YAMLObject):
 
         self.name = "aws"
         self.runtime = runtime
-        self.stackName = "${self:service}"
+        self.stackName = "${self:service}-${sls:stage}"
         self.timeout = timeout
         self.stage = stage
         self.tags = extra_tags or {}
@@ -188,7 +188,7 @@ class Provider(BaseProvider, yaml.YAMLObject):
     def to_yaml(cls, dumper, data):
         data.pop("_service", None)
         data.pop("function_builder", None)
-        if not data["deploymentBucket"]:
+        if not data.get("deploymentBucket"):
             data.pop("deploymentBucket", None)
 
         return dumper.represent_dict(data)

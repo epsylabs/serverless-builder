@@ -4,12 +4,12 @@ import stringcase
 from troposphere.dynamodb import (
     AttributeDefinition,
     KeySchema,
-    Table,
     TimeToLiveSpecification,
 )
 from troposphere.sqs import Queue
 
 from serverless.aws.iam.dynamodb import DynamoDBFullAccess
+from serverless.aws.resources.dynamodb import Table
 from serverless.aws.types import SQSArn
 from serverless.service.environment import Environment
 from serverless.service.plugins.python_requirements import PythonRequirements
@@ -19,7 +19,18 @@ from serverless.service.types import Identifier, YamlOrderedDict
 class Function(YamlOrderedDict):
     yaml_tag = "!Function"
 
-    def __init__(self, service, name, description, handler=None, timeout=None, layers=None, force_name=None, idempotency=None, **kwargs):
+    def __init__(
+        self,
+        service,
+        name,
+        description,
+        handler=None,
+        timeout=None,
+        layers=None,
+        force_name=None,
+        idempotency=None,
+        **kwargs,
+    ):
         super().__init__()
         self._service = service
 
@@ -58,6 +69,15 @@ class Function(YamlOrderedDict):
         for name, value in kwargs.items():
             setattr(self, name, value)
 
+    def get_attr(self, attr):
+        return {"Fn::GetAtt": [self.resource_name(), attr]}
+
+    def arn(self):
+        return self.get_attr("Arn")
+
+    def resource_name(self):
+        return f"{self.key}LambdaFunction"
+
     def trigger(self, event):
         self.events.append(event)
 
@@ -87,7 +107,7 @@ class Function(YamlOrderedDict):
             self._service.provider.iam.allow(
                 sid=f"{queue.title}Writer",
                 permissions=["sqs:GetQueueUrl", "sqs:SendMessageBatch", "sqs:SendMessage"],
-                resources=[onErrorDLQArn],
+                resources=[str(onErrorDLQArn)],
             )
         self.onError = {"Fn::Sub": onErrorDLQArn}
 
@@ -115,16 +135,14 @@ class Function(YamlOrderedDict):
 
     def with_vpc(self, security_group_names=None, subnet_names=None):
         if security_group_names:
-            self.vpcDiscovery = dict(
-                securityGroups=[dict(tagKey="Name", tagValues=security_group_names.copy())]
-            )
+            self.vpcDiscovery = dict(securityGroups=[dict(tagKey="Name", tagValues=security_group_names.copy())])
 
         return self
 
     def with_idempotency(self, table_name=None):
         table_name = table_name or f"{self.name.pascal}Idempotency"
+
         idempotency_table = Table(
-            title=table_name,
             TableName=table_name,
             # DeletionPolicy=Retain,  # temp
             BillingMode="PAY_PER_REQUEST",
@@ -136,10 +154,11 @@ class Function(YamlOrderedDict):
             ],
             TimeToLiveSpecification=TimeToLiveSpecification(AttributeName="expiration", Enabled=True),
         )
-        self._service.provider.iam.apply(DynamoDBFullAccess(idempotency_table))
+        idempotency_table.with_full_access()
         self._service.resources.add(idempotency_table)
-        self.environment = dict(IDEMPOTENCY_TABLE= idempotency_table.Ref().to_dict())
-        # self.environment = self.get("environment", Environment())["IDEMPOTENCY_TABLE"] = idempotency_table.Ref().to_dict()
+        env = self.get("environment", Environment())
+        env.envs["IDEMPOTENCY_TABLE"] = idempotency_table.table_arn
+        self.environment = env
 
         return self
 
