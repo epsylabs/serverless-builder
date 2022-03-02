@@ -5,6 +5,7 @@ from typing import Optional, Union
 
 import yaml
 
+from serverless.aws.features.stepfunctions import StepFunctions
 from serverless.service.configuration import Configuration
 from serverless.service.functions import FunctionManager
 from serverless.service.package import Package
@@ -67,6 +68,7 @@ class Service(OrderedDict, yaml.YAMLObject):
         self.resources = ResourceManager(self, description)
 
         self.builder = Builder(self)
+        self.stepFunctions = StepFunctions()
 
     def __setattr__(self, key, value):
         self[key] = value
