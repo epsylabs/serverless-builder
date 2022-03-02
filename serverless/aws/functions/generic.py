@@ -15,20 +15,28 @@ from serverless.service.plugins.python_requirements import PythonRequirements
 from serverless.service.types import Identifier, YamlOrderedDict
 
 
+class ScheduleEvent(YamlOrderedDict):
+    yaml_tag = "schedule"
+
+    def __init__(self, expression):
+        super().__init__()
+        self.expression = expression
+
+
 class Function(YamlOrderedDict):
     yaml_tag = "!Function"
 
     def __init__(
-        self,
-        service,
-        name,
-        description,
-        handler=None,
-        timeout=None,
-        layers=None,
-        force_name=None,
-        idempotency=None,
-        **kwargs,
+            self,
+            service,
+            name,
+            description,
+            handler=None,
+            timeout=None,
+            layers=None,
+            force_name=None,
+            idempotency=None,
+            **kwargs,
     ):
         super().__init__()
         self._service = service
