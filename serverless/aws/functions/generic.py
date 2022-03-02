@@ -87,7 +87,7 @@ class Function(YamlOrderedDict):
             self._service.provider.iam.allow(
                 sid=f"{queue.title}Writer",
                 permissions=["sqs:GetQueueUrl", "sqs:SendMessageBatch", "sqs:SendMessage"],
-                resources=[onErrorDLQArn],
+                resources=[str(onErrorDLQArn)],
             )
         self.onError = {"Fn::Sub": onErrorDLQArn}
 
