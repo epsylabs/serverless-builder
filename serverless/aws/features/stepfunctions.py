@@ -166,7 +166,8 @@ class StateMachine(YamlOrderedDict):
 class StepFunctions(YamlOrderedDict):
     yaml_tag = "!StepFunctions"
 
-    def __init__(self):
+    def __init__(self, service):
+        self.service = service
         self.validate = True
         self.stateMachines = YamlOrderedDict()
 
@@ -174,10 +175,15 @@ class StepFunctions(YamlOrderedDict):
         if name in self.stateMachines:
             return self.stateMachines.get(name)
 
-        machine = StateMachine(name, description)
+        machine = StateMachine(f"{self.service}-{name}", description)
         self.stateMachines[name] = machine
 
         return machine
+
+    @classmethod
+    def to_yaml(cls, dumper, data):
+        data.pop("service", None)
+        return super().to_yaml(dumper, data)
 
 
 class Scheduled(YamlOrderedDict):
