@@ -127,4 +127,8 @@ class Service(OrderedDict, yaml.YAMLObject):
         data.pop("builder", None)
         data.pop("config", None)
         data.pop("function_builder", None)
+
+        if not data.stepFunctions.stateMachines:
+            data.pop("stepFunctions", None)
+
         return dumper.represent_dict(data)
