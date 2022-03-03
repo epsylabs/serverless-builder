@@ -20,7 +20,7 @@ class ScheduleEvent(YamlOrderedDict):
 
     def __init__(self, expression):
         super().__init__()
-        self.expression = expression
+        self.rate = expression
 
 
 class Function(YamlOrderedDict):
