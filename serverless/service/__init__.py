@@ -1,4 +1,5 @@
 import io
+import os
 from collections import OrderedDict
 from pathlib import Path
 from typing import Optional, Union
@@ -92,6 +93,9 @@ class Service(OrderedDict, yaml.YAMLObject):
         feature.enable(self)
 
     def render(self, output=None, auto_generated_warning=True):
+        if "SERVERLESS_BUILDER_DISABLE_RENDER" in os.environ:
+            return
+
         import __main__ as main
 
         output = output if output else open(Path(main.__file__).stem, "w+")
