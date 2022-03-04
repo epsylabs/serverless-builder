@@ -4,7 +4,7 @@ from serverless.aws.functions.event_bridge import EventBridgeFunction
 from serverless.aws.functions.generic import Function
 from serverless.aws.functions.http import HTTPFunction
 from serverless.aws.functions.s3 import S3Function
-from serverless.aws.iam import IAMManager
+from serverless.aws.iam import PolicyBuilder
 from serverless.service.environment import Environment
 from serverless.service.types import Provider as BaseProvider
 
@@ -181,7 +181,7 @@ class Provider(BaseProvider, yaml.YAMLObject):
         if service.config.domain:
             self.deploymentBucket = dict(name=f"sls-deployments.${{aws:region}}.${{sls:stage}}.{service.config.domain}")
         self.tags["SERVICE"] = "${self:service}"
-        self.iam = IAMManager(self._service)
+        self.iam = PolicyBuilder(self._service)
         self.function_builder = FunctionBuilder(self._service)
 
     @classmethod
