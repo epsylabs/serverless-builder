@@ -18,7 +18,7 @@ class DynamoDBReader(IAMPreset):
                 self.resource.get_att("Arn").to_dict(),
                 Join(delimiter="", values=[self.resource.get_att("Arn").to_dict(), "/index/*"]).to_dict(),
             ],
-            sid=sid or self.resource.name + "Reader"
+            sid=sid or self.resource.name + "Reader",
         )
 
 
@@ -32,7 +32,7 @@ class DynamoDBWriter(IAMPreset):
                 "dynamodb:PutItem",
             ],
             resources=[self.resource.get_att("Arn").to_dict()],
-            sid=sid or self.resource.name + "Writer"
+            sid=sid or self.resource.name + "Writer",
         )
 
 

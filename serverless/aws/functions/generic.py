@@ -29,16 +29,16 @@ class Function(YamlOrderedDict):
     yaml_tag = "!Function"
 
     def __init__(
-            self,
-            service,
-            name,
-            description,
-            handler=None,
-            timeout=None,
-            layers=None,
-            force_name=None,
-            idempotency=None,
-            **kwargs
+        self,
+        service,
+        name,
+        description,
+        handler=None,
+        timeout=None,
+        layers=None,
+        force_name=None,
+        idempotency=None,
+        **kwargs,
     ):
         super().__init__()
         self._service = service

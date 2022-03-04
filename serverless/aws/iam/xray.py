@@ -15,5 +15,5 @@ class XRayService(IAMPreset):
                 "xray:GetSamplingTargets",
                 "xray:GetSamplingStatisticSummaries",
             ],
-            resources=["*"]
+            resources=["*"],
         )

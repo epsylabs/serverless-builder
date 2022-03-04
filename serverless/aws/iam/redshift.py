@@ -14,9 +14,9 @@ class RedshiftConnect(IAMPreset):
             resources=[
                 "arn:aws:redshift:${aws:region}:${aws:accountId}:cluster:" + self.cluster,
                 "arn:aws:redshift:${aws:region}:${aws:accountId}:dbname:" + f"{self.cluster}/{self.db_name}",
-                "arn:aws:redshift:${aws:region}:${aws:accountId}:dbuser:" + f"{self.cluster}/{self.db_user}"
+                "arn:aws:redshift:${aws:region}:${aws:accountId}:dbuser:" + f"{self.cluster}/{self.db_user}",
             ],
-            sid=sid or "RedshiftConnection" + Identifier(self.cluster).pascal
+            sid=sid or "RedshiftConnection" + Identifier(self.cluster).pascal,
         )
 
 
@@ -31,8 +31,6 @@ class RedshiftQuery(RedshiftConnect):
                 "redshift-data:DescribeStatement",
                 "redshift-data:GetStatementResult",
             ],
-            resources=[
-                "*"
-            ],
-            sid=sid or "RedshiftQuery" + Identifier(self.cluster).pascal
+            resources=["*"],
+            sid=sid or "RedshiftQuery" + Identifier(self.cluster).pascal,
         )
