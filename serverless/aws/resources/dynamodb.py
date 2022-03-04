@@ -1,7 +1,7 @@
-from troposphere.dynamodb import Table as DynamoDBTable
+from troposphere.dynamodb import Table as DynamoDBTable, PointInTimeRecoverySpecification
 
-from . import Resource
 from serverless.aws.iam.dynamodb import DynamoDBFullAccess, DynamoDBReader, DynamoDBWriter
+from . import Resource
 
 
 class Table(Resource):
@@ -9,8 +9,13 @@ class Table(Resource):
         if "${sls:stage}" not in TableName:
             TableName += "-${sls:stage}"
 
+        kwargs.setdefault("PointInTimeRecoverySpecification", PointInTimeRecoverySpecification(PointInTimeRecoveryEnabled=True))
+        kwargs.setdefault("PointInTimeRecoverySpecification", PointInTimeRecoverySpecification(PointInTimeRecoveryEnabled=True))
+
         self.table = DynamoDBTable(
-            title=TableName.replace("${sls:stage}", "").strip("-"), TableName=TableName, **kwargs
+            title=TableName.replace("${sls:stage}", "").strip("-"),
+            TableName=TableName,
+            **kwargs
         )
         self.access = None
 
