@@ -8,9 +8,11 @@ from troposphere.dynamodb import (
 )
 from troposphere.sqs import Queue
 
+from serverless.aws.iam import PolicyBuilder
 from serverless.aws.resources.dynamodb import Table
 from serverless.aws.types import SQSArn
 from serverless.service.environment import Environment
+from serverless.service.plugins.iam_roles import IAMRoles
 from serverless.service.plugins.python_requirements import PythonRequirements
 from serverless.service.types import Identifier, YamlOrderedDict
 
@@ -36,6 +38,7 @@ class Function(YamlOrderedDict):
             layers=None,
             force_name=None,
             idempotency=None,
+            iam_inherit=True,
             **kwargs,
     ):
         super().__init__()
@@ -56,6 +59,8 @@ class Function(YamlOrderedDict):
 
         self.handler = handler
         self.events = []
+        self.iamRoleStatementsInherit = iam_inherit
+        self.iamRoleStatements = PolicyBuilder()
 
         configured = list(filter(lambda x: x.get("Ref") == "PythonRequirementsLambdaLayer", layers or []))
         if self._service.plugins.get(PythonRequirements) and not configured:
@@ -75,6 +80,13 @@ class Function(YamlOrderedDict):
 
         for name, value in kwargs.items():
             setattr(self, name, value)
+
+    @property
+    def iam(self):
+        if not self._service.plugins.get(IAMRoles):
+            self._service.plugins.add(IAMRoles())
+
+        return self.iamRoleStatements
 
     def get_attr(self, attr):
         return {"Fn::GetAtt": [self.resource_name(), attr]}
