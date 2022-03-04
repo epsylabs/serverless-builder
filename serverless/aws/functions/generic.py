@@ -38,8 +38,7 @@ class Function(YamlOrderedDict):
             layers=None,
             force_name=None,
             idempotency=None,
-            iam_inherit=True,
-            **kwargs,
+            **kwargs
     ):
         super().__init__()
         self._service = service
@@ -59,8 +58,9 @@ class Function(YamlOrderedDict):
 
         self.handler = handler
         self.events = []
-        self.iamRoleStatementsInherit = iam_inherit
-        self.iamRoleStatements = PolicyBuilder()
+
+        if self._service.plugins.get(IAMRoles):
+            self.iamRoleStatements = PolicyBuilder()
 
         configured = list(filter(lambda x: x.get("Ref") == "PythonRequirementsLambdaLayer", layers or []))
         if self._service.plugins.get(PythonRequirements) and not configured:
@@ -85,6 +85,7 @@ class Function(YamlOrderedDict):
     def iam(self):
         if not self._service.plugins.get(IAMRoles):
             self._service.plugins.add(IAMRoles())
+            self.iamRoleStatements = PolicyBuilder()
 
         return self.iamRoleStatements
 
