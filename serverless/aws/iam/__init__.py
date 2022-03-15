@@ -9,11 +9,9 @@ from serverless.service.types import YamlOrderedDict
 class PolicyBuilder(YamlOrderedDict):
     yaml_tag = "!IAM"
 
-    def __init__(self, service=None, function=None, other=(), /, **kwds):
-        super().__init__(other, **kwds)
+    def __init__(self, **kwds):
+        super().__init__(**kwds)
         self.statements = []
-        self._service = service
-        self._function = function
 
     def append(self, policy):
         self.statements.append(policy)
@@ -27,17 +25,40 @@ class PolicyBuilder(YamlOrderedDict):
         self.statements.append(dict(Sid=sid, Effect="Deny", Action=permissions, Resource=resources))
 
     def apply(self, preset: "IAMPreset"):
-        if self._service:
-            preset.apply(self._service.provider.iam)
-        else:
-            preset.apply(self)
+        preset.apply(self)
 
     @classmethod
     def to_yaml(cls, dumper, data):
-        if data._service:
-            return dumper.represent_dict(dict(role=dict(statements=data.statements)))
-        else:
-            return dumper.represent_list(data.statements)
+        return dumper.represent_list(data.statements)
+
+
+class ServicePolicyBuilder(PolicyBuilder):
+    yaml_tag = "!IAM"
+
+    @property
+    def role(self):
+        if self.name:
+            return self.name
+
+        return f"IamRoleLambdaExecution"
+
+    @classmethod
+    def to_yaml(cls, dumper, data):
+        export = dict(data.items())
+
+        return dumper.represent_dict(dict(role=export))
+
+
+class FunctionPolicyBuilder(PolicyBuilder):
+    yaml_tag = "!IAM"
+
+    def __init__(self, function_name, **kwds):
+        super().__init__(**kwds)
+        self.function_name = function_name
+
+    @property
+    def role(self):
+        return f"${{ self:service }}-${{ sls:stage }}-{self.function_name}-${{ aws:region }}-lambdaRole"
 
 
 class IAMPreset(ABC):

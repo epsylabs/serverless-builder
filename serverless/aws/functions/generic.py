@@ -8,7 +8,7 @@ from troposphere.dynamodb import (
 )
 from troposphere.sqs import Queue
 
-from serverless.aws.iam import PolicyBuilder
+from serverless.aws.iam import PolicyBuilder, FunctionPolicyBuilder
 from serverless.aws.resources.dynamodb import Table
 from serverless.aws.types import SQSArn
 from serverless.service.environment import Environment
@@ -85,7 +85,7 @@ class Function(YamlOrderedDict):
     def iam(self):
         if not self._service.plugins.get(IAMRoles):
             self._service.plugins.add(IAMRoles())
-            self.iamRoleStatements = PolicyBuilder()
+            self.iamRoleStatements = FunctionPolicyBuilder(self.name)
 
         return self.iamRoleStatements
 

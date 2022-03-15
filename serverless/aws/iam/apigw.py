@@ -1,3 +1,5 @@
+import re
+
 from serverless.aws.iam import IAMPreset, PolicyBuilder
 from serverless.service import Identifier
 
@@ -16,5 +18,5 @@ class Execute(IAMPreset):
         policy_builder.allow(
             permissions=["execute-api:Invoke"],
             resources=[arn],
-            sid=sid or "Invoke" + Identifier(self.endpoint).pascal,
+            sid=sid or "Invoke" + Identifier(re.sub(r"\W", "", self.endpoint)).pascal,
         )

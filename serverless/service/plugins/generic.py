@@ -11,6 +11,9 @@ class Generic(YamlOrderedDict):
     def enable(self, service):
         pass
 
+    def pre_render(self, service):
+        pass
+
     @classmethod
     def to_yaml(cls, dumper, data):
         return dumper.represent_str(data.name)
