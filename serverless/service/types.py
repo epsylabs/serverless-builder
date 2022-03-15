@@ -87,10 +87,16 @@ class Feature(abc.ABC):
     def enable(self, service):
         pass
 
+    def pre_render(self, service):
+        pass
+
 
 class Integration(abc.ABC):
     @abc.abstractmethod
     def enable(self, service):
+        pass
+
+    def pre_render(self, service):
         pass
 
 

@@ -1,13 +1,22 @@
-from troposphere.dynamodb import Table as DynamoDBTable
+from troposphere.dynamodb import Table as DynamoDBTable, PointInTimeRecoverySpecification, SSESpecification
 
-from . import Resource
 from serverless.aws.iam.dynamodb import DynamoDBFullAccess, DynamoDBReader, DynamoDBWriter
+from . import Resource
+from .kms import EncryptableResource
 
 
-class Table(Resource):
+class Table(Resource, EncryptableResource):
     def __init__(self, TableName, **kwargs):
         if "${sls:stage}" not in TableName:
             TableName += "-${sls:stage}"
+
+        kwargs.setdefault(
+            "PointInTimeRecoverySpecification", PointInTimeRecoverySpecification(PointInTimeRecoveryEnabled=True)
+        )
+        kwargs.setdefault(
+            "SSESpecification",
+            SSESpecification(KMSMasterKeyId=self.encryption_key(), SSEEnabled=True, SSEType="KMS"),
+        )
 
         self.table = DynamoDBTable(
             title=TableName.replace("${sls:stage}", "").strip("-"), TableName=TableName, **kwargs
@@ -37,4 +46,6 @@ class Table(Resource):
         return [self.table]
 
     def permissions(self):
-        return [self.access]
+        if self.access:
+            return [self.access]
+        return []

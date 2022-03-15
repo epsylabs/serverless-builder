@@ -70,6 +70,7 @@ class Service(OrderedDict, yaml.YAMLObject):
 
         self.builder = Builder(self)
         self.stepFunctions = StepFunctions(self)
+        self.features = []
 
     def __setattr__(self, key, value):
         self[key] = value
@@ -90,6 +91,7 @@ class Service(OrderedDict, yaml.YAMLObject):
         return self.builder
 
     def enable(self, feature):
+        self.features.append(feature)
         feature.enable(self)
 
     def render(self, output=None, auto_generated_warning=True):
@@ -109,7 +111,7 @@ class Service(OrderedDict, yaml.YAMLObject):
 
     def __str__(self):
         buf = io.StringIO()
-        yaml.dump(self, buf, sort_keys=False, indent=2)
+        yaml.dump(self, buf, sort_keys=False, indent=2,  width=1000)
         buf.seek(0)
         tmp_buf = io.StringIO()
 
@@ -130,5 +132,13 @@ class Service(OrderedDict, yaml.YAMLObject):
 
         if not data.stepFunctions.stateMachines:
             data.pop("stepFunctions", None)
+
+        for plugin in data.plugins.all():
+            plugin.pre_render(data)
+
+        for feature in data.features:
+            feature.pre_render(data)
+
+        data.pop("features", None)
 
         return dumper.represent_dict(data)

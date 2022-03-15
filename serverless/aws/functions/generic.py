@@ -6,11 +6,13 @@ from troposphere.dynamodb import (
     KeySchema,
     TimeToLiveSpecification,
 )
-from troposphere.sqs import Queue
-
+from serverless.aws.iam import PolicyBuilder, FunctionPolicyBuilder
+from serverless.aws.iam.dynamodb import DynamoDBFullAccess
 from serverless.aws.resources.dynamodb import Table
+from serverless.aws.resources.sqs import Queue
 from serverless.aws.types import SQSArn
 from serverless.service.environment import Environment
+from serverless.service.plugins.iam_roles import IAMRoles
 from serverless.service.plugins.python_requirements import PythonRequirements
 from serverless.service.types import Identifier, YamlOrderedDict
 
@@ -27,16 +29,16 @@ class Function(YamlOrderedDict):
     yaml_tag = "!Function"
 
     def __init__(
-            self,
-            service,
-            name,
-            description,
-            handler=None,
-            timeout=None,
-            layers=None,
-            force_name=None,
-            idempotency=None,
-            **kwargs,
+        self,
+        service,
+        name,
+        description,
+        handler=None,
+        timeout=None,
+        layers=None,
+        force_name=None,
+        idempotency=None,
+        **kwargs,
     ):
         super().__init__()
         self._service = service
@@ -57,6 +59,9 @@ class Function(YamlOrderedDict):
         self.handler = handler
         self.events = []
 
+        if self._service.plugins.get(IAMRoles):
+            self.iamRoleStatements = FunctionPolicyBuilder(self.name)
+
         configured = list(filter(lambda x: x.get("Ref") == "PythonRequirementsLambdaLayer", layers or []))
         if self._service.plugins.get(PythonRequirements) and not configured:
             if not layers:
@@ -75,6 +80,16 @@ class Function(YamlOrderedDict):
 
         for name, value in kwargs.items():
             setattr(self, name, value)
+
+    @property
+    def iam(self):
+        if not self._service.plugins.get(IAMRoles):
+            self._service.plugins.add(IAMRoles())
+
+        if not self.iamRoleStatements:
+            self.iamRoleStatements = FunctionPolicyBuilder(self.name)
+
+        return self.iamRoleStatements
 
     def get_attr(self, attr):
         return {"Fn::GetAtt": [self.resource_name(), attr]}
@@ -104,15 +119,15 @@ class Function(YamlOrderedDict):
         if not onErrorDLQArn:
             name = f"{self.name.spinal}-dlq"
             queue = Queue(
-                QueueName=f"{self.name.spinal}-dlq",
+                QueueName=name,
                 title=f"{self.name.pascal}DLQ",
                 MessageRetentionPeriod=MessageRetentionPeriod,
             )
             self._service.resources.add(queue)
 
             onErrorDLQArn = SQSArn(name)
-            self._service.provider.iam.allow(
-                sid=f"{queue.title}Writer",
+            self.iam.allow(
+                sid=f"{queue.queue.title}Writer",
                 permissions=["sqs:GetQueueUrl", "sqs:SendMessageBatch", "sqs:SendMessage"],
                 resources=[str(onErrorDLQArn)],
             )
@@ -151,7 +166,7 @@ class Function(YamlOrderedDict):
 
         idempotency_table = Table(
             TableName=table_name,
-            # DeletionPolicy=Retain,  # temp
+            DeletionPolicy="Retain",
             BillingMode="PAY_PER_REQUEST",
             AttributeDefinitions=[
                 AttributeDefinition(AttributeName="id", AttributeType="S"),
@@ -161,8 +176,8 @@ class Function(YamlOrderedDict):
             ],
             TimeToLiveSpecification=TimeToLiveSpecification(AttributeName="expiration", Enabled=True),
         )
-        idempotency_table.with_full_access()
         self._service.resources.add(idempotency_table)
+        self.iam.apply(DynamoDBFullAccess(idempotency_table.table))
         env = self.get("environment", Environment())
         env.envs["IDEMPOTENCY_TABLE"] = idempotency_table.table_arn
         self.environment = env

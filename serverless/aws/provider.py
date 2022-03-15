@@ -4,7 +4,7 @@ from serverless.aws.functions.event_bridge import EventBridgeFunction
 from serverless.aws.functions.generic import Function
 from serverless.aws.functions.http import HTTPFunction
 from serverless.aws.functions.s3 import S3Function
-from serverless.aws.iam import IAMManager
+from serverless.aws.iam import ServicePolicyBuilder
 from serverless.service.environment import Environment
 from serverless.service.types import Provider as BaseProvider
 
@@ -39,7 +39,7 @@ class FunctionBuilder:
         return fn
 
     def http(
-        self, name, description, path, method, authorizer=None, handler=None, timeout=None, layers=None, **kwargs
+            self, name, description, path, method, authorizer=None, handler=None, timeout=None, layers=None, **kwargs
     ) -> HTTPFunction:
         fn = HTTPFunction(self.service, name, description, path, method, authorizer, handler, timeout, layers, **kwargs)
         self.service.functions.add(fn)
@@ -47,7 +47,7 @@ class FunctionBuilder:
         return fn
 
     def http_post(
-        self, name, description, path, authorizer=None, handler=None, timeout=None, layers=None, **kwargs
+            self, name, description, path, authorizer=None, handler=None, timeout=None, layers=None, **kwargs
     ) -> HTTPFunction:
         fn = HTTPFunction(
             self.service, name, description, path, HTTPFunction.POST, authorizer, handler, timeout, layers, **kwargs
@@ -57,7 +57,7 @@ class FunctionBuilder:
         return fn
 
     def http_get(
-        self, name, description, path, authorizer=None, handler=None, timeout=None, layers=None, **kwargs
+            self, name, description, path, authorizer=None, handler=None, timeout=None, layers=None, **kwargs
     ) -> HTTPFunction:
         fn = HTTPFunction(
             self.service, name, description, path, HTTPFunction.GET, authorizer, handler, timeout, layers, **kwargs
@@ -67,7 +67,7 @@ class FunctionBuilder:
         return fn
 
     def http_put(
-        self, name, description, path, authorizer=None, handler=None, timeout=None, layers=None, **kwargs
+            self, name, description, path, authorizer=None, handler=None, timeout=None, layers=None, **kwargs
     ) -> HTTPFunction:
         fn = HTTPFunction(
             self.service, name, description, path, HTTPFunction.PUT, authorizer, handler, timeout, layers, **kwargs
@@ -77,7 +77,7 @@ class FunctionBuilder:
         return fn
 
     def http_patch(
-        self, name, description, path, authorizer=None, handler=None, timeout=None, layers=None, **kwargs
+            self, name, description, path, authorizer=None, handler=None, timeout=None, layers=None, **kwargs
     ) -> HTTPFunction:
         fn = HTTPFunction(
             self.service, name, description, path, HTTPFunction.PATCH, authorizer, handler, timeout, layers, **kwargs
@@ -87,7 +87,7 @@ class FunctionBuilder:
         return fn
 
     def http_delete(
-        self, name, description, path, authorizer=None, handler=None, timeout=None, layers=None, **kwargs
+            self, name, description, path, authorizer=None, handler=None, timeout=None, layers=None, **kwargs
     ) -> HTTPFunction:
         fn = HTTPFunction(
             self.service, name, description, path, HTTPFunction.DELETE, authorizer, handler, timeout, layers, **kwargs
@@ -97,7 +97,7 @@ class FunctionBuilder:
         return fn
 
     def http_options(
-        self, name, description, path, authorizer=None, handler=None, timeout=None, layers=None, **kwargs
+            self, name, description, path, authorizer=None, handler=None, timeout=None, layers=None, **kwargs
     ) -> HTTPFunction:
         fn = HTTPFunction(
             self.service, name, description, path, HTTPFunction.OPTIONS, authorizer, handler, timeout, layers, **kwargs
@@ -107,7 +107,7 @@ class FunctionBuilder:
         return fn
 
     def http_any(
-        self, name, description, path, authorizer=None, handler=None, timeout=None, layers=None, **kwargs
+            self, name, description, path, authorizer=None, handler=None, timeout=None, layers=None, **kwargs
     ) -> HTTPFunction:
         fn = HTTPFunction(
             self.service, name, description, path, HTTPFunction.ANY, authorizer, handler, timeout, layers, **kwargs
@@ -117,17 +117,17 @@ class FunctionBuilder:
         return fn
 
     def event_bridge(
-        self,
-        name,
-        description,
-        eventBus,
-        pattern=None,
-        deadLetterQueueArn=None,
-        retryPolicy=None,
-        handler=None,
-        timeout=None,
-        layers=None,
-        **kwargs,
+            self,
+            name,
+            description,
+            eventBus,
+            pattern=None,
+            deadLetterQueueArn=None,
+            retryPolicy=None,
+            handler=None,
+            timeout=None,
+            layers=None,
+            **kwargs,
     ) -> EventBridgeFunction:
         fn = EventBridgeFunction(
             self.service,
@@ -157,7 +157,8 @@ class Provider(BaseProvider, yaml.YAMLObject):
     yaml_tag = "!Provider"
 
     def __init__(
-        self, runtime=Runtime.PYTHON_3_8, extra_tags=None, timeout=10, stage="${sls:stage}", environment=None, **kwargs
+            self, runtime=Runtime.PYTHON_3_8, extra_tags=None, timeout=10, stage="${sls:stage}", environment=None,
+            **kwargs
     ):
         super().__init__(**kwargs)
         self.deploymentBucket = None
@@ -181,7 +182,7 @@ class Provider(BaseProvider, yaml.YAMLObject):
         if service.config.domain:
             self.deploymentBucket = dict(name=f"sls-deployments.${{aws:region}}.${{sls:stage}}.{service.config.domain}")
         self.tags["SERVICE"] = "${self:service}"
-        self.iam = IAMManager(self._service)
+        self.iam = ServicePolicyBuilder()
         self.function_builder = FunctionBuilder(self._service)
 
     @classmethod
