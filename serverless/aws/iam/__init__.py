@@ -27,6 +27,10 @@ class PolicyBuilder(YamlOrderedDict):
     def apply(self, preset: "IAMPreset"):
         preset.apply(self)
 
+    @property
+    def role_arn(self):
+        return "arn:aws:iam::${{ aws:accountId }}:role/" + self.role
+
     @classmethod
     def to_yaml(cls, dumper, data):
         return dumper.represent_list(data.statements)

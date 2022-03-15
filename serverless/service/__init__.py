@@ -111,7 +111,7 @@ class Service(OrderedDict, yaml.YAMLObject):
 
     def __str__(self):
         buf = io.StringIO()
-        yaml.dump(self, buf, sort_keys=False, indent=2)
+        yaml.dump(self, buf, sort_keys=False, indent=2,  width=1000)
         buf.seek(0)
         tmp_buf = io.StringIO()
 

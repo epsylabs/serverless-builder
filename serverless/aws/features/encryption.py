@@ -12,6 +12,7 @@ class Encryption(Feature):
             Description="Encryption Key for ${self:service}",
             Enabled=True,
             PendingWindowInDays=14,
+            EnableKeyRotation=True,
             KeyPolicy={
                 "Version": "2012-10-17",
                 "Statement": [{

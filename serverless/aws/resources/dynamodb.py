@@ -46,4 +46,6 @@ class Table(Resource, EncryptableResource):
         return [self.table]
 
     def permissions(self):
-        return [self.access]
+        if self.access:
+            return [self.access]
+        return []
