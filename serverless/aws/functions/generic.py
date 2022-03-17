@@ -13,8 +13,10 @@ from serverless.aws.resources.sqs import Queue
 from serverless.aws.types import SQSArn
 from serverless.service.environment import Environment
 from serverless.service.plugins.iam_roles import IAMRoles
+from serverless.service.plugins.lambda_dlq import LambdaDLQ
 from serverless.service.plugins.python_requirements import PythonRequirements
 from serverless.service.types import Identifier, YamlOrderedDict
+from troposphere.cloudwatch import Alarm, MetricDimension
 
 
 class ScheduleEvent(YamlOrderedDict):
@@ -110,50 +112,72 @@ class Function(YamlOrderedDict):
             for k, v in kwargs.items():
                 event[k] = v
 
-    def use_async_dlq(self, onErrorDLQArn: Optional[str] = None, MessageRetentionPeriod: int = 1209600) -> None:
+    def use_dlq(self, onErrorDLQArn: Optional[str] = None, MessageRetentionPeriod: int = 1209600) -> None:
         """
         @param onErrorDLQArn: Optional[str]
         @param MessageRetentionPeriod: integer – defaults to 14 days in seconds
         @return None
         """
-        if not onErrorDLQArn:
-            name = f"{self.name.spinal}-dlq"
-            queue = Queue(
-                QueueName=name,
-                title=f"{self.name.pascal}DLQ",
-                MessageRetentionPeriod=MessageRetentionPeriod,
-            )
-            self._service.resources.add(queue)
 
-            onErrorDLQArn = SQSArn(name)
+        if not self._service.plugins.has(LambdaDLQ):
+            self._service.plugins.add(LambdaDLQ())
+
+        if not onErrorDLQArn:
+            onErrorDLQArn = self._ensure_dql(MessageRetentionPeriod)
+
             self.iam.allow(
-                sid=f"{queue.queue.title}Writer",
+                sid=f"{self.name.pascal}DLQWriter",
                 permissions=["sqs:GetQueueUrl", "sqs:SendMessageBatch", "sqs:SendMessage"],
-                resources=[str(onErrorDLQArn)],
+                resources=[onErrorDLQArn.get("arn")],
             )
-        self.onError = {"Fn::Sub": onErrorDLQArn}
+
+        self.deadLetter = dict(
+            targetArn=dict(
+                GetResourceArn=self._ensure_dql(MessageRetentionPeriod).get("arn")
+            )
+        )
 
         return self
 
-    def use_destination_dlq(self, onFailuredlqArn: Optional[str] = None, MessageRetentionPeriod: int = 1209600) -> None:
+    def use_async_dlq(self, onFailuredlqArn: Optional[str] = None, MessageRetentionPeriod: int = 1209600) -> None:
         """
         @param onFailuredlqArn: Optional[str]
         @param MessageRetentionPeriod: integer – defaults to 14 days in seconds
         @return None
         """
         if not onFailuredlqArn:
-            name = f"{self.name.spinal}-dlq"
-            queue = Queue(
-                QueueName=f"{self.name.spinal}-dlq",
-                title=f"{self.name.pascal}DLQ",
-                MessageRetentionPeriod=MessageRetentionPeriod,
-            )
-            self._service.resources.add(queue)
-            onFailuredlqArn = SQSArn(name)
+            onFailuredlqArn = self._ensure_dql(MessageRetentionPeriod).get("arn")
 
         self.destinations = dict(onFailure=onFailuredlqArn)
 
         return self
+
+    def _ensure_dql(self, MessageRetentionPeriod):
+        name = f"{self.name.spinal}-dlq"
+        queue = Queue(
+            QueueName=name,
+            title=f"{self.name.pascal}DLQ",
+            MessageRetentionPeriod=MessageRetentionPeriod,
+        )
+        self._service.resources.add(queue)
+
+        self._service.resources.add(
+            Alarm(
+                f"{self.name.pascal}DLQAlarm",
+                AlarmDescription=f"Lambda: {self.name} rejected event in DLQ",
+                AlarmActions=["arn:aws:sns:${aws:region}:${aws:accountId}:foxglove-${sls:stage}-cloudwatch-alerts"],
+                Namespace="AWS/SQS",
+                MetricName="ApproximateNumberOfMessagesVisible",
+                Dimensions=[MetricDimension(Name="QueueName", Value=name)],
+                Statistic="Sum",
+                Period=60,
+                EvaluationPeriods=1,
+                Threshold=1,
+                ComparisonOperator="GreaterThanOrEqualToThreshold",
+            )
+        )
+
+        return {"Ref": f"{self.name.pascal}DLQ", "arn": SQSArn(name)}
 
     def with_vpc(self, security_group_names=None, subnet_names=None):
         if security_group_names:
