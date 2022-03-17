@@ -131,11 +131,7 @@ class Function(YamlOrderedDict):
                 resources=[onErrorDLQArn.get("arn")],
             )
 
-        self.deadLetter = dict(
-            targetArn=dict(
-                GetResourceArn=self._ensure_dql(MessageRetentionPeriod).get("arn")
-            )
-        )
+        self.deadLetter = dict(targetArn=dict(GetResourceArn=self._ensure_dql(MessageRetentionPeriod).get("arn")))
 
         return self
 
