@@ -178,8 +178,10 @@ class Provider(BaseProvider, yaml.YAMLObject):
 
     def configure(self, service):
         self._service = service
+
         if service.config.domain:
             self.deploymentBucket = dict(name=f"sls-deployments.${{aws:region}}.${{sls:stage}}.{service.config.domain}")
+
         self.tags["SERVICE"] = "${self:service}"
         self.iam = ServicePolicyBuilder()
         self.function_builder = FunctionBuilder(self._service)
