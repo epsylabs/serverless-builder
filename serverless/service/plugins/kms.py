@@ -16,10 +16,10 @@ class KMSGrant(Generic, EncryptableResource):
         if service.plugins.get(IAMRoles):
             for fn in service.functions.all():
                 service.custom["kmsGrants"].append(
-                    dict(kmsKeyId=self.encryption_key().to_dict(), lambdaRoleArn=fn.iam.role_arn)
+                    dict(kmsKeyId="arn:aws:kms:${aws:region}:${aws:accountId}:alias/${self:service}-${sls:stage}", roleArn=fn.iam.role_arn)
                 )
 
         else:
             service.custom["kmsGrants"].append(
-                dict(kmsKeyId=self.encryption_key().to_dict(), lambdaRoleArn=service.provider.iam.role_arn)
+                dict(kmsKeyId=self.encryption_key().to_dict(), roleArn=service.provider.iam.role_arn)
             )
