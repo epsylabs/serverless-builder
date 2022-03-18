@@ -7,11 +7,11 @@ from serverless.aws.resources.kms import EncryptableResource
 class Queue(Resource, EncryptableResource):
     def __init__(self, QueueName, **kwargs):
         if "${sls:stage}" not in QueueName:
-            QueueName += "-${sls:stage}"
+            QueueName += "${self:service}-${sls:stage}-" + QueueName
 
         kwargs.setdefault("KmsMasterKeyId", self.encryption_key())
 
-        self.queue = SQSQueue(**kwargs)
+        self.queue = SQSQueue(QueueName=QueueName, **kwargs)
 
     def resources(self):
         return [self.queue]
