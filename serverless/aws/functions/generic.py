@@ -63,7 +63,8 @@ class Function(YamlOrderedDict):
         self.events = []
 
         if self._service.plugins.get(IAMRoles):
-            self.iamRoleStatements = FunctionPolicyBuilder(self.name)
+            self.iamRoleStatements = FunctionPolicyBuilder(self.name, self._service)
+            self.iamRoleStatementsName = self.iamRoleStatements.role
 
         configured = list(filter(lambda x: x.get("Ref") == "PythonRequirementsLambdaLayer", layers or []))
         if self._service.plugins.get(PythonRequirements) and not configured:
@@ -90,7 +91,8 @@ class Function(YamlOrderedDict):
             self._service.plugins.add(IAMRoles())
 
         if not self.iamRoleStatements:
-            self.iamRoleStatements = FunctionPolicyBuilder(self.name)
+            self.iamRoleStatements = FunctionPolicyBuilder(self.name, self._service)
+            self.iamRoleStatementsName = self.iamRoleStatements.role
 
         return self.iamRoleStatements
 
@@ -132,7 +134,7 @@ class Function(YamlOrderedDict):
                 resources=[onErrorDLQArn.get("arn")],
             )
 
-        self.deadLetter = dict(targetArn=dict(GetResourceArn=self._ensure_dql(MessageRetentionPeriod).get("arn")))
+        self.deadLetter = dict(targetArn=self._ensure_dql(MessageRetentionPeriod).get("arn"))
 
         return self
 
