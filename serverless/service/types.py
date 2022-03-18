@@ -79,7 +79,7 @@ class ResourceName:
         if len(safe) > 64:
             parts = []
             for part in self.name.split("-"):
-                if "$" in part or part == 'lambda':
+                if "$" in part or part == "lambda":
                     parts.append(part)
                 else:
                     parts.append(part[0:3])
