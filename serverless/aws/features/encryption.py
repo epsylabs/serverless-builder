@@ -27,7 +27,7 @@ class Encryption(Feature):
             },
         )
 
-        self.alias = Alias("ServiceEncryptionKeyAlias", AliasName="alias/${self:service}", TargetKeyId=self.key.Ref())
+        self.alias = Alias("ServiceEncryptionKeyAlias", AliasName="alias/${self:service}-${sls:stage}", TargetKeyId=self.key.Ref())
 
     def enable(self, service):
         service.resources.add(self.key)
