@@ -49,7 +49,6 @@ class Service(OrderedDict, yaml.YAMLObject):
         provider: Provider,
         config: Optional[Configuration] = None,
         custom: Optional[dict] = None,
-        /,
         **kwds,
     ):
         super().__init__(**kwds)
@@ -58,8 +57,7 @@ class Service(OrderedDict, yaml.YAMLObject):
         self.package = Package(["!./**/**", f"{self.service.snake}/**"])
         self.variablesResolutionMode = 20210326
         self.custom = YamlOrderedDict(vars="${file(./variables.yml):${sls:stage}}", **(custom or {}))
-
-        self.config = config if config else Configuration()
+        self.config = config or Configuration()
 
         provider.configure(self)
         self.provider = provider
