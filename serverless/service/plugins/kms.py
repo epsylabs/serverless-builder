@@ -17,12 +17,12 @@ class KMSGrant(Generic, EncryptableResource):
             for fn in service.functions.all():
                 service.custom["kmsGrants"].append(
                     dict(
-                        kmsKeyId="arn:aws:kms:${aws:region}:${aws:accountId}:alias/${self:service}-${sls:stage}",
-                        roleArn=fn.iam.role_arn,
+                        kmsKeyId="alias/${self:service}-${sls:stage}",
+                        roleName=fn.iam.role,
                     )
                 )
 
         else:
             service.custom["kmsGrants"].append(
-                dict(kmsKeyId=self.encryption_key().to_dict(), roleArn=service.provider.iam.role_arn)
+                dict(kmsKeyId=self.encryption_key().to_dict(), roleName=service.provider.iam.role)
             )
