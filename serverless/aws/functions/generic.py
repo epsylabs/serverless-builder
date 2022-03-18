@@ -8,6 +8,7 @@ from troposphere.dynamodb import (
 )
 from serverless.aws.iam import PolicyBuilder, FunctionPolicyBuilder
 from serverless.aws.iam.dynamodb import DynamoDBFullAccess
+from serverless.aws.iam.sqs import SQSPublisher
 from serverless.aws.resources.dynamodb import Table
 from serverless.aws.resources.sqs import Queue
 from serverless.aws.types import SQSArn
@@ -143,6 +144,8 @@ class Function(YamlOrderedDict):
         """
         if not onFailuredlqArn:
             onFailuredlqArn = self._ensure_dql(MessageRetentionPeriod).get("arn")
+
+        self.iam.apply(SQSPublisher(onFailuredlqArn))
 
         self.destinations = dict(onFailure=onFailuredlqArn)
 
