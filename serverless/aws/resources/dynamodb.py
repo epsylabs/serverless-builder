@@ -18,6 +18,8 @@ class Table(Resource, EncryptableResource):
             SSESpecification(KMSMasterKeyId=self.encryption_key(), SSEEnabled=True, SSEType="KMS"),
         )
 
+        kwargs.setdefault("DeletionPolicy", "Retain")
+
         self.table = DynamoDBTable(
             title=TableName.replace("${sls:stage}", "").strip("-"), TableName=TableName, **kwargs
         )
