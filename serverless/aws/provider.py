@@ -170,6 +170,7 @@ class Provider(BaseProvider, yaml.YAMLObject):
         self.timeout = timeout
         self.stage = stage
         self.tags = extra_tags or {}
+        self.stackTags = {}
         self.lambdaHashingVersion = 20201221
         self.environment = environment or Environment()
         self.iam = None
@@ -183,6 +184,9 @@ class Provider(BaseProvider, yaml.YAMLObject):
             self.deploymentBucket = dict(name=f"sls-deployments.${{aws:region}}.${{sls:stage}}.{service.config.domain}")
 
         self.tags["SERVICE"] = "${self:service}"
+        self.tags["REGION"] = "${aws:region}"
+        self.tags["STAGE"] = "${sls:stage}"
+        self.stackTags = self.tags.copy()
         self.iam = ServicePolicyBuilder(self._service)
         self.function_builder = FunctionBuilder(self._service)
 
