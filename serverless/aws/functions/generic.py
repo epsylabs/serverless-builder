@@ -65,9 +65,14 @@ class Function(YamlOrderedDict):
         if self._service.plugins.get(IAMRoles):
             self.iamRoleStatements = FunctionPolicyBuilder(self.name, self._service)
             self.iamRoleStatementsName = self.iamRoleStatements.role
+            self.iamRoleStatementsInherit = True
 
         configured = list(filter(lambda x: x.get("Ref") == "PythonRequirementsLambdaLayer", layers or []))
-        if self._service.plugins.get(PythonRequirements) and not configured:
+        if (
+            self._service.plugins.get(PythonRequirements)
+            and self._service.plugins.get(PythonRequirements).layer
+            and not configured
+        ):
             if not layers:
                 layers = []
 
@@ -93,6 +98,7 @@ class Function(YamlOrderedDict):
         if not self.iamRoleStatements:
             self.iamRoleStatements = FunctionPolicyBuilder(self.name, self._service)
             self.iamRoleStatementsName = self.iamRoleStatements.role
+            self.iamRoleStatementsInherit = True
 
         return self.iamRoleStatements
 
