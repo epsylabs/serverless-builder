@@ -132,7 +132,7 @@ class Function(YamlOrderedDict):
             self._service.plugins.add(LambdaDLQ())
 
         if not onErrorDLQArn:
-            onErrorDLQArn = self._ensure_dql(MessageRetentionPeriod)
+            onErrorDLQArn = self._ensure_dlq(MessageRetentionPeriod)
 
             self.iam.allow(
                 sid=f"{self.name.pascal}DLQWriter",
@@ -140,7 +140,7 @@ class Function(YamlOrderedDict):
                 resources=[onErrorDLQArn.get("arn")],
             )
 
-        self.deadLetter = dict(targetArn=self._ensure_dql(MessageRetentionPeriod).get("arn"))
+        self.deadLetter = dict(targetArn=self._ensure_dlq(MessageRetentionPeriod).get("arn"))
 
         return self
 
@@ -151,7 +151,7 @@ class Function(YamlOrderedDict):
         @return None
         """
         if not onFailuredlqArn:
-            onFailuredlqArn = self._ensure_dql(MessageRetentionPeriod).get("arn")
+            onFailuredlqArn = self._ensure_dlq(MessageRetentionPeriod).get("arn")
 
         self.iam.apply(SQSPublisher(onFailuredlqArn))
 
@@ -159,7 +159,7 @@ class Function(YamlOrderedDict):
 
         return self
 
-    def _ensure_dql(self, MessageRetentionPeriod):
+    def _ensure_dlq(self, MessageRetentionPeriod):
         name = f"{self.name.spinal}-dlq"
         queue = Queue(
             QueueName=name,
