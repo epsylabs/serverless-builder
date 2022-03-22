@@ -4,3 +4,6 @@ class Resource:
 
     def permissions(self):
         return []
+
+    def variables(self):
+        return {}

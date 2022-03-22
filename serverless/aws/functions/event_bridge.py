@@ -47,16 +47,5 @@ class EventBridgeFunction(Function):
     ):
         super().__init__(service, name, description, handler, timeout, layers, **kwargs)
         self.trigger(EventBridgeEvent(eventBus, pattern, deadLetterQueueArn, retryPolicy))
-
-    def use_delivery_dlq(self, dlqArn=None, retryPolicy=None):
-        if not dlqArn:
-            queue = Queue(QueueName=f"{self.name.spinal}-delivery-dlq", title=f"{self.name.pascal}DeliveryDLQ")
-            self._service.resources.add(queue)
-            dlqArn = queue.get_att("Arn").to_dict()
-
-        for event in self.events:
-            event.deadLetterQueueArn = dlqArn
-            if retryPolicy:
-                event.retryPolicy = retryPolicy
-
-        return self
+        self.use_async_dlq()
+        self.use_dlq()

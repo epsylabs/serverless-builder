@@ -3,7 +3,7 @@ import hashlib
 import json
 from abc import ABC
 
-from serverless.service.types import YamlOrderedDict
+from serverless.service.types import YamlOrderedDict, ResourceName
 
 
 class PolicyBuilder(YamlOrderedDict):
@@ -17,11 +17,11 @@ class PolicyBuilder(YamlOrderedDict):
         self.statements.append(policy)
 
     def allow(self, permissions, resources, sid=None):
-        sid = sid or "Policy-" + str(hashlib.sha224(json.dumps([permissions, resources]).hexdigest()))
+        sid = sid or "Policy-" + str(hashlib.sha224(json.dumps([permissions, resources]).encode("ascii")).hexdigest())
         self.statements.append(dict(Sid=sid, Effect="Allow", Action=permissions, Resource=resources))
 
     def deny(self, permissions, resources, sid=None):
-        sid = sid or "Policy-" + str(hashlib.sha224(json.dumps([permissions, resources]).hexdigest()))
+        sid = sid or "Policy-" + str(hashlib.sha224(json.dumps([permissions, resources]).encode("ascii")).hexdigest())
         self.statements.append(dict(Sid=sid, Effect="Deny", Action=permissions, Resource=resources))
 
     def apply(self, preset: "IAMPreset"):
@@ -29,7 +29,7 @@ class PolicyBuilder(YamlOrderedDict):
 
     @property
     def role_arn(self):
-        return "arn:aws:iam::${{ aws:accountId }}:role/" + self.role
+        return "arn:aws:iam::${aws:accountId}:role/" + self.role
 
     @classmethod
     def to_yaml(cls, dumper, data):
@@ -39,16 +39,19 @@ class PolicyBuilder(YamlOrderedDict):
 class ServicePolicyBuilder(PolicyBuilder):
     yaml_tag = "!IAM"
 
+    def __init__(self, service, name=None, **kwds):
+        super().__init__(**kwds)
+        self.service = service
+        self.name = name or "${self:service}-${sls:stage}-${aws:region}-service"
+
     @property
     def role(self):
-        if self.name:
-            return self.name
-
-        return f"IamRoleLambdaExecution"
+        return str(ResourceName(self.name, self.service))
 
     @classmethod
     def to_yaml(cls, dumper, data):
         export = dict(data.items())
+        export.pop("service", None)
 
         return dumper.represent_dict(dict(role=export))
 
@@ -56,13 +59,16 @@ class ServicePolicyBuilder(PolicyBuilder):
 class FunctionPolicyBuilder(PolicyBuilder):
     yaml_tag = "!IAM"
 
-    def __init__(self, function_name, **kwds):
+    def __init__(self, function_name, service, **kwds):
         super().__init__(**kwds)
         self.function_name = function_name
+        self.service = service
 
     @property
     def role(self):
-        return f"${{ self:service }}-${{ sls:stage }}-{self.function_name}-${{ aws:region }}-lambdaRole"
+        name = str(self.function_name)
+        name = name.replace("${sls:stage}", "${sls:stage}-${aws:region}")
+        return str(ResourceName(f"{name}-lambda", self.service))
 
 
 class IAMPreset(ABC):

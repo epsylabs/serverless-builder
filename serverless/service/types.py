@@ -1,4 +1,5 @@
 import abc
+import re
 from collections import OrderedDict
 
 import stringcase
@@ -38,8 +39,11 @@ class SmartString:
 class Identifier(yaml.YAMLObject):
     yaml_tag = "Identifier"
 
-    def __init__(self, identifier):
+    def __init__(self, identifier, safe=False):
         super().__init__()
+        if safe:
+            identifier = re.sub(r"[\W\-]", "", identifier)
+
         self.identifier = identifier
 
     @property
@@ -64,6 +68,28 @@ class Identifier(yaml.YAMLObject):
     @classmethod
     def to_yaml(cls, dumper, data):
         return dumper.represent_str(str(data.identifier))
+
+
+class ResourceName:
+    def __init__(self, name: str, service):
+        self.name = name
+        self.service = service
+
+    def __str__(self):
+        safe = self.name.replace("${aws:region}", "us-east-1")
+        safe = safe.replace("${self:service}", self.service.service.spinal)
+        safe = safe.replace("${sls:stage}", "staging")
+
+        if len(safe) > 64:
+            parts = []
+            for part in self.name.split("-"):
+                if "$" in part or part == "lambda":
+                    parts.append(part)
+                else:
+                    parts.append(part[0:3])
+            return "-".join(parts)
+        else:
+            return self.name
 
 
 class ProviderMetadata(type(YamlOrderedDict), type(abc.ABC)):

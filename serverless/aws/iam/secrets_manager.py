@@ -1,3 +1,5 @@
+import re
+
 from serverless.aws.iam import IAMPreset, PolicyBuilder
 from serverless.service import Identifier
 
@@ -12,5 +14,5 @@ class SecretsManagerReader(IAMPreset):
         policy_builder.allow(
             permissions=["secretsmanager:GetSecretValue"],
             resources="arn:aws:secretsmanager:${aws:region}:${aws:accountId}:secret:" + resource,
-            sid="SecretsManager" + Identifier(self.resource.replace("${self:service}", "").strip("/")).pascal,
+            sid="SecretsManager" + Identifier(re.sub(r"\W", "", self.resource)).pascal,
         )

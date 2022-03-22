@@ -20,6 +20,13 @@ class PluginsManager(yaml.YAMLObject):
             if isinstance(p, plugin):
                 return p
 
+    def has(self, plugin):
+        for p in self._plugins:
+            if isinstance(p, plugin):
+                return True
+
+        return False
+
     def all(self):
         return self._plugins
 
