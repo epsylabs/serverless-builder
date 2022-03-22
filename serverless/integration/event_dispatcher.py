@@ -7,12 +7,14 @@ from serverless.service.types import Integration
 
 class DLQ(Integration):
     def enable(self, service):
-        service.resources.add(
-            Queue(
-                "event-dispatcher-dlq",
-                MessageRetentionPeriod=1209600,  # 14 days in seconds
-            )
+        queue = Queue(
+            title="EventDispatcherDLQ",
+            QueueName="event-dispatcher-dlq",
+            MessageRetentionPeriod=1209600,  # 14 days in seconds
         )
+
+        service.resources.add(queue)
+
         service.resources.add(
             Alarm(
                 "EventDispatcherDLQCloudWatchAlarm",
@@ -29,5 +31,5 @@ class DLQ(Integration):
             )
         )
         service.provider.iam.allow(
-            "EventDispatcherDLQBatch", "sqs:SendMessageBatch", [{"Fn::GetAtt": ["EventDispatcherDLQ", "Arn"]}]
+            sid="EventDispatcherDLQBatch", permissions="sqs:SendMessageBatch", resources=[queue.queue.Ref().to_dict()]
         )
