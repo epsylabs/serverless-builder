@@ -9,8 +9,7 @@ class DLQ(Integration):
     def enable(self, service):
         service.resources.add(
             Queue(
-                "EventDispatcherDLQ",
-                QueueName="event-dispatcher-dlq",
+                "event-dispatcher-dlq",
                 MessageRetentionPeriod=1209600,  # 14 days in seconds
             )
         )
