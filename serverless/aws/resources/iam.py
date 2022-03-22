@@ -20,7 +20,5 @@ class Role(Resource):
         self.policy = PolicyBuilder()
 
     def resources(self):
-        self.role.Policies[0].PolicyDocument = dict(
-            Statement=self.policy.statements
-        )
+        self.role.Policies[0].PolicyDocument = dict(Statement=self.policy.statements)
         return super().resources() + [self.role]
