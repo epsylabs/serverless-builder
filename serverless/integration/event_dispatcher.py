@@ -31,5 +31,5 @@ class DLQ(Integration):
             )
         )
         service.provider.iam.allow(
-            sid="EventDispatcherDLQBatch", permissions="sqs:SendMessageBatch", resources=[queue.queue.Ref().to_dict()]
+            sid="EventDispatcherDLQBatch", permissions="sqs:SendMessageBatch", resources=[queue.arn()]
         )

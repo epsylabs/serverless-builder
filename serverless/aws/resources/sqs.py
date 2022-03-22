@@ -20,3 +20,6 @@ class Queue(Resource, EncryptableResource):
 
     def permissions(self):
         return []
+
+    def arn(self):
+        return "arn:aws:sqs:${aws:region}:${aws:accountId}:" + self.queue.QueueName
