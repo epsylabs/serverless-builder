@@ -3,6 +3,7 @@ from troposphere.dynamodb import Table as DynamoDBTable, PointInTimeRecoverySpec
 from serverless.aws.iam.dynamodb import DynamoDBFullAccess, DynamoDBReader, DynamoDBWriter
 from . import Resource
 from .kms import EncryptableResource
+from ...service import Identifier
 
 
 class Table(Resource, EncryptableResource):
@@ -17,6 +18,8 @@ class Table(Resource, EncryptableResource):
             "SSESpecification",
             SSESpecification(KMSMasterKeyId=self.encryption_key(), SSEEnabled=True, SSEType="KMS"),
         )
+
+        kwargs.setdefault("DeletionPolicy", "Retain")
 
         self.table = DynamoDBTable(
             title=TableName.replace("${sls:stage}", "").strip("-"), TableName=TableName, **kwargs
@@ -41,6 +44,9 @@ class Table(Resource, EncryptableResource):
     @property
     def table_arn(self):
         return self.table.Ref().to_dict()
+
+    def variables(self):
+        return {"TABLE_" + Identifier(self.table.title).snake.upper(): self.table.TableName}
 
     def resources(self):
         return [self.table]

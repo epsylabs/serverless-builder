@@ -1,7 +1,7 @@
 from troposphere import GetAtt
 from troposphere.cloudwatch import Alarm, MetricDimension
-from troposphere.sqs import Queue
 
+from serverless.aws.resources.sqs import Queue
 from serverless.service.types import Integration
 
 
@@ -9,8 +9,7 @@ class DLQ(Integration):
     def enable(self, service):
         service.resources.add(
             Queue(
-                "EventDispatcherDLQ",
-                QueueName="${self:service}-event-dispatcher-dlq",
+                "event-dispatcher-dlq",
                 MessageRetentionPeriod=1209600,  # 14 days in seconds
             )
         )
