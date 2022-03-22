@@ -1,4 +1,5 @@
 import abc
+import re
 from collections import OrderedDict
 
 import stringcase
@@ -38,8 +39,11 @@ class SmartString:
 class Identifier(yaml.YAMLObject):
     yaml_tag = "Identifier"
 
-    def __init__(self, identifier):
+    def __init__(self, identifier, safe=False):
         super().__init__()
+        if safe:
+            identifier = re.sub(r"[\W\-]", "", identifier)
+
         self.identifier = identifier
 
     @property
