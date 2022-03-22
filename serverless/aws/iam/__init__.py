@@ -17,11 +17,11 @@ class PolicyBuilder(YamlOrderedDict):
         self.statements.append(policy)
 
     def allow(self, permissions, resources, sid=None):
-        sid = sid or "Policy-" + str(hashlib.sha224(json.dumps([permissions, resources]).hexdigest()))
+        sid = sid or "Policy-" + str(hashlib.sha224(json.dumps([permissions, resources]).encode("ascii")).hexdigest())
         self.statements.append(dict(Sid=sid, Effect="Allow", Action=permissions, Resource=resources))
 
     def deny(self, permissions, resources, sid=None):
-        sid = sid or "Policy-" + str(hashlib.sha224(json.dumps([permissions, resources]).hexdigest()))
+        sid = sid or "Policy-" + str(hashlib.sha224(json.dumps([permissions, resources]).encode("ascii")).hexdigest())
         self.statements.append(dict(Sid=sid, Effect="Deny", Action=permissions, Resource=resources))
 
     def apply(self, preset: "IAMPreset"):
@@ -66,7 +66,9 @@ class FunctionPolicyBuilder(PolicyBuilder):
 
     @property
     def role(self):
-        return str(ResourceName(f"{self.function_name}-${{aws:region}}-lambda", self.service))
+        name = str(self.function_name)
+        name = name.replace("${sls:stage}", "${sls:stage}-${aws:region}")
+        return str(ResourceName(f"{name}-lambda", self.service))
 
 
 class IAMPreset(ABC):
