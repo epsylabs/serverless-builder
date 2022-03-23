@@ -3,6 +3,7 @@ import hashlib
 import json
 from abc import ABC
 
+from serverless.aws.resources import Resource
 from serverless.service.types import YamlOrderedDict, ResourceName
 
 
@@ -29,6 +30,15 @@ class PolicyBuilder(YamlOrderedDict):
 
     def apply(self, preset: "IAMPreset"):
         preset.apply(self)
+
+    def allow_read(self, resource: Resource):
+        resource.enable_read(self)
+
+    def allow_write(self, resource: Resource):
+        resource.enable_write(self)
+
+    def allow_delete(self, resource: Resource):
+        resource.enable_delete(self)
 
     @property
     def role_arn(self):

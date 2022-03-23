@@ -36,6 +36,30 @@ class DynamoDBWriter(IAMPreset):
         )
 
 
+class DynamoDBWriteOnly(IAMPreset):
+    def apply(self, policy_builder: PolicyBuilder, sid=None):
+        policy_builder.allow(
+            permissions=[
+                "dynamodb:BatchWriteItem",
+                "dynamodb:UpdateItem",
+                "dynamodb:PutItem",
+            ],
+            resources=[self.resource.get_att("Arn").to_dict()],
+            sid=sid or self.resource.name + "Writer",
+        )
+
+
+class DynamoDBDelete(IAMPreset):
+    def apply(self, policy_builder: PolicyBuilder, sid=None):
+        policy_builder.allow(
+            permissions=[
+                "dynamodb:DeleteItem",
+            ],
+            resources=[self.resource.get_att("Arn").to_dict()],
+            sid=sid or self.resource.name + "Writer",
+        )
+
+
 class DynamoDBFullAccess(IAMPreset):
     def apply(self, policy_builder: PolicyBuilder, sid=None):
         policy_builder.allow(

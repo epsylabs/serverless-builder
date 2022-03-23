@@ -17,6 +17,7 @@ class ResourceManager(yaml.YAMLObject):
 
     def add(self, resource: Union[AWSObject, Resource]):
         if isinstance(resource, Resource):
+            resource.configure(self._service)
             self.add_all(resource.resources())
             self._service.provider.environment.envs.update(resource.variables())
 
@@ -24,6 +25,8 @@ class ResourceManager(yaml.YAMLObject):
                 self._service.provider.iam.apply(preset)
         else:
             self.resources.append(resource)
+
+        return resource
 
     def add_all(self, resources):
         for resource in resources:
