@@ -1,7 +1,6 @@
 from serverless.aws.resources.kms import EncryptableResource
 from serverless.service.plugins.generic import Generic
 from serverless.service.plugins.iam_roles import IAMRoles
-from troposphere import Ref
 
 
 class KMSGrant(Generic, EncryptableResource):
