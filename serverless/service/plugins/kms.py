@@ -24,5 +24,5 @@ class KMSGrant(Generic, EncryptableResource):
 
         else:
             service.custom["kmsGrants"].append(
-                dict(kmsKeyId=self.encryption_key().to_dict(), roleName=service.provider.iam.role)
+                dict(kmsKeyId="alias/${self:service}-${sls:stage}", roleName=service.provider.iam.role)
             )
