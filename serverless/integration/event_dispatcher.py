@@ -1,11 +1,16 @@
 from troposphere import GetAtt
 from troposphere.cloudwatch import Alarm, MetricDimension
 
+from serverless.aws.iam.event_bridge import Publish
 from serverless.aws.resources.sqs import Queue
 from serverless.service.types import Integration
 
 
-class DLQ(Integration):
+class EventDispatcher(Integration):
+    def __init__(self, event_bus) -> None:
+        super().__init__()
+        self.event_bus = event_bus
+
     def enable(self, service):
         queue = Queue(
             title="EventDispatcherDLQ",
@@ -31,5 +36,14 @@ class DLQ(Integration):
             )
         )
         service.provider.iam.allow(
-            sid="EventDispatcherDLQBatch", permissions="sqs:SendMessageBatch", resources=[queue.arn()]
+            sid="EventDispatcherDLQBatch", permissions=["sqs:SendMessageBatch", "sqs:GetQueueUrl"],
+            resources=[queue.arn()]
         )
+
+        service.provider.environment.envs["EVENTS_DLQ"] = queue.queue.QueueName
+
+        service.provider.iam.apply(Publish(self.event_bus))
+
+
+class DLQ(EventDispatcher):
+    pass
