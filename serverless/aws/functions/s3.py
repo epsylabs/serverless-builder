@@ -28,7 +28,11 @@ class S3Function(Function):
         handler=None,
         timeout=None,
         layers=None,
+        use_dlq=True,
+        use_async_dlq=True,
         **kwargs,
     ):
-        super().__init__(service, name, description, handler, timeout, layers, **kwargs)
+        super().__init__(
+            service, name, description, handler, timeout, layers, use_dlq=use_dlq, use_async_dlq=use_async_dlq, **kwargs
+        )
         self.trigger(S3Event(bucket, event, rules))

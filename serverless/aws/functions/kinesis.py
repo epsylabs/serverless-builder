@@ -37,9 +37,13 @@ class KinesisFunction(Function):
         maximum_record_age_in_seconds=120,
         starting_position="LATEST",
         function_response_type="ReportBatchItemFailures",
+        use_dlq=True,
+        use_async_dlq=True,
         **kwargs,
     ):
-        super().__init__(service, name, description, handler, timeout, layers, **kwargs)
+        super().__init__(
+            service, name, description, handler, timeout, layers, use_dlq=use_dlq, use_async_dlq=use_async_dlq, **kwargs
+        )
         self.trigger(
             KinesisEvent(
                 arn=stream,

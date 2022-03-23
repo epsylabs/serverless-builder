@@ -36,8 +36,9 @@ class EventDispatcher(Integration):
             )
         )
         service.provider.iam.allow(
-            sid="EventDispatcherDLQBatch", permissions=["sqs:SendMessageBatch", "sqs:GetQueueUrl"],
-            resources=[queue.arn()]
+            sid="EventDispatcherDLQBatch",
+            permissions=["sqs:SendMessageBatch", "sqs:GetQueueUrl"],
+            resources=[queue.arn()],
         )
 
         service.provider.environment.envs["EVENTS_DLQ"] = queue.queue.QueueName

@@ -14,15 +14,18 @@ class PolicyBuilder(YamlOrderedDict):
         self.statements = []
 
     def append(self, policy):
+        if len(list(filter(lambda x: x["Sid"] == policy["Sid"], self.statements))):
+            return
+
         self.statements.append(policy)
 
     def allow(self, permissions, resources, sid=None):
         sid = sid or "Policy-" + str(hashlib.sha224(json.dumps([permissions, resources]).encode("ascii")).hexdigest())
-        self.statements.append(dict(Sid=sid, Effect="Allow", Action=permissions, Resource=resources))
+        self.append(dict(Sid=sid, Effect="Allow", Action=permissions, Resource=resources))
 
     def deny(self, permissions, resources, sid=None):
         sid = sid or "Policy-" + str(hashlib.sha224(json.dumps([permissions, resources]).encode("ascii")).hexdigest())
-        self.statements.append(dict(Sid=sid, Effect="Deny", Action=permissions, Resource=resources))
+        self.append(dict(Sid=sid, Effect="Deny", Action=permissions, Resource=resources))
 
     def apply(self, preset: "IAMPreset"):
         preset.apply(self)

@@ -41,6 +41,8 @@ class Function(YamlOrderedDict):
         layers=None,
         force_name=None,
         idempotency=None,
+        use_dlq=False,
+        use_async_dlq=False,
         **kwargs,
     ):
         super().__init__()
@@ -90,6 +92,14 @@ class Function(YamlOrderedDict):
         for name, value in kwargs.items():
             setattr(self, name, value)
 
+        self.dlq = None
+
+        if use_dlq:
+            self.use_dlq()
+
+        if use_async_dlq:
+            self.use_async_dlq()
+
     @property
     def iam(self):
         if not self._service.plugins.get(IAMRoles):
@@ -134,12 +144,6 @@ class Function(YamlOrderedDict):
         if not onErrorDLQArn:
             onErrorDLQArn = self._ensure_dlq(MessageRetentionPeriod)
 
-            self.iam.allow(
-                sid=f"{self.name.pascal}DLQWriter",
-                permissions=["sqs:GetQueueUrl", "sqs:SendMessageBatch", "sqs:SendMessage"],
-                resources=[onErrorDLQArn.get("arn")],
-            )
-
         self.deadLetter = dict(targetArn=self._ensure_dlq(MessageRetentionPeriod).get("arn"))
 
         return self
@@ -153,20 +157,28 @@ class Function(YamlOrderedDict):
         if not onFailuredlqArn:
             onFailuredlqArn = self._ensure_dlq(MessageRetentionPeriod).get("arn")
 
-        self.iam.apply(SQSPublisher(onFailuredlqArn))
-
         self.destinations = dict(onFailure=onFailuredlqArn)
 
         return self
 
     def _ensure_dlq(self, MessageRetentionPeriod):
         name = f"{self.name.spinal}-dlq"
-        queue = Queue(
+        if self.dlq:
+            return {"Ref": f"{self.name.pascal}DLQ", "arn": SQSArn(name)}
+
+        self.dlq = Queue(
             QueueName=name,
             title=f"{self.name.pascal}DLQ",
             MessageRetentionPeriod=MessageRetentionPeriod,
         )
-        self._service.resources.add(queue)
+
+        self._service.resources.add(self.dlq)
+
+        self.iam.allow(
+            sid=f"{self.name.pascal}DLQWriter",
+            permissions=["sqs:GetQueueUrl", "sqs:SendMessageBatch", "sqs:SendMessage"],
+            resources=[self.dlq.arn()],
+        )
 
         self._service.resources.add(
             Alarm(
@@ -220,6 +232,7 @@ class Function(YamlOrderedDict):
         events = data.events
         data.pop("_service", None)
         data.pop("key", None)
+        data.pop("dlq", None)
 
         if not data.events:
             del data["events"]
