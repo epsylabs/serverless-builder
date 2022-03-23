@@ -7,7 +7,7 @@ from ...service import Identifier
 
 
 class Table(Resource, EncryptableResource):
-    def __init__(self, TableName, **kwargs):
+    def __init__(self, TableName, with_full_access=True, with_read_access=False, **kwargs):
         if "${sls:stage}" not in TableName:
             TableName += "-${sls:stage}"
 
@@ -25,6 +25,12 @@ class Table(Resource, EncryptableResource):
             title=TableName.replace("${sls:stage}", "").strip("-"), TableName=TableName, **kwargs
         )
         self.access = None
+
+        if with_full_access:
+            self.with_read_access()
+
+        if with_read_access:
+            self.with_read_access()
 
     def with_full_access(self):
         self.access = DynamoDBFullAccess(self.table)
