@@ -9,6 +9,7 @@ from troposphere.dynamodb import (
 from serverless.aws.iam import PolicyBuilder, FunctionPolicyBuilder
 from serverless.aws.iam.dynamodb import DynamoDBFullAccess
 from serverless.aws.iam.sqs import SQSPublisher
+from serverless.aws.resources import DummyResource
 from serverless.aws.resources.dynamodb import Table
 from serverless.aws.resources.sqs import Queue
 from serverless.aws.types import SQSArn
@@ -163,26 +164,26 @@ class Function(YamlOrderedDict):
 
     def _ensure_dlq(self, MessageRetentionPeriod):
         name = f"{self.name.spinal}-dlq"
+        resource = f"{self.name.resource}DLQ"
         if self.dlq:
-            return {"Ref": f"{self.name.pascal}DLQ", "arn": SQSArn(name)}
+            return {"Ref": resource, "arn": SQSArn(name)}
 
         self.dlq = Queue(
+            title=resource,
             QueueName=name,
-            title=f"{self.name.pascal}DLQ",
             MessageRetentionPeriod=MessageRetentionPeriod,
         )
-
         self._service.resources.add(self.dlq)
 
         self.iam.allow(
-            sid=f"{self.name.pascal}DLQWriter",
+            sid=f"{self.name.resource}DLQWriter",
             permissions=["sqs:GetQueueUrl", "sqs:SendMessageBatch", "sqs:SendMessage"],
             resources=[self.dlq.arn()],
         )
 
         self._service.resources.add(
             Alarm(
-                f"{self.name.pascal}DLQAlarm",
+                f"{self.name.resource}DLQAlarm",
                 AlarmDescription=f"Lambda: {self.name} rejected event in DLQ",
                 AlarmActions=["arn:aws:sns:${aws:region}:${aws:accountId}:foxglove-${sls:stage}-cloudwatch-alerts"],
                 Namespace="AWS/SQS",
@@ -193,6 +194,18 @@ class Function(YamlOrderedDict):
                 EvaluationPeriods=1,
                 Threshold=1,
                 ComparisonOperator="GreaterThanOrEqualToThreshold",
+            )
+        )
+
+        self._service.resources.add(
+            DummyResource(
+                self.resource_name(),
+                Type="AWS::Lambda::Function",
+                DependsOn=[
+                    self.resource_name().replace("LambdaFunction", "IamRoleLambdaExecution"),
+                    self.resource_name().replace("LambdaFunction", "LogGroup"),
+                    resource,
+                ],
             )
         )
 

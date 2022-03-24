@@ -23,7 +23,7 @@ class EventBridgeEvent(YamlOrderedDict):
             self.deadLetterQueueArn = deadLetterQueueArn
 
         # if retryPolicy:
-        self.retryPolicy = retryPolicy
+        self.retryPolicy = retryPolicy.copy()
 
 
 class EventBridgeFunction(Function):
@@ -49,5 +49,3 @@ class EventBridgeFunction(Function):
             service, name, description, handler, timeout, layers, use_dlq=use_dlq, use_async_dlq=use_async_dlq, **kwargs
         )
         self.trigger(EventBridgeEvent(eventBus, pattern, deadLetterQueueArn, retryPolicy))
-        self.use_async_dlq()
-        self.use_dlq()

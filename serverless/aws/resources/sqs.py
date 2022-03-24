@@ -2,7 +2,7 @@ from troposphere.sqs import Queue as SQSQueue
 
 from serverless.aws.resources import Resource
 from serverless.aws.resources.kms import EncryptableResource
-from serverless.service import Identifier
+from serverless.service.types import Identifier
 
 
 class Queue(Resource, EncryptableResource):
@@ -11,7 +11,7 @@ class Queue(Resource, EncryptableResource):
             QueueName = "${self:service}-${sls:stage}-" + QueueName
 
         kwargs.setdefault("KmsMasterKeyId", self.encryption_key())
-        kwargs.setdefault("title", Identifier(QueueName, safe=True).pascal)
+        kwargs.setdefault("title", Identifier(QueueName).resource)
 
         self.queue = SQSQueue(QueueName=QueueName, **kwargs)
 
