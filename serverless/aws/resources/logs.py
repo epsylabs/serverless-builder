@@ -10,13 +10,13 @@ class LogGroup(Resource, EncryptableResource):
         kwargs.setdefault("RetentionInDays", 30)
         kwargs.setdefault("KmsKeyId", self.encryption_arn())
         kwargs.setdefault("title", Identifier(LogGroupName + "LogGroup").resource)
-        kwargs.setdefault("DependsOn", [self.encryption_key_name()+"Alias"])
+        kwargs.setdefault("DependsOn", [self.encryption_key_name() + "Alias"])
 
         super().__init__(AWSLogGroup(LogGroupName=LogGroupName, **kwargs))
 
     def configure(self, service):
         prefix = "/services/" + service.service.spinal
         if not self.resource.LogGroupName.startswith(prefix):
-            self.resource.LogGroupName = prefix + self.resource.LogGroupName
+            self.resource.LogGroupName = prefix + "/" + self.resource.LogGroupName.strip("/")
 
         super().configure(service)

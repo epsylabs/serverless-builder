@@ -1,16 +1,18 @@
 from typing import Optional
 
 import stringcase
+from troposphere.cloudwatch import Alarm, MetricDimension
 from troposphere.dynamodb import (
     AttributeDefinition,
     KeySchema,
     TimeToLiveSpecification,
 )
-from serverless.aws.iam import PolicyBuilder, FunctionPolicyBuilder
+
+from serverless.aws.iam import FunctionPolicyBuilder
 from serverless.aws.iam.dynamodb import DynamoDBFullAccess
-from serverless.aws.iam.sqs import SQSPublisher
 from serverless.aws.resources import DummyResource
 from serverless.aws.resources.dynamodb import Table
+from serverless.aws.resources.logs import LogGroup
 from serverless.aws.resources.sqs import Queue
 from serverless.aws.types import SQSArn
 from serverless.service.environment import Environment
@@ -18,7 +20,6 @@ from serverless.service.plugins.iam_roles import IAMRoles
 from serverless.service.plugins.lambda_dlq import LambdaDLQ
 from serverless.service.plugins.python_requirements import PythonRequirements
 from serverless.service.types import Identifier, YamlOrderedDict
-from troposphere.cloudwatch import Alarm, MetricDimension
 
 
 class ScheduleEvent(YamlOrderedDict):
@@ -101,6 +102,8 @@ class Function(YamlOrderedDict):
         if use_async_dlq:
             self.use_async_dlq()
 
+        service.resources.add(LogGroup(title=self.log_group_name(), LogGroupName=self.name.spinal))
+
     @property
     def iam(self):
         if not self._service.plugins.get(IAMRoles):
@@ -118,6 +121,12 @@ class Function(YamlOrderedDict):
 
     def arn(self):
         return self.get_attr("Arn")
+
+    def log_group_name(self):
+        return f"{self.key}LogGroup"
+
+    def iam_role_name(self):
+        return f"{self.key}IamRoleLambdaExecution"
 
     def resource_name(self):
         return f"{self.key}LambdaFunction"
@@ -202,8 +211,8 @@ class Function(YamlOrderedDict):
                 self.resource_name(),
                 Type="AWS::Lambda::Function",
                 DependsOn=[
-                    self.resource_name().replace("LambdaFunction", "IamRoleLambdaExecution"),
-                    self.resource_name().replace("LambdaFunction", "LogGroup"),
+                    self.iam_role_name(),
+                    self.log_group_name(),
                     resource,
                 ],
             )
