@@ -1,25 +1,28 @@
 from troposphere.sqs import Queue as SQSQueue
 
+from serverless.aws.features.encryption import Encryption
 from serverless.aws.resources import Resource
 from serverless.aws.resources.kms import EncryptableResource
 from serverless.service.types import Identifier
 
 
-class Queue(Resource, EncryptableResource):
+class Queue(Resource):
     def __init__(self, QueueName, **kwargs):
         if "${sls:stage}" not in QueueName:
             QueueName = "${self:service}-${sls:stage}-" + QueueName
 
-        kwargs.setdefault("KmsMasterKeyId", self.encryption_key())
         kwargs.setdefault("title", Identifier(QueueName).resource)
 
-        self.queue = SQSQueue(QueueName=QueueName, **kwargs)
+        super().__init__(SQSQueue(QueueName=QueueName, **kwargs))
 
-    def resources(self):
-        return [self.queue]
+    def configure(self, service):
+        super().configure(service)
+
+        if service.has(Encryption):
+            self.resource.KmsMasterKeyId = EncryptableResource.encryption_key()
 
     def permissions(self):
         return []
 
     def arn(self):
-        return "arn:aws:sqs:${aws:region}:${aws:accountId}:" + self.queue.QueueName
+        return "arn:aws:sqs:${aws:region}:${aws:accountId}:" + self.resource.QueueName

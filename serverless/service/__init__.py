@@ -122,6 +122,9 @@ class Service(OrderedDict, yaml.YAMLObject):
 
         return tmp_buf.read()
 
+    def has(self, feature):
+        return len(list(filter(lambda x: isinstance(x, feature), self.features))) > 0
+
     @classmethod
     def to_yaml(cls, dumper, data):
         data.pop("builder", None)

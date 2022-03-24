@@ -3,7 +3,7 @@ from serverless.service.plugins.generic import Generic
 from troposphere.secretsmanager import Secret
 
 
-class KMSSecrets(Generic, EncryptableResource):
+class KMSSecrets(Generic):
     yaml_tag = "!AWSSecretsPlugin"
 
     def __init__(self, secrets):
@@ -14,4 +14,4 @@ class KMSSecrets(Generic, EncryptableResource):
         secret = "/service/${self:service}/${opt:stage}"
         service.custom.secrets = dict(secretId=secret, variableNames=self.secrets)
 
-        service.resources.add(Secret(title="ServiceSecret", KmsKeyId=self.encryption_key(), Name=secret))
+        service.resources.add(Secret(title="ServiceSecret", KmsKeyId=EncryptableResource.encryption_key(), Name=secret))

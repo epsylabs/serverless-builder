@@ -2,14 +2,18 @@ from troposphere import Ref, GetAtt
 
 
 class EncryptableResource:
-    def encryption_key_name(self):
+    @staticmethod
+    def encryption_key_name():
         return "ServiceEncryptionKey"
 
-    def encryption_key(self):
-        return Ref(self.encryption_key_name())
+    @staticmethod
+    def encryption_key():
+        return Ref(EncryptableResource.encryption_key_name())
 
-    def encryption_alias(self):
+    @staticmethod
+    def encryption_alias():
         return "alias/${self:service}-${sls:stage}"
 
-    def encryption_arn(self):
+    @staticmethod
+    def encryption_arn():
         return "arn:aws:kms:${aws:region}:${aws:accountId}:alias/${self:service}-${sls:stage}"

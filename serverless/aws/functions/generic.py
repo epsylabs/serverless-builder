@@ -8,10 +8,12 @@ from troposphere.dynamodb import (
     TimeToLiveSpecification,
 )
 
+from serverless.aws.features.encryption import Encryption
 from serverless.aws.iam import FunctionPolicyBuilder
 from serverless.aws.iam.dynamodb import DynamoDBFullAccess
 from serverless.aws.resources import DummyResource
 from serverless.aws.resources.dynamodb import Table
+from serverless.aws.resources.kms import EncryptableResource
 from serverless.aws.resources.logs import LogGroup
 from serverless.aws.resources.sqs import Queue
 from serverless.aws.types import SQSArn
@@ -102,7 +104,12 @@ class Function(YamlOrderedDict):
         if use_async_dlq:
             self.use_async_dlq()
 
-        service.resources.add(LogGroup(title=self.log_group_name(), LogGroupName=self.name.spinal))
+        log_group = dict(RetentionInDays=30)
+        if service.has(Encryption):
+            log_group["KmsKeyId"] = EncryptableResource.encryption_arn()
+            log_group["DependsOn"] = [EncryptableResource.encryption_key_name() + "Alias"]
+
+        service.resources.add(DummyResource(title=self.log_group_name(), **log_group))
 
     @property
     def iam(self):
