@@ -63,7 +63,7 @@ class Task(Stage):
 
     @property
     def id(self):
-        return self.name
+        return self.name if self.name else self._function.key
 
     @classmethod
     def to_yaml(cls, dumper, data):
@@ -79,6 +79,10 @@ class Iterator(YamlOrderedDict):
         self.map_name = map_name
         self.auto_catch = auto_catch
         self.auto_fallback = auto_fallback
+
+    @property
+    def id(self):
+        return self.map_name
 
     @classmethod
     def to_yaml(cls, dumper, data):
