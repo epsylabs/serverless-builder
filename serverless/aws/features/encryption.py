@@ -22,6 +22,25 @@ class Encryption(Feature):
                         "Principal": {"AWS": "arn:aws:iam::${aws:accountId}:root"},
                         "Action": "kms:*",
                         "Resource": "*",
+                    },
+                    {
+                        "Effect": "Allow",
+                        "Principal": {
+                            "Service": "logs.${aws:region}.amazonaws.com"
+                        },
+                        "Action": [
+                            "kms:Encrypt*",
+                            "kms:Decrypt*",
+                            "kms:ReEncrypt*",
+                            "kms:GenerateDataKey*",
+                            "kms:Describe*"
+                        ],
+                        "Resource": "*",
+                        "Condition": {
+                            "ArnLike": {
+                                "kms:EncryptionContext:aws:logs:arn": "arn:aws:logs:${aws:region}:${aws:accountId}:log-group:/services/${self:service}/*"
+                            }
+                        }
                     }
                 ],
             },

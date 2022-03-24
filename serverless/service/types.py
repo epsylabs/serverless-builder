@@ -57,11 +57,11 @@ class Identifier(yaml.YAMLObject):
 
     @property
     def snake(self):
-        return inflection.underscore(self.identifier)
+        return inflection.underscore(self.identifier).lower()
 
     @property
     def spinal(self):
-        return inflection.dasherize(self.identifier)
+        return inflection.dasherize(self.identifier).lower()
 
     @property
     def resource(self):

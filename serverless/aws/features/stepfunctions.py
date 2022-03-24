@@ -264,10 +264,10 @@ class StateMachine(YamlOrderedDict):
         if type:
             self.type = type
 
-        logs = LogGroup(LogGroupName=f"/stepmachine/{self.name}")
+        logs = LogGroup(LogGroupName=f"/stepmachine/{Identifier(self.name).spinal}")
         service.resources.add(logs)
 
-        self.loggingConfig = dict(level="ERROR", includeExecutionData=True, destinations=[logs.get_att("arn")])
+        self.loggingConfig = dict(level="ERROR", includeExecutionData=True, destinations=[logs.get_att("Arn")])
         self.definition = Definition(description, auto_fallback, auto_catch)
         self.events = events or []
 
