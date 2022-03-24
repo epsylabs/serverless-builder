@@ -1,6 +1,5 @@
-from troposphere.logs import LogGroup
-
-from serverless.service.types import YamlOrderedDict
+from serverless.aws.resources.logs import LogGroup
+from serverless.service.types import YamlOrderedDict, Identifier
 
 
 class Stage(YamlOrderedDict):
@@ -265,10 +264,10 @@ class StateMachine(YamlOrderedDict):
         if type:
             self.type = type
 
-        logs = LogGroup(LogGroupName=f"stepfunctions/workflows/{self.name}", title=f"{self.Name}WorkflowLogs")
+        logs = LogGroup(LogGroupName=f"/stepmachine/{self.name}")
         service.resources.add(logs)
 
-        self.loggingConfig = dict(level="ERROR", includeExecutionData=True, destinations=[logs.Ref().to_dict()])
+        self.loggingConfig = dict(level="ERROR", includeExecutionData=True, destinations=[logs.get_att("arn")])
         self.definition = Definition(description, auto_fallback, auto_catch)
         self.events = events or []
 
