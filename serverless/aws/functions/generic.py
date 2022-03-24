@@ -1,6 +1,5 @@
 from typing import Optional
 
-import stringcase
 from troposphere.cloudwatch import Alarm, MetricDimension
 from troposphere.dynamodb import (
     AttributeDefinition,
@@ -14,7 +13,6 @@ from serverless.aws.iam.dynamodb import DynamoDBFullAccess
 from serverless.aws.resources import DummyResource
 from serverless.aws.resources.dynamodb import Table
 from serverless.aws.resources.kms import EncryptableResource
-from serverless.aws.resources.logs import LogGroup
 from serverless.aws.resources.sqs import Queue
 from serverless.aws.types import SQSArn
 from serverless.service.environment import Environment
@@ -52,18 +50,18 @@ class Function(YamlOrderedDict):
         super().__init__()
         self._service = service
 
-        self.key = stringcase.pascalcase(stringcase.snakecase(name).lower())
+        self.key = Identifier(name)
         self.name = (
             force_name
             if force_name
             else Identifier(
-                self._service.service.spinal.lower() + "-${sls:stage}" + "-" + stringcase.spinalcase(name).lower()
+                self._service.service.spinal.lower() + "-${sls:stage}" + "-" + self.key.spinal.lower()
             )
         )
         self.description = description
 
         if not handler:
-            handler = f"{self._service.service.snake}.{stringcase.snakecase(name)}.handler"
+            handler = f"{self._service.service.snake}.{self.key.spinal}.handler"
 
         self.handler = handler
         self.events = []
@@ -104,9 +102,9 @@ class Function(YamlOrderedDict):
         if use_async_dlq:
             self.use_async_dlq()
 
-        log_group = dict(RetentionInDays=30)
+        log_group = dict(Properties=dict(RetentionInDays=30))
         if service.has(Encryption):
-            log_group["KmsKeyId"] = EncryptableResource.encryption_arn()
+            log_group["Properties"]["KmsKeyId"] = EncryptableResource.encryption_arn()
             log_group["DependsOn"] = [EncryptableResource.encryption_key_name() + "Alias"]
 
         service.resources.add(DummyResource(title=self.log_group_name(), **log_group))
@@ -130,13 +128,13 @@ class Function(YamlOrderedDict):
         return self.get_attr("Arn")
 
     def log_group_name(self):
-        return f"{self.key}LogGroup"
+        return f"{self.key.pascal}LogGroup"
 
     def iam_role_name(self):
-        return f"{self.key}IamRoleLambdaExecution"
+        return f"{self.key.pascal}IamRoleLambdaExecution"
 
     def resource_name(self):
-        return f"{self.key}LambdaFunction"
+        return f"{self.key.pascal}LambdaFunction"
 
     def trigger(self, event):
         self.events.append(event)

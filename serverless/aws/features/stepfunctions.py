@@ -14,7 +14,7 @@ class Stage(YamlOrderedDict):
 
     @property
     def id(self):
-        return self._function.key
+        return self._function.key.pascal
 
     @classmethod
     def to_yaml(cls, dumper, data):
@@ -62,7 +62,7 @@ class Task(Stage):
 
     @property
     def id(self):
-        return self.name if self.name else self._function.key
+        return self.name if self.name else self._function.key.pascal
 
     @classmethod
     def to_yaml(cls, dumper, data):
@@ -85,7 +85,7 @@ class Iterator(YamlOrderedDict):
 
     @classmethod
     def to_yaml(cls, dumper, data):
-        data["StartAt"] = list(data.States.keys())[0]
+        data["StartAt"] = str(list(data.States.keys())[0])
         data.move_to_end("StartAt", last=False)
 
         fallback = None
