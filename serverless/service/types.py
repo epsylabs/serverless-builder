@@ -2,7 +2,7 @@ import abc
 import re
 from collections import OrderedDict
 
-import stringcase
+import inflection
 import yaml
 
 
@@ -42,25 +42,33 @@ class Identifier(yaml.YAMLObject):
     def __init__(self, identifier, safe=False):
         super().__init__()
         if safe:
-            identifier = re.sub(r"[\W\-]", "", identifier)
+            identifier = re.sub(r"\${.*?}-?", "", identifier)
+            identifier = re.sub(r"\W", "-", identifier)
 
         self.identifier = identifier
 
     @property
     def camel(self):
-        return stringcase.camelcase(self.identifier)
+        return inflection.camelize(inflection.underscore(self.identifier))
 
     @property
     def pascal(self):
-        return stringcase.pascalcase(self.identifier.replace("-", "_"))
+        return inflection.camelize(inflection.underscore(self.identifier), uppercase_first_letter=True)
 
     @property
     def snake(self):
-        return stringcase.snakecase(self.identifier)
+        return inflection.underscore(self.identifier)
 
     @property
     def spinal(self):
-        return stringcase.spinalcase(self.identifier)
+        return inflection.dasherize(self.identifier)
+
+    @property
+    def resource(self):
+        identifier = re.sub(r"\${.*?}-?", "", self.identifier)
+        identifier = re.sub(r"\W", "-", identifier)
+        identifier = identifier.strip("-")
+        return inflection.camelize(inflection.underscore(identifier), uppercase_first_letter=True)
 
     def __str__(self):
         return self.identifier
