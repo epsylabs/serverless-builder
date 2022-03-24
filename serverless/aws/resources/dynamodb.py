@@ -1,7 +1,12 @@
 from troposphere.dynamodb import Table as DynamoDBTable, PointInTimeRecoverySpecification, SSESpecification
 
-from serverless.aws.iam.dynamodb import DynamoDBFullAccess, DynamoDBReader, DynamoDBWriter, DynamoDBDelete, \
-    DynamoDBWriteOnly
+from serverless.aws.iam.dynamodb import (
+    DynamoDBFullAccess,
+    DynamoDBReader,
+    DynamoDBWriter,
+    DynamoDBDelete,
+    DynamoDBWriteOnly,
+)
 from . import Resource
 from .kms import EncryptableResource
 from ..iam import PolicyBuilder, IAMPreset
@@ -69,7 +74,9 @@ class Table(Resource, EncryptableResource):
         return self.table.Ref().to_dict()
 
     def variables(self):
-        return {"TABLE_" + Identifier(self.table.TableName.replace("-${sls:stage}", "")).snake.upper(): self.table.TableName}
+        return {
+            "TABLE_" + Identifier(self.table.TableName.replace("-${sls:stage}", "")).snake.upper(): self.table.TableName
+        }
 
     def resources(self):
         return [self.table]
