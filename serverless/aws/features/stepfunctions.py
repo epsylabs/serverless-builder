@@ -1,3 +1,5 @@
+from troposphere.logs import LogGroup
+
 from serverless.service.types import YamlOrderedDict
 
 
@@ -43,20 +45,40 @@ class Fallback(Stage):
 class Task(Stage):
     yaml_tag = "!Task"
 
-    def __init__(self, function, end=None):
+    def __init__(self, function=None, end=None, name=None, parameters=None, resource=None):
+        if not any([function, resource]):
+            raise Exception("You need to provide either function or resource parameter")
+
         super().__init__("Task", function)
 
-        self.Resource = function.arn()
+        if name:
+            self.name = name
+
+        if parameters:
+            self.Parameters = parameters
+
+        self.Resource = function.arn() if function else resource
         if end is not None:
             self.End = end
+
+    @property
+    def id(self):
+        return self.name
+
+    @classmethod
+    def to_yaml(cls, dumper, data):
+        data.pop("name", None)
+        return super().to_yaml(dumper, data)
 
 
 class Iterator(YamlOrderedDict):
     yaml_tag = "!Iterator"
 
-    def __init__(self, map_name, steps):
+    def __init__(self, map_name, steps, auto_catch=True, auto_fallback=False):
         self.States = {step.id: step for step in steps}
         self.map_name = map_name
+        self.auto_catch = auto_catch
+        self.auto_fallback = auto_fallback
 
     @classmethod
     def to_yaml(cls, dumper, data):
@@ -69,17 +91,20 @@ class Iterator(YamlOrderedDict):
                 fallback = step
                 break
 
-        if not fallback:
+        if data.auto_fallback and not fallback:
             fallback = Fallback(f"{data.map_name}Fallback", f"Failed processing map: {data.map_name}")
             data["States"][fallback.id] = fallback
 
-        for step in data.States.values():
-            if step.get("Catch") or step.get("Type") in ("Pass", "Fail", "Map"):
-                continue
+        if data.auto_catch:
+            for step in data.States.values():
+                if step.get("Catch") or step.get("Type") in ("Pass", "Fail", "Map"):
+                    continue
 
-            step["Catch"] = [{"ErrorEquals": ["States.ALL"], "Next": fallback.id}]
+                step["Catch"] = [{"ErrorEquals": ["States.ALL"], "Next": fallback.id}]
 
         data.pop("map_name", None)
+        data.pop("auto_catch", None)
+        data.pop("auto_fallback", None)
 
         return super().to_yaml(dumper, data)
 
@@ -92,12 +117,86 @@ class Map(Stage):
     ):
         super().__init__("Map")
         self.name = name
-        self.InputPath = input_path
-        self.ItemsPath = items_path
-        self.ResultPath = result_path
+
+        if input_path:
+            self.InputPath = input_path
+
+        if items_path:
+            self.ItemsPath = items_path
+
+        if result_path:
+            self.ResultPath = result_path
+
         self.MaxConcurrency = concurrency
         self.End = end
-        self.Iterator = Iterator(name, steps)
+        self.Iterator = steps if isinstance(steps, Iterator) else Iterator(name, steps)
+
+    @property
+    def id(self):
+        return self.name
+
+    @classmethod
+    def to_yaml(cls, dumper, data):
+        data.pop("name", None)
+        return super().to_yaml(dumper, data)
+
+
+class State(YamlOrderedDict):
+    yaml_tag = "!State"
+
+    def __init__(self, name) -> None:
+        super().__init__()
+        self.name = name
+
+    @property
+    def id(self):
+        return self.name
+
+    @classmethod
+    def to_yaml(cls, dumper, data):
+        data.pop("name", None)
+        return super().to_yaml(dumper, data)
+
+
+class Choice(State):
+    yaml_tag = "!Choice"
+
+    def __init__(self, name, default, choices=None) -> None:
+        super().__init__(name)
+        self.Type = "Choice"
+        self.Default = default
+        self.Choices = choices or []
+
+
+class Succeed(State):
+    yaml_tag = "!Succeed"
+
+    def __init__(self, name) -> None:
+        super().__init__(name)
+        self.Type = "Succeed"
+
+
+class Branch(YamlOrderedDict):
+    yaml_tag = "!Branch"
+
+    def __init__(self, *states) -> None:
+        super().__init__()
+        self.States = list(states)
+
+    @classmethod
+    def to_yaml(cls, dumper, data):
+        export = dict(StartAt=data.States[0].id, States={i.name: i for i in data.States})
+        return super().to_yaml(dumper, export)
+
+
+class Parallel(Stage):
+    yaml_tag = "!Parallel"
+
+    def __init__(self, name, branches, end=False):
+        super().__init__("Parallel")
+        self.name = name
+        self.Branches = branches
+        self.End = end
 
     @property
     def id(self):
@@ -112,9 +211,11 @@ class Map(Stage):
 class Definition(YamlOrderedDict):
     yaml_tag = "!Definition"
 
-    def __init__(self, description):
+    def __init__(self, description, auto_fallback=True, auto_catch=True):
         self.Comment = description
         self.States = YamlOrderedDict()
+        self.auto_fallback = auto_fallback
+        self.auto_catch = auto_catch
 
     def add(self, state):
         self.States[state.id] = state
@@ -133,15 +234,19 @@ class Definition(YamlOrderedDict):
                 fallback = step
                 break
 
-        if not fallback:
+        if data.auto_fallback and not fallback:
             fallback = Fallback("StateMachineErrorFallback", "Error in state machine")
             data.add(fallback)
 
-        for step in data.States.values():
-            if step.get("Catch") or step.get("Type") in ("Pass", "Fail", "Map"):
-                continue
+        if data.auto_catch:
+            for step in data.States.values():
+                if step.get("Catch") or step.get("Type") in ("Pass", "Fail", "Map"):
+                    continue
 
-            step["Catch"] = [{"ErrorEquals": ["States.ALL"], "Next": fallback.id}]
+                step["Catch"] = [{"ErrorEquals": ["States.ALL"], "Next": fallback.id}]
+
+        data.pop("auto_fallback", None)
+        data.pop("auto_catch", None)
 
         return super().to_yaml(dumper, data)
 
@@ -149,9 +254,18 @@ class Definition(YamlOrderedDict):
 class StateMachine(YamlOrderedDict):
     yaml_tag = "!YamlOrderedDict"
 
-    def __init__(self, name, description, events=None):
+    def __init__(self, name, description, events=None, type=None, auto_fallback=True, auto_catch=True, service=None):
         self.name = name
-        self.definition = Definition(description)
+        self.tracingConfig = dict(enabled=True)
+
+        if type:
+            self.type = type
+
+        logs = LogGroup(LogGroupName=f"stepfunctions/workflows/{self.name}", title=f"{self.Name}WorkflowLogs")
+        service.resources.add(logs)
+
+        self.loggingConfig = dict(level="ERROR", includeExecutionData=True, destinations=[logs.Ref().to_dict()])
+        self.definition = Definition(description, auto_fallback, auto_catch)
         self.events = events or []
 
     def task(self, function):
@@ -160,8 +274,14 @@ class StateMachine(YamlOrderedDict):
     def map(self, name, steps, **kwargs):
         return self.definition.add(Map(name, steps, **kwargs))
 
+    def parallel(self, name, branches, end):
+        return self.definition.add(Parallel(name=name, branches=branches, end=end))
+
     def event(self, event):
         self.events.append(event)
+
+    def arn(self):
+        return "arn:aws:states:${aws:region}:${aws:accountId}:stateMachine:" + self.name
 
 
 class StepFunctions(YamlOrderedDict):
@@ -172,11 +292,18 @@ class StepFunctions(YamlOrderedDict):
         self.validate = True
         self.stateMachines = YamlOrderedDict()
 
-    def machine(self, name, description):
+    def machine(self, name, description, type=None, auto_fallback=True, auto_catch=True):
         if name in self.stateMachines:
             return self.stateMachines.get(name)
 
-        machine = StateMachine(f"{self.service.service}-${{sls:stage}}-{name}", description)
+        machine = StateMachine(
+            f"{self.service.service}-${{sls:stage}}-{name}",
+            description,
+            auto_fallback=auto_fallback,
+            auto_catch=auto_catch,
+            type=type,
+            service=self.service,
+        )
         self.stateMachines[name] = machine
 
         return machine
@@ -190,5 +317,11 @@ class StepFunctions(YamlOrderedDict):
 class Scheduled(YamlOrderedDict):
     yaml_tag = "!YamlOrderedDict"
 
-    def __init__(self, expression):
+    def __init__(self, expression, inputPath=None):
+        if not isinstance(expression, dict):
+            expression = dict(rate=f"cron({expression})")
+
         self.schedule = expression
+
+        if inputPath:
+            self.inputPath = inputPath
