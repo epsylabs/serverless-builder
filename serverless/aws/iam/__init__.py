@@ -21,7 +21,7 @@ class PolicyBuilder(YamlOrderedDict):
         self.statements.append(policy)
 
     def allow(self, permissions, resources, sid=None):
-        sid = sid or "Policy-" + str(hashlib.sha224(json.dumps([permissions, resources]).encode("ascii")).hexdigest())
+        sid = sid or "Policy" + str(hashlib.sha224(json.dumps([permissions, resources]).encode("ascii")).hexdigest())
         self.append(dict(Sid=sid, Effect="Allow", Action=permissions, Resource=resources))
 
     def deny(self, permissions, resources, sid=None):
