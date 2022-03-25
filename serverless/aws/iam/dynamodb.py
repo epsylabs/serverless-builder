@@ -45,7 +45,7 @@ class DynamoDBWriteOnly(IAMPreset):
                 "dynamodb:PutItem",
             ],
             resources=[self.resource.get_att("Arn").to_dict()],
-            sid=sid or self.resource.name + "Writer",
+            sid=sid or self.resource.name + "WriteOnly",
         )
 
 
@@ -56,7 +56,7 @@ class DynamoDBDelete(IAMPreset):
                 "dynamodb:DeleteItem",
             ],
             resources=[self.resource.get_att("Arn").to_dict()],
-            sid=sid or self.resource.name + "Writer",
+            sid=sid or self.resource.name + "Delete",
         )
 
 
