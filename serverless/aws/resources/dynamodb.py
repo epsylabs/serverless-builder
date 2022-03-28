@@ -39,7 +39,7 @@ class Table(Resource):
     def configure(self, service):
         if service.has(Encryption):
             self.resource.SSESpecification = SSESpecification(
-                KMSMasterKeyId=self.encryption_key(), SSEEnabled=True, SSEType="KMS"
+                KMSMasterKeyId=EncryptableResource.encryption_key(), SSEEnabled=True, SSEType="KMS"
             )
 
         if service.service.pascal not in self.resource.TableName:
