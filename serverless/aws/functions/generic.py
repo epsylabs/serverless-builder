@@ -247,7 +247,7 @@ class Function(YamlOrderedDict):
             TimeToLiveSpecification=TimeToLiveSpecification(AttributeName="expiration", Enabled=True),
         )
         self._service.resources.add(idempotency_table)
-        self.iam.apply(DynamoDBFullAccess(idempotency_table.table))
+        self.iam.apply(DynamoDBFullAccess(idempotency_table.resource))
         env = self.get("environment", Environment())
         env.envs["IDEMPOTENCY_TABLE"] = idempotency_table.table_arn
         self.environment = env
