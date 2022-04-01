@@ -78,7 +78,7 @@ class Table(Resource):
     def variables(self):
         return {
             "TABLE_"
-            + Identifier(self.resource.TableName.replace("-${sls:stage}", "")).snake.upper(): self.resource.TableName
+            + Identifier(self.resource.TableName.replace("-${sls:stage}", "").replace("${sls:stage}", "")).snake.upper(): self.resource.TableName
         }
 
     def resources(self):
