@@ -10,15 +10,21 @@ class KinesisEvent(YamlOrderedDict):
         arn,
         batchSize=10,
         maximumRecordAgeInSeconds=120,
+        maximumRetryAttempts=5,
         startingPosition="LATEST",
         functionResponseType="ReportBatchItemFailures",
+        destinations=None,
     ):
         super().__init__()
         self.arn = arn
         self.batchSize = batchSize
         self.maximumRecordAgeInSeconds = maximumRecordAgeInSeconds
+        self.maximumRetryAttempts = maximumRetryAttempts
         self.startingPosition = startingPosition
         self.functionResponseType = functionResponseType
+
+        if destinations:
+            self.destinations = destinations
 
 
 class KinesisFunction(Function):
@@ -35,8 +41,10 @@ class KinesisFunction(Function):
         layers=None,
         batch_size=10,
         maximum_record_age_in_seconds=120,
+        maximum_retry_attempts=5,
         starting_position="LATEST",
         function_response_type="ReportBatchItemFailures",
+        destinations=None,
         use_dlq=True,
         use_async_dlq=True,
         **kwargs,
@@ -49,7 +57,9 @@ class KinesisFunction(Function):
                 arn=stream,
                 batchSize=batch_size,
                 maximumRecordAgeInSeconds=maximum_record_age_in_seconds,
+                maximumRetryAttempts=maximum_retry_attempts,
                 startingPosition=starting_position,
                 functionResponseType=function_response_type,
+                destinations=destinations,
             )
         )
