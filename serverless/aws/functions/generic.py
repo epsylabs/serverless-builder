@@ -245,9 +245,8 @@ class Function(YamlOrderedDict):
                 KeySchema(AttributeName="id", KeyType="HASH"),
             ],
             TimeToLiveSpecification=TimeToLiveSpecification(AttributeName="expiration", Enabled=True),
-        )
+        ).with_full_access()
         self._service.resources.add(idempotency_table)
-        self.iam.apply(DynamoDBFullAccess(idempotency_table.table))
         env = self.get("environment", Environment())
         env.envs["IDEMPOTENCY_TABLE"] = idempotency_table.table_arn
         self.environment = env
