@@ -5,6 +5,7 @@ from serverless.aws.functions.generic import Function
 from serverless.aws.functions.http import HTTPFunction
 from serverless.aws.functions.kinesis import KinesisFunction
 from serverless.aws.functions.s3 import S3Function
+from serverless.aws.functions.sqs import SQSFunction
 from serverless.aws.iam import ServicePolicyBuilder
 from serverless.service.environment import Environment
 from serverless.service.types import Provider as BaseProvider
@@ -155,6 +156,12 @@ class FunctionBuilder:
 
     def kinesis(self, stream, name, description, **kwargs):
         fn = KinesisFunction(stream, self.service, name, description, **kwargs)
+        self.service.functions.add(fn)
+
+        return fn
+
+    def sqs(self, name, description, arn, **kwargs):
+        fn = SQSFunction(self.service, name, description, arn, **kwargs)
         self.service.functions.add(fn)
 
         return fn
