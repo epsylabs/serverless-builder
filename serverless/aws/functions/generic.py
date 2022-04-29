@@ -54,9 +54,7 @@ class Function(YamlOrderedDict):
         self.name = (
             force_name
             if force_name
-            else Identifier(
-                self._service.service.spinal.lower() + "-${sls:stage}" + "-" + self.key.spinal.lower()
-            )
+            else Identifier(self._service.service.spinal.lower() + "-${sls:stage}" + "-" + self.key.spinal.lower())
         )
         self.description = description
 
