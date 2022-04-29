@@ -43,15 +43,13 @@ class S3Bucket(Resource):
         super().configure(service)
 
         if service.has(Encryption):
-            self.resource.BucketEncryption = (
-                BucketEncryption(
-                    ServerSideEncryptionConfiguration=[
-                        ServerSideEncryptionRule(
-                            BucketKeyEnabled=True,
-                            ServerSideEncryptionByDefault=ServerSideEncryptionByDefault(
-                                KMSMasterKeyID=EncryptableResource.encryption_key(), SSEAlgorithm="aws:kms"
-                            ),
-                        )
-                    ]
-                ),
+            self.resource.BucketEncryption = BucketEncryption(
+                ServerSideEncryptionConfiguration=[
+                    ServerSideEncryptionRule(
+                        BucketKeyEnabled=True,
+                        ServerSideEncryptionByDefault=ServerSideEncryptionByDefault(
+                            KMSMasterKeyID=EncryptableResource.encryption_key(), SSEAlgorithm="aws:kms"
+                        ),
+                    )
+                ]
             )

@@ -51,23 +51,26 @@ class Encryption(Feature):
     def pre_render(self, service):
         super().pre_render(service)
         for fn in service.functions.all():
-            self.key.KeyPolicy["Statement"].append({
-                "Effect": "Allow",
-                "Principal": {"Service": "logs.${aws:region}.amazonaws.com"},
-                "Action": [
-                    "kms:Encrypt*",
-                    "kms:Decrypt*",
-                    "kms:ReEncrypt*",
-                    "kms:GenerateDataKey*",
-                    "kms:Describe*",
-                ],
-                "Resource": "*",
-                "Condition": {
-                    "ArnLike": {
-                        "kms:EncryptionContext:aws:logs:arn": "arn:aws:logs:${aws:region}:${aws:accountId}:log-group:/aws/lambda/" + fn.name.spinal
-                    }
-                },
-            })
+            self.key.KeyPolicy["Statement"].append(
+                {
+                    "Effect": "Allow",
+                    "Principal": {"Service": "logs.${aws:region}.amazonaws.com"},
+                    "Action": [
+                        "kms:Encrypt*",
+                        "kms:Decrypt*",
+                        "kms:ReEncrypt*",
+                        "kms:GenerateDataKey*",
+                        "kms:Describe*",
+                    ],
+                    "Resource": "*",
+                    "Condition": {
+                        "ArnLike": {
+                            "kms:EncryptionContext:aws:logs:arn": "arn:aws:logs:${aws:region}:${aws:accountId}:log-group:/aws/lambda/"
+                            + fn.name.spinal
+                        }
+                    },
+                }
+            )
 
     def enable(self, service):
         service.resources.add(self.key)
