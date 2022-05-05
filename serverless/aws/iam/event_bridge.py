@@ -13,5 +13,5 @@ class Publish(IAMPreset):
         policy_builder.allow(
             permissions=["events:PutEvents"],
             resources=[self.event_bus],
-            sid=sid or "EventBridgePublisher" + Identifier(self.event_bus, safe=True).pascal,
+            sid=sid or "EventBridgePublisher" + Identifier(self.event_bus, safe=True).pascal.replace("_", ""),
         )
