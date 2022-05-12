@@ -4,6 +4,10 @@ from serverless.service.plugins.iam_roles import IAMRoles
 
 
 class KMSGrant(Generic):
+    """
+    Plugin npm: https://www.npmjs.com/package/serverless-kms-grants
+    """
+
     def __init__(self, **kwds):
         super().__init__("serverless-kms-grants")
 

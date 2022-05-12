@@ -1,9 +1,13 @@
-from os.path import dirname, basename
+from os.path import basename
 
 from serverless.service.plugins.generic import Generic
 
 
 class Scriptable(Generic):
+    """
+    Plugin npm: https://www.npmjs.com/package/serverless-scriptable-plugin
+    """
+
     yaml_tag = "!ScriptablePlugin"
 
     def __init__(self, hooks=None, inject_to_package=None):

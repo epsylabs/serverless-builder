@@ -2,6 +2,10 @@ from serverless.service.plugins.generic import Generic
 
 
 class Localstack(Generic):
+    """
+    Plugin npm: https://www.npmjs.com/package/serverless-localstack
+    """
+
     yaml_tag = "!LocalstackPlugin"
 
     def __init__(

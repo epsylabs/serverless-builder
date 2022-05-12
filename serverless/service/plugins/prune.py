@@ -2,6 +2,10 @@ from serverless.service.plugins.generic import Generic
 
 
 class Prune(Generic):
+    """
+    Plugin npm: https://www.npmjs.com/package/serverless-prune-plugin
+    """
+
     yaml_tag = "!PrunePlugin"
 
     def __init__(self, automatic=True, number=3):

@@ -9,11 +9,7 @@ class InvalidInputException(Exception):
 
 class DeploymentBucket(Generic):
     """
-    Plugin homepage: https://www.npmjs.com/package/serverless-deployment-bucket
-    Example of use
-    ```python
-    service.plugins.add(DeploymentBucket())
-    ```
+    Plugin npm: https://www.npmjs.com/package/serverless-deployment-bucket
     """
 
     yaml_tag = "!DeploymentBucketPlugin"

@@ -2,6 +2,10 @@ from serverless.service.plugins.generic import Generic
 
 
 class AWSCodeSign(Generic):
+    """
+    Plugin npm: https://www.npmjs.com/package/serverless-aws-signer
+    """
+
     yaml_tag = "!AWSSignPlugin"
 
     def __init__(

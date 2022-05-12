@@ -4,6 +4,10 @@ from troposphere.secretsmanager import Secret
 
 
 class KMSSecrets(Generic):
+    """
+    Plugin npm: https://www.npmjs.com/package/serverless-secrets-mgr-plugin
+    """
+
     yaml_tag = "!AWSSecretsPlugin"
 
     def __init__(self, secrets):
