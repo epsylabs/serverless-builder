@@ -2,7 +2,7 @@ import io
 import os
 from collections import OrderedDict
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional
 
 import yaml
 
