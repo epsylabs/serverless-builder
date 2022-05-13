@@ -1,4 +1,13 @@
 # Plugins
+To activate plugin you just need to add it, with `service.plugins.add` function.
+E.g.
+```python
+from serverless.plugins import ComposedVars
+
+service.plugins.add(ComposedVars())
+```
+
+Majority of plugins is customisable, and during initialization allows you to pass config to itself.
 
 ## serverless-aws-signer
 ## serverless-plugin-composed-vars
