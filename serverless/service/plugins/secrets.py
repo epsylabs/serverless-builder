@@ -1,6 +1,7 @@
+from troposphere.secretsmanager import Secret
+
 from serverless.aws.resources.kms import EncryptableResource
 from serverless.service.plugins.generic import Generic
-from troposphere.secretsmanager import Secret
 
 
 class KMSSecrets(Generic):

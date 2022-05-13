@@ -1,4 +1,4 @@
-from troposphere.kms import Key, Alias
+from troposphere.kms import Alias, Key
 
 from serverless.service.plugins.kms import KMSGrant
 from serverless.service.types import Feature

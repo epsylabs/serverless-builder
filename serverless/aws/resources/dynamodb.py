@@ -1,17 +1,19 @@
-from troposphere.dynamodb import Table as DynamoDBTable, PointInTimeRecoverySpecification, SSESpecification
+from troposphere.dynamodb import PointInTimeRecoverySpecification, SSESpecification
+from troposphere.dynamodb import Table as DynamoDBTable
 
 from serverless.aws.iam.dynamodb import (
+    DynamoDBDelete,
     DynamoDBFullAccess,
     DynamoDBReader,
-    DynamoDBWriter,
-    DynamoDBDelete,
     DynamoDBWriteOnly,
+    DynamoDBWriter,
 )
+
+from ...service import Identifier
+from ..features.encryption import Encryption
+from ..iam import IAMPreset, PolicyBuilder
 from . import Resource
 from .kms import EncryptableResource
-from ..features.encryption import Encryption
-from ..iam import PolicyBuilder, IAMPreset
-from ...service import Identifier
 
 
 class Table(Resource):
