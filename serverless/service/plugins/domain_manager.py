@@ -3,7 +3,7 @@ from serverless.service.plugins.generic import Generic
 
 class DomainManager(Generic):
     """
-    Plugin homepage: https://github.com/amplify-education/serverless-domain-manager
+    Plugin npm: https://github.com/amplify-education/serverless-domain-manager
     """
 
     yaml_tag = "!DomainManagerPlugin"

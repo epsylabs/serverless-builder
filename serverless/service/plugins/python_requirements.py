@@ -2,6 +2,10 @@ from serverless.service.plugins.generic import Generic
 
 
 class PythonRequirements(Generic):
+    """
+    Plugin npm: https://www.npmjs.com/package/serverless-python-requirements
+    """
+
     yaml_tag = "!PythonRequirementsPlugin"
 
     def __init__(

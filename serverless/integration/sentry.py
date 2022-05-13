@@ -2,6 +2,10 @@ from serverless.service.types import Integration
 
 
 class Sentry(Integration):
+    """
+    Homepage: https://docs.sentry.io/platforms/python/
+    """
+
     def __init__(self, sentry_dsn):
         super().__init__()
         self.sentry_dsn = sentry_dsn

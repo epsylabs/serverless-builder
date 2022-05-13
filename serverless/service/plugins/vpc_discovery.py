@@ -3,7 +3,7 @@ from serverless.service.plugins.generic import Generic
 
 class VpcDiscovery(Generic):
     """
-    Plugin homepage: https://www.npmjs.com/package/serverless-vpc-discovery
+    Plugin npm: https://www.npmjs.com/package/serverless-vpc-discovery
     Example of use
     ```python
     service.plugins.add(VpcDiscovery("main", subnets=[{"tagKey": "Name", "tagValues": ["private-a", "private-b"]}]))
