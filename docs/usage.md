@@ -15,8 +15,9 @@ service.render()
 ```
 
 ## Lambda functions
+`serverless-builder` allows you easily define different types of lambdas. In many cases it also takes care, by default, for setting up Dead Letter Queue (DLQ) or its asynchronous equivalent, Retry Policy or idempotency.
 
-`serverless-builder` allows you easily define different types of lambdas
+`serverless-builder` will take care of creating any required resources as well as IAM permissions. 
 
 ## HTTP
 There are two ways of generating HTTP endpoint. You can use one of the helper functions e.g. `http_get`, `http_post`,
@@ -49,3 +50,11 @@ functions:
 ```
 
 ## EventBridge
+```python
+service.builder.function.event_bridge(
+    "event_bridge_function",
+    "sample event bridge function",
+    "epsy",
+    {"source": ["saas.external"]},
+)
+```
