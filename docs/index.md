@@ -1,5 +1,3 @@
-# Start here
-
 <h2 align="center">serverless-builder</h2>
 <p align="center">
 <a href="https://pypi.org/project/serverless-builder/"><img alt="PyPI" src="https://img.shields.io/pypi/v/serverless-builder"></a>
@@ -75,5 +73,5 @@ Wouldn't it be nice to have it done programmatically in language you like, that 
 
 That's where `serverless-builder` becomes handy!
 
-## Thank you!
+## Credits
 Massive thanks goes to [@dxd1](https://github.com/dxd1>) for his original idea and implementation.

@@ -4,10 +4,11 @@ site_author: EpsyLabs engineering@epsyhealth.com
 repo_url: https://github.com/epsylabs/serverless-builder
 
 nav:
-  - Homepage: index.md
+  - Start here: index.md
   - Usage: usage.md
   - Plugins: plugins.md
   - Integrations: integrations.md
+  - Use with CI/CD: ci.md
 
 theme:
   name: material
