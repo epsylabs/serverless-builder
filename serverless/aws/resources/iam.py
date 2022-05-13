@@ -1,4 +1,5 @@
-from troposphere.iam import Role as IAMRole, Policy
+from troposphere.iam import Policy
+from troposphere.iam import Role as IAMRole
 
 from serverless.aws.iam import PolicyBuilder
 from serverless.aws.resources import Resource

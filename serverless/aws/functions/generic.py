@@ -1,11 +1,7 @@
 from typing import Optional
 
 from troposphere.cloudwatch import Alarm, MetricDimension
-from troposphere.dynamodb import (
-    AttributeDefinition,
-    KeySchema,
-    TimeToLiveSpecification,
-)
+from troposphere.dynamodb import AttributeDefinition, KeySchema, TimeToLiveSpecification
 
 from serverless.aws.features.encryption import Encryption
 from serverless.aws.iam import FunctionPolicyBuilder

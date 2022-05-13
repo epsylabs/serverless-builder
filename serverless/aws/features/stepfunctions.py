@@ -1,5 +1,5 @@
 from serverless.aws.resources.logs import LogGroup
-from serverless.service.types import YamlOrderedDict, Identifier
+from serverless.service.types import Identifier, YamlOrderedDict
 
 
 class Stage(YamlOrderedDict):

@@ -1,16 +1,15 @@
 from troposphere.s3 import (
     Bucket,
-    Private,
     BucketEncryption,
-    ServerSideEncryptionRule,
-    ServerSideEncryptionByDefault,
+    Private,
     PublicAccessBlockConfiguration,
+    ServerSideEncryptionByDefault,
+    ServerSideEncryptionRule,
     VersioningConfiguration,
 )
 
 from serverless.aws.features.encryption import Encryption
 from serverless.aws.resources import Resource
-
 from serverless.aws.resources.kms import EncryptableResource
 from serverless.service import Identifier
 

@@ -1,4 +1,4 @@
-from troposphere import Ref, GetAtt
+from troposphere import GetAtt, Ref
 
 
 class EncryptableResource:

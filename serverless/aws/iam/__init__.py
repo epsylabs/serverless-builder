@@ -4,7 +4,7 @@ import json
 from abc import ABC
 
 from serverless.aws.resources import Resource
-from serverless.service.types import YamlOrderedDict, ResourceName
+from serverless.service.types import ResourceName, YamlOrderedDict
 
 
 class PolicyBuilder(YamlOrderedDict):
