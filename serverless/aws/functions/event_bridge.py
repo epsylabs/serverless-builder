@@ -22,8 +22,8 @@ class EventBridgeEvent(YamlOrderedDict):
         if deadLetterQueueArn:
             self.deadLetterQueueArn = deadLetterQueueArn
 
-        # if retryPolicy:
-        self.retryPolicy = retryPolicy.copy()
+        if retryPolicy:
+            self.retryPolicy = retryPolicy.copy()
 
 
 class EventBridgeFunction(Function):
