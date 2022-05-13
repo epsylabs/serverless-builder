@@ -15,6 +15,7 @@ class Runtime(yaml.YAMLObject):
     NODE_10 = "nodejs10"
     NODE_12 = "nodejs12"
     NODE_14 = "nodejs14"
+    NODE_16 = "nodejs16"
 
     PYTHON_2_7 = "python2.7"
     PYTHON_3_6 = "python3.6"
