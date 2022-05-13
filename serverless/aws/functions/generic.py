@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Optional
 
 from troposphere.cloudwatch import Alarm, MetricDimension
@@ -5,7 +7,6 @@ from troposphere.dynamodb import AttributeDefinition, KeySchema, TimeToLiveSpeci
 
 from serverless.aws.features.encryption import Encryption
 from serverless.aws.iam import FunctionPolicyBuilder
-from serverless.aws.iam.dynamodb import DynamoDBFullAccess
 from serverless.aws.resources import DummyResource
 from serverless.aws.resources.dynamodb import Table
 from serverless.aws.resources.kms import EncryptableResource
@@ -140,7 +141,7 @@ class Function(YamlOrderedDict):
             for k, v in kwargs.items():
                 event[k] = v
 
-    def use_dlq(self, onErrorDLQArn: Optional[str] = None, MessageRetentionPeriod: int = 1209600) -> None:
+    def use_dlq(self, onErrorDLQArn: Optional[str] = None, MessageRetentionPeriod: int = 1209600) -> Function:
         """
         @param onErrorDLQArn: Optional[str]
         @param MessageRetentionPeriod: integer – defaults to 14 days in seconds
@@ -151,13 +152,13 @@ class Function(YamlOrderedDict):
             self._service.plugins.add(LambdaDLQ())
 
         if not onErrorDLQArn:
-            onErrorDLQArn = self._ensure_dlq(MessageRetentionPeriod)
+            onErrorDLQArn = self._ensure_dlq(MessageRetentionPeriod).get("arn")
 
-        self.deadLetter = dict(targetArn=self._ensure_dlq(MessageRetentionPeriod).get("arn"))
+        self.deadLetter = dict(targetArn=onErrorDLQArn)
 
         return self
 
-    def use_async_dlq(self, onFailuredlqArn: Optional[str] = None, MessageRetentionPeriod: int = 1209600) -> None:
+    def use_async_dlq(self, onFailuredlqArn: Optional[str] = None, MessageRetentionPeriod: int = 1209600) -> Function:
         """
         @param onFailuredlqArn: Optional[str]
         @param MessageRetentionPeriod: integer – defaults to 14 days in seconds
