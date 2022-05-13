@@ -7,25 +7,23 @@
 
 Python interface to easily generate [serverless.yml](https://www.serverless.com/) file.
 
-Massive thanks goes to [@dxd1](https://github.com/dxd1) for his original idea and implementation.
+To read more about features, visit [📜 our documentation](https://epsylabs.github.io/serverless-builder/).
 
-## Why
-`serverless.yml` easily can become a massive file with hundreds of lines, even if you have only a couple of services.
+## Installation
+```shell
+pip install serverless-builder
+```
 
-Modifying even semi advanced project can be difficult. Adding plugins and configuration for it, making sure your endless resources are configured correctly, making sure that you follow best practices.
-If you will multiple that by all microservices you have, it can be really painful.
+## Features
+* [plugin management](https://epsylabs.github.io/serverless-builder/plugins/) with autoconfiguration
+* [function factory](https://epsylabs.github.io/serverless-builder/usage/#lambda-functions) with some best practice hints
+* autoconfiguration of some provider specific features like AWS X-Ray
+* easy resource manipulation with [troposphere lib](https://github.com/cloudtools/troposphere) (but if you want you can use old good dict)
+* easier IAM management with predefined permission sets
+* built-in support for any serverless attributes
+* integration with [aws lambda powertools](https://awslabs.github.io/aws-lambda-powertools-python/latest/)
 
-## How
-`serverless-builder` comes and tries to help you with those tasks.
-- plugin management (with autoconfiguration)
-- function factory (with some best practice hints (DLQ))
-- autoconfiguration of some provider specific features like AWS X-Ray
-- monitoring support (wip)
-- easy resource manipulation with troposphere lib https://github.com/cloudtools/troposphere (but if you want you can use old good dict)
-- easier IAM management with predefined permission sets
-- built-in support for any serverless attributes
-
-# Example
+## Example of use
 
 ```python
 from serverless.aws.functions.event_bridge import RetryPolicy
