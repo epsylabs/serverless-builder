@@ -12,11 +12,15 @@ nav:
 
 theme:
   name: material
+  features:
+    - navigation.instant
   font:
-    text: Ubuntu
+    text: 'IBM Plex Sans'
+    code: 'IBM Plex Mono'
   palette:
     - scheme: default
-      primary: deep purple
+      primary: 'deep purple'
+      accent: 'red'
       toggle:
         icon: material/toggle-switch-off-outline
         name: Switch to dark mode
@@ -28,29 +32,37 @@ theme:
         name: Switch to light mode
 
 markdown_extensions:
-  - admonition
-  - pymdownx.tabbed:
-      alternate_style: true
-  - pymdownx.highlight:
-      linenums: true
-  - pymdownx.details
-  - pymdownx.snippets:
-      base_path: "."
-      check_paths: true
-  - meta
-  - toc:
-      permalink: true
-      toc_depth: 4
-  - attr_list
-  - pymdownx.emoji
-  - pymdownx.inlinehilite
-  - pymdownx.superfences:
-      custom_fences:
-        - name: mermaid
-          class: mermaid
-          format: !!python/name:pymdownx.superfences.fence_code_format
+    - toc:
+        permalink: True
+    - admonition
+    - smarty
+    - meta
+    - wikilinks
+    - codehilite:
+        linenums: True
+    - pymdownx.arithmatex
+    - pymdownx.betterem:
+        smart_enable: all
+    - pymdownx.caret
+    - pymdownx.critic
+    - pymdownx.details
+    - pymdownx.emoji:
+        emoji_generator: !!python/name:pymdownx.emoji.to_svg
+    - pymdownx.inlinehilite
+    - pymdownx.magiclink
+    - pymdownx.mark
+    - pymdownx.smartsymbols
+    - pymdownx.superfences
+    - pymdownx.tasklist:
+        custom_checkbox: True
+    - pymdownx.tilde
 
-copyright: Copyright &copy; 2022 All rights reserved
+extra:
+  social:
+    - icon: 'fontawesome/brands/github'
+      link: 'https://github.com/epsylabs/serverless-builder'
+
+copyright: Copyright EpsyHealth &copy; 2022 All rights reserved
 
 plugins:
   - search
