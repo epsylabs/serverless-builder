@@ -1,4 +1,5 @@
 import abc
+import hashlib
 import re
 from collections import OrderedDict
 
@@ -95,9 +96,13 @@ class ResourceName:
                     parts.append(part)
                 else:
                     parts.append(part[0:3])
-            return "-".join(parts)
+            name = "-".join(parts)
         else:
-            return self.name
+            name = self.name
+
+        name = name + "-" + hashlib.md5(safe.encode('utf-8')).hexdigest()[:5]
+
+        return name
 
 
 class ProviderMetadata(type(YamlOrderedDict), type(abc.ABC)):
