@@ -100,7 +100,7 @@ class ResourceName:
         else:
             name = self.name
 
-        name = name + "-" + hashlib.md5(safe.encode('utf-8')).hexdigest()[:5]
+        name = name + "-" + hashlib.md5(safe.encode("utf-8")).hexdigest()[:5]
 
         return name
 
