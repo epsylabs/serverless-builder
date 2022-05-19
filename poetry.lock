@@ -21,6 +21,14 @@ tests = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)"
 tests_no_zope = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six", "mypy", "pytest-mypy-plugins", "cloudpickle"]
 
 [[package]]
+name = "awacs"
+version = "2.1.0"
+description = "AWS Access Policy Language creation library"
+category = "main"
+optional = false
+python-versions = ">=3.7.0"
+
+[[package]]
 name = "bump2version"
 version = "1.0.1"
 description = "Version-bump your software with a single command!"
@@ -180,7 +188,7 @@ policy = ["awacs (>=2.0.0)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "c4a7d2a825c76b8ce510f8919f41aeafa783a3bda9b4ead3eba2c62700146a29"
+content-hash = "1910edd4fd13b0fb776bb21a9eea0bf6810666d82cabf3e19252dbfeb511e168"
 
 [metadata.files]
 atomicwrites = [
@@ -190,6 +198,10 @@ atomicwrites = [
 attrs = [
     {file = "attrs-21.4.0-py2.py3-none-any.whl", hash = "sha256:2d27e3784d7a565d36ab851fe94887c5eccd6a463168875832a1be79c82828b4"},
     {file = "attrs-21.4.0.tar.gz", hash = "sha256:626ba8234211db98e869df76230a137c4c40a12d72445c45d5f5b716f076e2fd"},
+]
+awacs = [
+    {file = "awacs-2.1.0-py3-none-any.whl", hash = "sha256:78a9eaeeb9e4611eb8d85ebcec010d0ed48d93d05b7be4d18df85df756b386a8"},
+    {file = "awacs-2.1.0.tar.gz", hash = "sha256:efb84344791cd4efbb802107df7854a750284c9efc6c4c86e23d319a534f00a5"},
 ]
 bump2version = [
     {file = "bump2version-1.0.1-py2.py3-none-any.whl", hash = "sha256:37f927ea17cde7ae2d7baf832f8e80ce3777624554a653006c9144f8017fe410"},
