@@ -1,7 +1,7 @@
-from troposphere import Join
 from troposphere.dynamodb import Table
 
 from serverless.aws.iam import IAMPreset, PolicyBuilder
+from serverless.aws.types import DynamoDBArn, DynamoDBIndexArn
 
 
 class DynamoDBReader(IAMPreset):
@@ -15,8 +15,8 @@ class DynamoDBReader(IAMPreset):
                 "dynamodb:Scan",
             ],
             resources=[
-                self.resource.get_att("Arn").to_dict(),
-                Join(delimiter="", values=[self.resource.get_att("Arn").to_dict(), "/index/*"]).to_dict(),
+                DynamoDBArn(self.resource),
+                DynamoDBIndexArn(self.resource, "*")
             ],
             sid=sid or self.resource.name + "Reader",
         )
@@ -31,7 +31,7 @@ class DynamoDBWriter(IAMPreset):
                 "dynamodb:UpdateItem",
                 "dynamodb:PutItem",
             ],
-            resources=[self.resource.get_att("Arn").to_dict()],
+            resources=[DynamoDBArn(self.resource)],
             sid=sid or self.resource.name + "Writer",
         )
 
@@ -44,7 +44,7 @@ class DynamoDBWriteOnly(IAMPreset):
                 "dynamodb:UpdateItem",
                 "dynamodb:PutItem",
             ],
-            resources=[self.resource.get_att("Arn").to_dict()],
+            resources=[DynamoDBArn(self.resource)],
             sid=sid or self.resource.name + "WriteOnly",
         )
 
@@ -55,7 +55,7 @@ class DynamoDBDelete(IAMPreset):
             permissions=[
                 "dynamodb:DeleteItem",
             ],
-            resources=[self.resource.get_att("Arn").to_dict()],
+            resources=[DynamoDBArn(self.resource)],
             sid=sid or self.resource.name + "Delete",
         )
 
@@ -72,6 +72,6 @@ class DynamoDBFullAccess(IAMPreset):
                 "dynamodb:UpdateItem",
                 "dynamodb:PutItem",
             ],
-            resources=[self.resource.get_att("Arn").to_dict()],
+            resources=[DynamoDBArn(self.resource)],
             sid=sid or self.resource.name + "FullAccess",
         )
