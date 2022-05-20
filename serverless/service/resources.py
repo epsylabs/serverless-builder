@@ -14,6 +14,7 @@ class ResourceManager(yaml.YAMLObject):
         self.description = description
         self._service = service
         self.resources = []
+        self.conditions = []
 
     def add(self, resource: Union[AWSObject, Resource]):
         if isinstance(resource, Resource):
@@ -25,6 +26,11 @@ class ResourceManager(yaml.YAMLObject):
                 self._service.provider.iam.apply(preset)
         else:
             self.resources.append(resource)
+
+        return resource
+
+    def add_condition(self, resource: Union[AWSObject]):
+        self.conditions.append(resource)
 
         return resource
 
@@ -41,5 +47,6 @@ class ResourceManager(yaml.YAMLObject):
             dict(
                 Description=data.description,
                 Resources={resource.title: resource.to_dict() for resource in data.resources},
+                Conditions={condition.title: condition for condition in data.conditions},
             )
         )
