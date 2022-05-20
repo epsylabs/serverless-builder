@@ -19,7 +19,7 @@ class Queue(Resource):
         super().configure(service)
 
         if service.has(Encryption):
-            self.resource.KmsMasterKeyId = EncryptableResource.encryption_key()
+            self.resource.KmsMasterKeyId = EncryptableResource.encryption_alias()
 
     def permissions(self):
         return []

@@ -100,7 +100,8 @@ class Function(YamlOrderedDict):
         log_group = dict(Type="AWS::Logs::LogGroup", Properties=dict(RetentionInDays=30))
         if service.has(Encryption):
             log_group["Properties"]["KmsKeyId"] = EncryptableResource.encryption_arn()
-            log_group["DependsOn"] = [EncryptableResource.encryption_key_name() + "Alias"]
+            if not service.regions:
+                log_group["DependsOn"] = [EncryptableResource.encryption_key_name() + "Alias"]
 
         service.resources.add(DummyResource(title=self.log_group_name(), **log_group))
 
