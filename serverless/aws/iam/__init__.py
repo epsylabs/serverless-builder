@@ -65,7 +65,7 @@ class ServicePolicyBuilder(PolicyBuilder):
     def to_yaml(cls, dumper, data):
         export = dict(data.items())
         export.pop("service", None)
-
+        export["name"] = data.role
         return dumper.represent_dict(dict(role=export))
 
 
