@@ -138,7 +138,7 @@ def kms_create(service, region, stage, path):
         target_session = boto3.client('kms', region_name=target_region)
 
         try:
-            replica = target_session.describe_key(KeyId=key_id)
+            replica = target_session.describe_key(KeyId=key_id).get("KeyMetadata")
             logger.info(f"Key replica {key_id} exists in {target_region}")
         except target_session.exceptions.NotFoundException as e:
             replica = client.replicate_key(
@@ -146,7 +146,7 @@ def kms_create(service, region, stage, path):
                 KeyId=key_id,
                 ReplicaRegion=target_region,
                 **defaults
-            )
+            ).get("ReplicaKeyMetadata")
             logger.info(f"Replicate key created in {target_region}")
 
         logger.info(f"Update key policy in {target_region}")
@@ -159,7 +159,7 @@ def kms_create(service, region, stage, path):
         try:
             target_session.create_alias(
                 AliasName=f'alias/{service}-{stage}',
-                TargetKeyId=replica.get("KeyMetadata").get("KeyId"),
+                TargetKeyId=replica.get("KeyId"),
             )
             logger.info(f"Created key alias in {target_region}")
         except client.exceptions.AlreadyExistsException:
