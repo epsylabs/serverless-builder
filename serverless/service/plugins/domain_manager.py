@@ -8,10 +8,12 @@ class DomainManager(Generic):
 
     yaml_tag = "!DomainManagerPlugin"
 
-    def __init__(self, domain, api="rest", stage="${sls:stage}", base_path=None, create_route_53_record=False):
+    def __init__(self, domain="api", api="rest", stage="${sls:stage}", base_path="", create_route_53_record=False, **kwargs):
         super().__init__("serverless-domain-manager")
+
+        kwargs.setdefault("domainName", f"{api}.{domain}")
         self[api] = dict(
-            domainName=f"{api}.{domain}", stage=stage, basePath=base_path, createRoute53Record=create_route_53_record
+            stage=stage, basePath=base_path, createRoute53Record=create_route_53_record, **kwargs
         )
 
     def enable(self, service):
