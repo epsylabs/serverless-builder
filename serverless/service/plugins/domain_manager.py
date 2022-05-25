@@ -1,4 +1,5 @@
 from serverless.service.plugins.generic import Generic
+import troposphere.ssm as ssm
 
 
 class DomainManager(Generic):
@@ -21,3 +22,8 @@ class DomainManager(Generic):
         export.pop("name", None)
 
         service.custom.customDomain = export
+        param = service.resources.parameter(
+            "RESTApiId",
+            "api-id",
+            {"Fn::GetAtt": ["ApiGatewayRestApi", "RootResourceId"]}
+        )
