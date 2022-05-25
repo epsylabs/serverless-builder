@@ -1,6 +1,7 @@
 from troposphere.kms import Alias, Key
 
 from serverless.service.plugins.kms import KMSGrant
+from serverless.service.plugins.scriptable import Scriptable
 from serverless.service.types import Feature
 
 
@@ -53,7 +54,12 @@ class Encryption(Feature):
     def pre_render(self, service):
         super().pre_render(service)
 
-        if not service.regions:
+        if service.regions:
+            if not service.plugins.has(Scriptable):
+                service.plugins.add(Scriptable())
+
+            # service.plugins.get(Scriptable).hooks.append("")
+
             return
 
         for fn in service.functions.all():
