@@ -1,5 +1,6 @@
 from typing import Union
 
+import troposphere.ssm as ssm
 import yaml
 from troposphere import AWSObject
 
@@ -40,6 +41,17 @@ class ResourceManager(yaml.YAMLObject):
 
     def all(self):
         return self.resources
+
+    def parameter(self, resource_id, name, value, type="String"):
+        param = self.add(ssm.Parameter(
+            resource_id,
+            Name=f"/${{self:service}}/${{sls:stage}}/{name}",
+            Type=type,
+            Value=""
+        ))
+        param.properties.__setitem__("Value", value)
+
+        return param
 
     @classmethod
     def to_yaml(cls, dumper, data):
