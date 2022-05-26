@@ -16,6 +16,7 @@ class ResourceManager(yaml.YAMLObject):
         self._service = service
         self.resources = []
         self.conditions = []
+        self.outputs = {}
 
     def add(self, resource: Union[AWSObject, Resource]):
         if isinstance(resource, Resource):
@@ -42,6 +43,17 @@ class ResourceManager(yaml.YAMLObject):
     def all(self):
         return self.resources
 
+    def output(self, name, value, export=False):
+        output = {
+            "Value": value
+        }
+        if export:
+            output["Export"] = {"Name": "${sls:service}-${sls:stage}-" + name}
+        self.outputs[name] = output
+
+    def export(self, name, value):
+        return output(name, value, export=True)
+
     def parameter(self, resource_id, name, value, type="String"):
         param = self.add(ssm.Parameter(
             resource_id,
@@ -60,5 +72,6 @@ class ResourceManager(yaml.YAMLObject):
                 Description=data.description,
                 Resources={resource.title: resource.to_dict() for resource in data.resources},
                 Conditions={condition.title: condition for condition in data.conditions},
+                Outputs={name: output for name, output in data.outputs.items()},
             )
         )

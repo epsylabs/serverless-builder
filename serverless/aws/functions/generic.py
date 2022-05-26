@@ -77,6 +77,8 @@ class Function(YamlOrderedDict):
 
             layers.append({"Ref": "PythonRequirementsLambdaLayer"})
 
+        self._service.resources.output(self.name.spinal + "-arn", self.arn())
+
         if layers:
             self.layers = layers
 
@@ -207,17 +209,11 @@ class Function(YamlOrderedDict):
             )
         )
 
-        self._service.resources.add(
-            DummyResource(
-                self.resource_name(),
-                Type="AWS::Lambda::Function",
-                DependsOn=[
-                    self.iam_role_name(),
-                    self.log_group_name(),
-                    resource,
-                ],
-            )
-        )
+        self.dependsOn = [
+            self.iam_role_name(),
+            self.log_group_name(),
+            resource,
+        ]
 
         return {"Ref": f"{self.name.pascal}DLQ", "arn": SQSArn(name)}
 
