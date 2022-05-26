@@ -89,7 +89,7 @@ class ResourceName:
         safe = safe.replace("${self:service}", self.service.service.spinal)
         safe = safe.replace("${sls:stage}", "staging")
 
-        if len(safe) > 60:
+        if len(safe) > 55:
             parts = []
             for part in self.name.split("-"):
                 if "$" in part or part == "lambda":
