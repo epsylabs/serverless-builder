@@ -43,16 +43,16 @@ class ResourceManager(yaml.YAMLObject):
     def all(self):
         return self.resources
 
-    def output(self, name, value, export=False):
+    def output(self, output_name, name, value, export=False):
         output = {
             "Value": value
         }
         if export:
-            output["Export"] = {"Name": "${sls:service}-${sls:stage}-" + name}
-        self.outputs[name] = output
+            output["Export"] = {"Name": "${self:service}-${sls:stage}-" + name}
+        self.outputs[output_name] = output
 
-    def export(self, name, value):
-        return output(name, value, export=True)
+    def export(self, output_name, name, value):
+        return self.output(output_name, name, value, export=True)
 
     def parameter(self, resource_id, name, value, type="String"):
         param = self.add(ssm.Parameter(
