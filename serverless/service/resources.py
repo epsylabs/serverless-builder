@@ -59,7 +59,7 @@ class ResourceManager(yaml.YAMLObject):
     def parameter(self, resource_id, name, value, type="String"):
         param = self.add(ssm.Parameter(
             resource_id,
-            Name=f"/${{self:service}}/${{sls:stage}}/{name}",
+            Name=f"/services/${{self:service}}/${{sls:stage}}/{name}",
             Type=type,
             Value=""
         ))
