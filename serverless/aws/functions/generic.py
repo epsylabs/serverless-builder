@@ -77,7 +77,7 @@ class Function(YamlOrderedDict):
 
             layers.append({"Ref": "PythonRequirementsLambdaLayer"})
 
-        self._service.resources.export(self.resource_name() + "ArnOutput",  self.name.spinal + "-arn", self.arn())
+        self._service.resources.export(self.resource_name() + "ArnOutput",  self.name.spinal + "-arn", self.arn(), append=False)
 
         if layers:
             self.layers = layers
