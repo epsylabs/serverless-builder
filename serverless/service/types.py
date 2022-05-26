@@ -62,7 +62,7 @@ class Identifier(yaml.YAMLObject):
 
     @property
     def spinal(self):
-        return inflection.dasherize(self.identifier).lower()
+        return inflection.dasherize(inflection.underscore(self.identifier)).lower()
 
     @property
     def resource(self):
