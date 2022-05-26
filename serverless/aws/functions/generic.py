@@ -77,6 +77,8 @@ class Function(YamlOrderedDict):
 
             layers.append({"Ref": "PythonRequirementsLambdaLayer"})
 
+        self._service.resources.export(self.resource_name() + "ArnOutput",  self.name.spinal + "-arn", self.arn(), append=False)
+
         if layers:
             self.layers = layers
 
@@ -100,7 +102,8 @@ class Function(YamlOrderedDict):
         log_group = dict(Type="AWS::Logs::LogGroup", Properties=dict(RetentionInDays=30))
         if service.has(Encryption):
             log_group["Properties"]["KmsKeyId"] = EncryptableResource.encryption_arn()
-            log_group["DependsOn"] = [EncryptableResource.encryption_key_name() + "Alias"]
+            if not service.regions:
+                log_group["DependsOn"] = [EncryptableResource.encryption_key_name() + "Alias"]
 
         service.resources.add(DummyResource(title=self.log_group_name(), **log_group))
 
@@ -206,17 +209,11 @@ class Function(YamlOrderedDict):
             )
         )
 
-        self._service.resources.add(
-            DummyResource(
-                self.resource_name(),
-                Type="AWS::Lambda::Function",
-                DependsOn=[
-                    self.iam_role_name(),
-                    self.log_group_name(),
-                    resource,
-                ],
-            )
-        )
+        self.dependsOn = [
+            self.iam_role_name(),
+            self.log_group_name(),
+            resource,
+        ]
 
         return {"Ref": f"{self.name.pascal}DLQ", "arn": SQSArn(name)}
 

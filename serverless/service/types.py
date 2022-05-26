@@ -62,7 +62,7 @@ class Identifier(yaml.YAMLObject):
 
     @property
     def spinal(self):
-        return inflection.dasherize(self.identifier).lower()
+        return inflection.dasherize(inflection.underscore(self.identifier)).lower()
 
     @property
     def resource(self):
@@ -89,7 +89,7 @@ class ResourceName:
         safe = safe.replace("${self:service}", self.service.service.spinal)
         safe = safe.replace("${sls:stage}", "staging")
 
-        if len(safe) > 60:
+        if len(safe) > 55:
             parts = []
             for part in self.name.split("-"):
                 if "$" in part or part == "lambda":
@@ -100,7 +100,7 @@ class ResourceName:
         else:
             name = self.name
 
-        name = name + "-" + hashlib.md5(safe.encode('utf-8')).hexdigest()[:5]
+        name = name + "-" + hashlib.md5(safe.encode("utf-8")).hexdigest()[:5]
 
         return name
 

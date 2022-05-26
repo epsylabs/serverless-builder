@@ -20,6 +20,8 @@ class LogGroup(Resource):
 
         if service.has(Encryption):
             self.resource.KmsKeyId = EncryptableResource.encryption_arn()
-            self.resource.DependsOn = [EncryptableResource.encryption_key_name() + "Alias"]
+
+            if not service.regions:
+                self.resource.DependsOn = [EncryptableResource.encryption_key_name() + "Alias"]
 
         super().configure(service)

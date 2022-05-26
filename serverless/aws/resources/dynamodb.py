@@ -1,5 +1,6 @@
-from troposphere.dynamodb import PointInTimeRecoverySpecification, SSESpecification
-from troposphere.dynamodb import Table as DynamoDBTable
+from troposphere.dynamodb import PointInTimeRecoverySpecification, SSESpecification, GlobalTable, ReplicaSpecification, \
+    ReplicaSSESpecification, StreamSpecification
+from troposphere.dynamodb import Table as DynamoDBTable, GlobalTable
 
 from serverless.aws.iam.dynamodb import (
     DynamoDBDelete,
@@ -8,6 +9,7 @@ from serverless.aws.iam.dynamodb import (
     DynamoDBWriteOnly,
     DynamoDBWriter,
 )
+from ..types import Ref, Equals
 
 from ...service import Identifier
 from ..features.encryption import Encryption
@@ -17,20 +19,30 @@ from .kms import EncryptableResource
 
 
 class Table(Resource):
-    def __init__(self, TableName, with_full_access=False, with_read_access=False, **kwargs):
+    def __init__(self, TableName, with_full_access=False, with_read_access=False, is_global=False, **kwargs):
         if "${sls:stage}" not in TableName:
             TableName += "-${sls:stage}"
 
-        kwargs.setdefault(
+        kwargs.setdefault("DeletionPolicy", "Retain")
+
+        if is_global:
+            cls = GlobalTable
+            kwargs["Condition"] = "IsPrimaryRegion"
+        else:
+            cls = DynamoDBTable
+            kwargs.setdefault(
+                "PointInTimeRecoverySpecification", PointInTimeRecoverySpecification(PointInTimeRecoveryEnabled=True)
+            )
+
+        self.PointInTimeRecoverySpecification = kwargs.get(
             "PointInTimeRecoverySpecification", PointInTimeRecoverySpecification(PointInTimeRecoveryEnabled=True)
         )
 
-        kwargs.setdefault("DeletionPolicy", "Retain")
-
         super().__init__(
-            DynamoDBTable(title=TableName.replace("${sls:stage}", "").strip("-"), TableName=TableName, **kwargs)
+            cls(title=TableName.replace("${sls:stage}", "").strip("-"), TableName=TableName, **kwargs)
         )
         self.access = None
+        self.is_global = is_global
 
         if with_full_access:
             self.with_read_access()
@@ -39,10 +51,25 @@ class Table(Resource):
             self.with_read_access()
 
     def configure(self, service):
+        if service.regions and self.is_global:
+            self.resource.Replicas = [ReplicaSpecification(Region=region, PointInTimeRecoverySpecification=self.PointInTimeRecoverySpecification) for region in service.regions]
+            self.resource.StreamSpecification = StreamSpecification(StreamViewType="NEW_AND_OLD_IMAGES")
+
         if service.has(Encryption):
-            self.resource.SSESpecification = SSESpecification(
-                KMSMasterKeyId=EncryptableResource.encryption_key(), SSEEnabled=True, SSEType="KMS"
-            )
+            sse_kwargs = dict(SSEEnabled=True, SSEType="KMS")
+
+            if not isinstance(self.resource, GlobalTable):
+                sse_kwargs["KMSMasterKeyId"] = EncryptableResource.encryption_key()
+            else:
+                for replica in self.resource.Replicas:
+                    replica.SSESpecification = ReplicaSSESpecification(KMSMasterKeyId=EncryptableResource.encryption_alias())
+
+            self.resource.SSESpecification = SSESpecification(**sse_kwargs)
+            if not service.regions:
+                self.resource.DependsOn = ["ServiceEncryptionKeyAlias"]
+
+        if isinstance(self.resource, GlobalTable):
+            service.resources.conditions.append(Equals("IsPrimaryRegion", [Ref("AWS::Region"), service.regions[0]]))
 
         if service.service.pascal not in self.resource.TableName:
             self.resource.TableName = service.service.pascal + self.resource.TableName
@@ -75,7 +102,11 @@ class Table(Resource):
 
     @property
     def table_arn(self):
-        return self.resource.Ref().to_dict()
+        return Table.arn(self.resource)
+
+    @classmethod
+    def arn(cls, resource):
+        return f"arn:aws:dynamodb:${{aws:region}}:${{aws:accountId}}:table/{resource.TableName}"
 
     def variables(self):
         return {

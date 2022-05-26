@@ -49,6 +49,7 @@ class Service(OrderedDict, yaml.YAMLObject):
         provider: Provider,
         config: Optional[Configuration] = None,
         custom: Optional[dict] = None,
+        regions=None,
         **kwds,
     ):
         super().__init__(**kwds)
@@ -58,6 +59,7 @@ class Service(OrderedDict, yaml.YAMLObject):
         self.variablesResolutionMode = 20210326
         self.custom = YamlOrderedDict(vars="${file(./variables.yml):${sls:stage}}", **(custom or {}))
         self.config = config or Configuration()
+        self.regions = regions
 
         provider.configure(self)
         self.provider = provider
@@ -141,5 +143,6 @@ class Service(OrderedDict, yaml.YAMLObject):
             feature.pre_render(data)
 
         data.pop("features", None)
+        data.pop("regions", None)
 
         return dumper.represent_dict(data)

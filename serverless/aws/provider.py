@@ -1,5 +1,6 @@
 import yaml
 
+from serverless.aws.functions.dynamodb import DynamoDBStreamFunction
 from serverless.aws.functions.event_bridge import EventBridgeFunction
 from serverless.aws.functions.generic import Function
 from serverless.aws.functions.http import HTTPFunction
@@ -157,6 +158,12 @@ class FunctionBuilder:
 
     def kinesis(self, stream, name, description, **kwargs):
         fn = KinesisFunction(stream, self.service, name, description, **kwargs)
+        self.service.functions.add(fn)
+
+        return fn
+
+    def dynamodb_stream(self, stream, name, description, **kwargs):
+        fn = DynamoDBStreamFunction(stream, self.service, name, description, **kwargs)
         self.service.functions.add(fn)
 
         return fn
