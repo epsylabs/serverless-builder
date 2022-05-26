@@ -48,7 +48,7 @@ def replace_variables(variables, string):
 
 @kms.command(name="create")
 @click.argument("service")
-@click.option("-p", "--path", default=join(getcwd(), "serverless.yml"), type=click.Path())
+@click.option("-p", "--path", default=join(getcwd(), "serverless.yml"), type=click.Path(exists=True))
 @click.option('-s', '--stage', required=True)
 @click.option('-r', '--region', multiple=True)
 def kms_create(service, region, stage, path):
@@ -62,28 +62,27 @@ def kms_create(service, region, stage, path):
     }
 
     POLICY_TEMPLATE = Encryption.POLICY
-    if isfile(path):
-        with open(path, "r") as f:
-            definition = yaml.load(f, Loader=yaml.Loader)
-            for fn in definition.get("functions").values():
-                POLICY_TEMPLATE["Statement"].append({
-                    "Effect": "Allow",
-                    "Principal": {"Service": "logs.${aws:region}.amazonaws.com"},
-                    "Action": [
-                        "kms:Encrypt*",
-                        "kms:Decrypt*",
-                        "kms:ReEncrypt*",
-                        "kms:GenerateDataKey*",
-                        "kms:Describe*",
-                    ],
-                    "Resource": "*",
-                    "Condition": {
-                        "ArnLike": {
-                            "kms:EncryptionContext:aws:logs:arn": "arn:aws:logs:${aws:region}:${aws:accountId}:log-group:/aws/lambda/"
-                                                                  + fn.get("name")
-                        }
-                    },
-                })
+    with open(path, "r") as f:
+        definition = yaml.load(f, Loader=yaml.Loader)
+        for fn in definition.get("functions").values():
+            POLICY_TEMPLATE["Statement"].append({
+                "Effect": "Allow",
+                "Principal": {"Service": "logs.${aws:region}.amazonaws.com"},
+                "Action": [
+                    "kms:Encrypt*",
+                    "kms:Decrypt*",
+                    "kms:ReEncrypt*",
+                    "kms:GenerateDataKey*",
+                    "kms:Describe*",
+                ],
+                "Resource": "*",
+                "Condition": {
+                    "ArnLike": {
+                        "kms:EncryptionContext:aws:logs:arn": "arn:aws:logs:${aws:region}:${aws:accountId}:log-group:/aws/lambda/"
+                                                              + fn.get("name")
+                    }
+                },
+            })
 
     POLICY_TEMPLATE = json.dumps(POLICY_TEMPLATE)
 
@@ -129,7 +128,6 @@ def kms_create(service, region, stage, path):
         logger.info(f"Created an alias: {alias}")
     except client.exceptions.AlreadyExistsException:
         logger.info(f"Using existing alias: {alias}")
-        pass
 
     for target_region in [r for r in region if r != client.meta.region_name]:
         logger.info(f"Replicating key to: {target_region}")
