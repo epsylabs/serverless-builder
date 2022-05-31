@@ -4,12 +4,13 @@ from troposphere.iam import Role as IAMRole
 from serverless.aws.iam import PolicyBuilder
 from serverless.aws.resources import Resource
 from serverless.service import Identifier
+from serverless.service.types import ResourceName, ResourceId
 
 
 class Role(Resource):
     def __init__(self, RoleName, **kwargs):
         self.role = IAMRole(
-            title=Identifier(RoleName, safe=True).pascal,
+            title=str(ResourceId(RoleName)),
             RoleName=RoleName,
             Policies=[Policy(PolicyName=RoleName + "-inline", PolicyDocument=dict())],
             validation=False,

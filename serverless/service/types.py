@@ -80,13 +80,13 @@ class Identifier(yaml.YAMLObject):
 
 
 class ResourceName:
-    def __init__(self, name: str, service):
+    def __init__(self, name: str, service=None):
         self.name = name
         self.service = service
 
     def __str__(self):
         safe = self.name.replace("${aws:region}", "us-east-1")
-        safe = safe.replace("${self:service}", self.service.service.spinal)
+        safe = safe.replace("${self:service}", (self.service.service.spinal if self.service else ""))
         safe = safe.replace("${sls:stage}", "staging")
 
         if len(safe) > 55:
@@ -103,6 +103,11 @@ class ResourceName:
         name = name + "-" + hashlib.md5(safe.encode("utf-8")).hexdigest()[:5]
 
         return name
+
+
+class ResourceId(ResourceName):
+    def __str__(self):
+        return Identifier(super().__str__()).pascal
 
 
 class ProviderMetadata(type(YamlOrderedDict), type(abc.ABC)):
