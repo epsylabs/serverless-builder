@@ -10,7 +10,7 @@ class Encryption(Feature):
                  "Version": "2012-10-17",
                  "Statement": [
                      {
-                         "Sid": "Enable IAM User Permissions",
+                         "Sid": "RootPermissions",
                          "Effect": "Allow",
                          "Principal": {"AWS": "arn:aws:iam::${aws:accountId}:root"},
                          "Action": "kms:*",
@@ -61,6 +61,10 @@ class Encryption(Feature):
             # service.plugins.get(Scriptable).hooks.append("")
 
             return
+
+        for resource in service.resources.all():
+            if resource.title == "ServiceSecret":
+                resource.DependsOn = "ServiceEncryptionKeyAlias"
 
         for fn in service.functions.all():
             self.key.KeyPolicy["Statement"].append(
