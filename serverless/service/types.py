@@ -54,7 +54,7 @@ class Identifier(yaml.YAMLObject):
 
     @property
     def pascal(self):
-        return inflection.camelize(inflection.underscore(self.identifier), uppercase_first_letter=True)
+        return inflection.camelize(inflection.underscore(self.identifier), uppercase_first_letter=True).replace("_", "")
 
     @property
     def snake(self):
@@ -89,7 +89,7 @@ class ResourceName:
         safe = safe.replace("${self:service}", (self.service.service.spinal if self.service else ""))
         safe = safe.replace("${sls:stage}", "staging")
 
-        if len(safe) > 55:
+        if len(safe) > 50:
             parts = []
             for part in self.name.split("-"):
                 if "$" in part or part == "lambda":
