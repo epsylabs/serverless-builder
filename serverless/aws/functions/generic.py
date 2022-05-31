@@ -224,7 +224,7 @@ class Function(YamlOrderedDict):
         return self
 
     def with_idempotency(self, table_name=None):
-        table_name = table_name or f"{self.name.pascal}Idempotency"
+        table_name = table_name or f"{self.name.pascal.replace('${sls:stage}', '')}Idempotency-" + '${sls:stage}'
 
         idempotency_table = Table(
             TableName=table_name,
