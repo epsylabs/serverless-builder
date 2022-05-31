@@ -19,7 +19,7 @@ class KinesisStream(Resource):
     def configure(self, service):
         super().configure(service)
 
-        if service.has(Encryption) and self.resource.StreamEncryption:
+        if service.has(Encryption) and "StreamEncryption" not in self.resource.properties:
             self.resource.StreamEncryption = StreamEncryption(
                 KeyId=EncryptableResource.encryption_key(), EncryptionType="KMS"
             )
