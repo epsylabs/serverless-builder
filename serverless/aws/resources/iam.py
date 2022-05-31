@@ -22,4 +22,4 @@ class Role(Resource):
 
     def resources(self):
         self.role.Policies[0].PolicyDocument = dict(Statement=self.policy.statements)
-        return super().resources() + [self.role]
+        return [self.role]
