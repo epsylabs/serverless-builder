@@ -240,7 +240,7 @@ class Function(YamlOrderedDict):
         ).with_full_access()
         self._service.resources.add(idempotency_table)
         env = self.get("environment", Environment())
-        env.envs["IDEMPOTENCY_TABLE"] = idempotency_table.table_arn
+        env.envs["IDEMPOTENCY_TABLE"] = idempotency_table.resource.TableName
         self.environment = env
 
         return self
