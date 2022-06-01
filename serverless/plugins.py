@@ -7,3 +7,4 @@ from serverless.service.plugins.prune import Prune
 from serverless.service.plugins.python_requirements import PythonRequirements
 from serverless.service.plugins.step_functions import StepFunctions
 from serverless.service.plugins.vpc_discovery import VpcDiscovery
+from serverless.service.plugins.export_env import ExportEnv
