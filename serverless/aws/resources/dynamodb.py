@@ -45,7 +45,7 @@ class Table(Resource):
         self.is_global = is_global
 
         if with_full_access:
-            self.with_read_access()
+            self.with_full_access()
 
         if with_read_access:
             self.with_read_access()
