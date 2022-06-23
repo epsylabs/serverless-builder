@@ -16,7 +16,7 @@ class DynamoDBReader(IAMPreset):
             ],
             resources=[
                 DynamoDBArn(self.resource),
-                DynamoDBIndexArn(self.resource, "*")
+                DynamoDBIndexArn(self.resource, "*"),
             ],
             sid=sid or self.resource.name + "Reader",
         )
@@ -72,6 +72,9 @@ class DynamoDBFullAccess(IAMPreset):
                 "dynamodb:UpdateItem",
                 "dynamodb:PutItem",
             ],
-            resources=[DynamoDBArn(self.resource)],
+            resources=[
+                DynamoDBArn(self.resource),
+                DynamoDBIndexArn(self.resource, "*"),
+            ],
             sid=sid or self.resource.name + "FullAccess",
         )
