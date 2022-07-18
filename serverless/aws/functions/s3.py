@@ -5,13 +5,16 @@ from serverless.service import YamlOrderedDict
 class S3Event(YamlOrderedDict):
     yaml_tag = "s3"
 
-    def __init__(self, bucket, event, rules=None):
+    def __init__(self, bucket, event, rules=None, existing=False):
         super().__init__()
         self.bucket = bucket
         self.event = event
 
         if rules:
             self.rules = rules
+
+        if existing:
+            self.existing = existing
 
 
 class S3Function(Function):
