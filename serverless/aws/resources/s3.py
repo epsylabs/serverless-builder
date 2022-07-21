@@ -1,3 +1,4 @@
+from typing import final
 from troposphere.s3 import (
     Bucket,
     BucketEncryption,
@@ -15,7 +16,7 @@ from serverless.service import Identifier
 
 
 class S3Bucket(Resource):
-    def __init__(self, BucketName="${self:service}", domain=None, **kwargs):
+    def __init__(self, BucketName="${self:service}", domain=None, ForceName=False, **kwargs):
         kwargs.setdefault("AccessControl", "Private")
 
         kwargs.setdefault(
@@ -32,8 +33,12 @@ class S3Bucket(Resource):
 
         bucket = Bucket(title=Identifier(BucketName, safe=True).pascal, **kwargs)
 
+        final_name = BucketName + ".${aws:region}." + (domain or "${ssm:/global/primary-domain}")
+        if ForceName:
+            final_name = BucketName
+
         bucket.properties.__setitem__(
-            "BucketName", BucketName + ".${aws:region}." + (domain or "${ssm:/global/primary-domain}")
+            "BucketName", final_name
         )
 
         super().__init__(bucket)
