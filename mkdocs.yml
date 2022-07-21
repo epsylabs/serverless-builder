@@ -4,16 +4,30 @@ site_author: EpsyLabs engineering@epsyhealth.com
 repo_url: https://github.com/epsylabs/serverless-builder
 
 nav:
-  - Start here: index.md
-  - Usage: usage.md
-  - Plugins: plugins.md
-  - Integrations: integrations.md
-  - Use with CI/CD: ci.md
+  - About: index.md
+  - Getting started: getting_started.md
+  - Serverless:
+      - Resources:
+        - Functions: resources/functions.md
+        - DynamoDB: resources/dynamodb.md
+        - EventBridge: resources/event_bridge.md
+        - IAM Roles: resources/iam.md
+        - API Gateway: resources/api_gateway.md
+        - Other resources: resources/other.md
+      - Features:
+        - Encryption: features/encryption.md
+        - Plugins: features/plugins.md
+        - Step Functions: integrations/step_functions.md
+  - Integrations:
+      - AWS Lambda Power Tools: integrations/power_tools.md
+      - Sentry: integrations/sentry.md
+      - Troposphere: integrations/troposphere.md
+  - Internals: concept.md
 
 theme:
   name: material
   features:
-    - navigation.instant
+    - navigation.indexes
   font:
     text: 'IBM Plex Sans'
     code: 'IBM Plex Mono'

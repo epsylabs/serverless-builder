@@ -1,7 +1,3 @@
-# Integrations
-Integrations are bridge between `serverless-builder` and third party libraries.
-
-
 ## AWS Lambda Powertools Python
 [AWS Lambda Powertools](https://awslabs.github.io/aws-lambda-powertools-python/latest/) is great tool! If you haven't used it yet have a look!
 `serverless-builder` integrates with it in few places
@@ -91,22 +87,7 @@ resources:
 ```
 
 ???+ info "Info: You can use it without enabling integration"
-     Running `service.enable(Powertools())` is not required but highly recommended
+Running `service.enable(Powertools())` is not required but highly recommended
 
 ???+ warning "Warning: You still need to setup your lambda to use idempotency"
-     You still need to follow [idempotency configuration](https://awslabs.github.io/aws-lambda-powertools-python/latest/utilities/idempotency/#idempotent-decorator) for your lambda to use this table
-
-## Sentry
-
-### Enable it
-```python
-from serverless.integration.sentry import Sentry
-
-service.enable(Sentry("https://5eb925ae-ee50-47c4-b5e8-a240cf834820@47c4.ingest.sentry.io/123456789"))
-```
-
-### Automatically sets ENV variables
-It will automatically set `SENTRY_DSN`, `SENTRY_ENVIRONMENT` and `SENTRY_RELEASE`.
-
-???+ info "Info: Set version in ENV"
-     Your Ci/CD needs to set `VERSION` ENV variable with current release version.
+You still need to follow [idempotency configuration](https://awslabs.github.io/aws-lambda-powertools-python/latest/utilities/idempotency/#idempotent-decorator) for your lambda to use this table

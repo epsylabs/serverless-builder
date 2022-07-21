@@ -7,54 +7,19 @@
 
 serverless-builder is Python (3.8+) interface to easily generate [serverless.yml](https://www.serverless.com/) file.
 
-## Install
-To use stable version use latest version from `pypi`:
+## Features
 
-```shell
-$ pip install serverless-builder
-```
-
-## How?
-
-With a language you know (python) you can quickly generate `serverless.yml` file, share plugins between projects, follow best practices.
-
-```python
-from serverless import Service
-from serverless.aws.features import XRay
-from serverless.provider import AWSProvider
-from serverless.service.plugins.composed_vars import ComposedVars
-from serverless.service.plugins.prune import Prune
-from serverless.service.plugins.python_requirements import PythonRequirements
-
-service = Service(
-    "service-name",
-    "some dummy service",
-    AWSProvider()
-)
-service.plugins.add(ComposedVars())
-service.plugins.add(Prune())
-service.plugins.add(PythonRequirements())
-
-service.enable(XRay())
-
-service.builder.function.generic("test", "description")
-
-service.render()
-```
-
-Those few lines of code equals to almost 100 lines in YAML.
-
-`serverless-builder` comes with:
-
-* plugin management with autoconfiguration
-* function factory (with some best practice hints)
-* autoconfiguration of some provider specific features like AWS X-Ray
-* easy resource manipulation with [troposphere lib](https://github.com/cloudtools/troposphere) (but if you want you can use old good dict)
+* full support for all features provided by serverless framework and CloudFormation
+* autoconfiguration for provider specific features (eg. AWS X-Ray, Death Letter Queues, Encryption etc.)
+* function factory for common serverless functions (http, even-bridge, SQS, kinesis)
+* security by default - including encryption, backups and DLQ
 * easier IAM management with predefined permission sets
-* built-in support for any serverless attributes
-
-
-We tested it on Python 3.8+, but it should work on lower versions up to 3.6.
+* support for multi-region deployments
+* integrations with AWS Power Tools, Sentry
+* naming strategy enforced across all resources
+* support for multi-stack and shared resources
+* automatic alerting 
+* support for step functions via (serverless-step-functions)
 
 ## Why?
 It came to life when we started getting lost in massive (and complex) CloudFormation configuration and had to duplicate
@@ -74,4 +39,7 @@ Wouldn't it be nice to have it done programmatically in language you like, that 
 That's where `serverless-builder` becomes handy!
 
 ## Credits
-Massive thanks goes to [@dxd1](https://github.com/dxd1>) for his original idea and implementation.
+Massive thanks goes to [@dxd1](https://github.com/dxd1) for his original idea and implementation.
+
+`serverless-builder` is actively developed at [Epsy](https://github.com/epsyhealth) - would you like to change a world with us? 
+Check our open positions at: https://epsyhealth.com/careers
