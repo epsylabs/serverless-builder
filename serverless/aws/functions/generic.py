@@ -56,7 +56,7 @@ class Function(YamlOrderedDict):
         self.description = description
 
         if not handler:
-            handler = f"{self._service.service.snake}.{self.key.spinal}.handler"
+            handler = f"{self._service.service.snake}.{self.key.snake}.handler"
 
         self.handler = handler
         self.events = []
