@@ -1,4 +1,7 @@
+from typing import Optional
+
 from serverless.aws.resources.logs import LogGroup
+from serverless.service.plugins.step_functions import StepFunctions as StepFunctionsPlugin
 from serverless.service.types import Identifier, YamlOrderedDict
 
 
@@ -59,6 +62,44 @@ class Task(Stage):
         self.Resource = function.arn() if function else resource
         if end is not None:
             self.End = end
+
+    @property
+    def id(self):
+        return self.name if self.name else self._function.key.pascal
+
+    @classmethod
+    def to_yaml(cls, dumper, data):
+        data.pop("name", None)
+        return super().to_yaml(dumper, data)
+
+
+class Wait(Stage):
+    yaml_tag = "!Wait"
+
+    def __init__(
+        self,
+        name=None,
+        seconds: int = None,
+        timestamp: str = None,
+        seconds_path: str = None,
+        timestamp_path: str = None,
+    ):
+        if not any([seconds, timestamp, seconds_path, timestamp_path]):
+            raise Exception("You need to provide either seconds, timestamp, seconds_path or timestamp_path parameter")
+
+        super().__init__("Wait")
+
+        if name:
+            self.name = name
+
+        if seconds is not None:
+            self.Seconds = seconds
+        elif timestamp is not None:
+            self.Timestamp = timestamp
+        elif seconds_path is not None:
+            self.SecondsPath = seconds_path
+        elif timestamp_path is not None:
+            self.TimestampPath = timestamp_path
 
     @property
     def id(self):
@@ -271,14 +312,27 @@ class StateMachine(YamlOrderedDict):
         self.definition = Definition(description, auto_fallback, auto_catch)
         self.events = events or []
 
-    def task(self, function):
-        return self.definition.add(Task(function))
+    def task(self, function, end: Optional[bool] = None):
+        return self.definition.add(Task(function, end=end))
 
     def map(self, name, steps, **kwargs):
         return self.definition.add(Map(name, steps, **kwargs))
 
     def parallel(self, name, branches, end):
         return self.definition.add(Parallel(name=name, branches=branches, end=end))
+
+    def wait(
+        self, name, seconds: int = None, timestamp: str = None, seconds_path: str = None, timestamp_path: str = None
+    ):
+        return self.definition.add(
+            Wait(
+                name=name,
+                seconds=seconds,
+                timestamp=timestamp,
+                seconds_path=seconds_path,
+                timestamp_path=timestamp_path,
+            )
+        )
 
     def event(self, event):
         self.events.append(event)
@@ -298,6 +352,9 @@ class StepFunctions(YamlOrderedDict):
     def machine(self, name, description, type=None, auto_fallback=True, auto_catch=True):
         if name in self.stateMachines:
             return self.stateMachines.get(name)
+
+        if not self.service.plugins.has(StepFunctionsPlugin):
+            self.service.plugins.add(StepFunctionsPlugin())
 
         machine = StateMachine(
             f"{self.service.service}-${{sls:stage}}-{name}",
