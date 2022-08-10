@@ -1,5 +1,5 @@
 from troposphere.dynamodb import PointInTimeRecoverySpecification, SSESpecification, GlobalTable, ReplicaSpecification, \
-    ReplicaSSESpecification, StreamSpecification
+    ReplicaSSESpecification, StreamSpecification, GlobalTableSSESpecification
 from troposphere.dynamodb import Table as DynamoDBTable, GlobalTable
 
 from serverless.aws.iam.dynamodb import (
@@ -64,7 +64,8 @@ class Table(Resource):
                 for replica in self.resource.Replicas:
                     replica.SSESpecification = ReplicaSSESpecification(KMSMasterKeyId=EncryptableResource.encryption_alias())
 
-            self.resource.SSESpecification = SSESpecification(**sse_kwargs)
+            cls = GlobalTableSSESpecification if self.is_global else SSESpecification
+            self.resource.SSESpecification = cls(**sse_kwargs)
             if not service.regions:
                 self.resource.DependsOn = ["ServiceEncryptionKeyAlias"]
 
