@@ -37,7 +37,7 @@ class EventDispatcher(Integration):
         )
         service.provider.iam.allow(
             sid="EventDispatcherDLQBatch",
-            permissions=["sqs:SendMessageBatch", "sqs:GetQueueUrl"],
+            permissions=["sqs:SendMessage", "sqs:GetQueueUrl"],
             resources=[queue.arn()],
         )
 

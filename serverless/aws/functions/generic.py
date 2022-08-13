@@ -189,7 +189,7 @@ class Function(YamlOrderedDict):
 
         self.iam.allow(
             sid=f"{self.name.resource}DLQWriter",
-            permissions=["sqs:GetQueueUrl", "sqs:SendMessageBatch", "sqs:SendMessage"],
+            permissions=["sqs:GetQueueUrl", "sqs:SendMessage"],
             resources=[self.dlq.arn()],
         )
 
