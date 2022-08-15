@@ -23,6 +23,7 @@ nav:
       - Sentry: integrations/sentry.md
       - Troposphere: integrations/troposphere.md
   - Internals: concept.md
+  - Advanced: advanced.md
 
 theme:
   name: material
