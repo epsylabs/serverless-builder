@@ -10,7 +10,7 @@ class SQSPublisher(IAMPreset):
 
     def apply(self, policy_builder: PolicyBuilder, sid=None):
         policy_builder.allow(
-            permissions=["sqs:SendMessageBatch", "sqs:SendMessage"],
+            permissions=["sqs:SendMessage"],
             resources=str(self.resource),
             sid="SQSPublisherI" + hashlib.sha224(str(self.resource).encode("ascii")).hexdigest(),
         )
