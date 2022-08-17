@@ -41,7 +41,7 @@ class EventDispatcher(Integration):
             resources=[queue.arn()],
         )
 
-        service.provider.environment.envs["EVENTS_DLQ"] = queue.resource.QueueName
+        service.provider.environment.envs["EVENTS_DLQ"] = "https://sqs.${aws:region}.amazonaws.com/${aws:accountId}/" + queue.resource.QueueName
         service.provider.iam.apply(Publish(self.event_bus))
 
 
