@@ -46,7 +46,7 @@ class S3Bucket(Resource):
     def configure(self, service):
         super().configure(service)
 
-        if service.has(Encryption):
+        if service.has(Encryption) and getattr(self.resource, "BucketEncryption", None) is None:
             self.resource.BucketEncryption = BucketEncryption(
                 ServerSideEncryptionConfiguration=[
                     ServerSideEncryptionRule(
