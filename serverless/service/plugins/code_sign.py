@@ -16,7 +16,7 @@ class AWSCodeSign(Generic):
         source_key=None,
         destination_bucket=None,
         destination_prefix=None,
-        retain=False,
+        retain=True,
     ):
         super().__init__("serverless-aws-signer")
         self.profile = profile
