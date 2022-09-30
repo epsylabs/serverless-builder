@@ -318,10 +318,10 @@ class StateMachine(YamlOrderedDict):
         log_group_name = f"/stepmachine/{Identifier(self.name).spinal}"
         logs = LogGroup(LogGroupName=log_group_name)
         service.resources.add(logs)
-        service.resources.add(
+        stream = service.resources.add(
             LogStream(
                 title=Identifier(self.name + "LogStream").resource,
-                LogGroupName=log_group_name,
+                LogGroupName=logs.resource.LogGroupName,
                 LogStreamName="dummy",
                 DependsOn=[
                     logs.resource.title
@@ -330,6 +330,10 @@ class StateMachine(YamlOrderedDict):
         )
 
         self.loggingConfig = dict(level="ERROR", includeExecutionData=True, destinations=[logs.get_att("Arn")])
+        self.dependsOn = [
+            logs.resource.title,
+            stream.title
+        ]
         self.definition = Definition(description, auto_fallback, auto_catch)
         self.events = events or []
 
