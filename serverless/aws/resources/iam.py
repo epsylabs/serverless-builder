@@ -18,7 +18,9 @@ class Role(Resource):
         )
 
         if "${self:service}" not in RoleName:
-            self.role.properties.__setitem__("RoleName", str(ResourceName("${self:service}-${sls:stage}-${aws:region}-" + RoleName)))
+            self.role.properties.__setitem__(
+                "RoleName", str(ResourceName("${self:service}-${sls:stage}-${aws:region}-" + RoleName))
+            )
 
         self.policy = PolicyBuilder()
 

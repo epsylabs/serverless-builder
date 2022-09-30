@@ -127,6 +127,9 @@ class Service(OrderedDict, yaml.YAMLObject):
     def has(self, feature):
         return len(list(filter(lambda x: isinstance(x, feature), self.features))) > 0
 
+    def get_feature(self, feature):
+        return next(filter(lambda x: isinstance(x, feature), self.features), None)
+
     @classmethod
     def to_yaml(cls, dumper, data):
         data.pop("builder", None)

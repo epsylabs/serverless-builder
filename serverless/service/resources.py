@@ -44,9 +44,7 @@ class ResourceManager(yaml.YAMLObject):
         return self.resources
 
     def output(self, output_name, name, value, append=True, export=False):
-        output = {
-            "Value": value
-        }
+        output = {"Value": value}
         if export:
             if append:
                 name = "${self:service}-${sls:stage}-" + name
@@ -57,12 +55,9 @@ class ResourceManager(yaml.YAMLObject):
         return self.output(output_name, name, value, append, export=True)
 
     def parameter(self, resource_id, name, value, type="String"):
-        param = self.add(ssm.Parameter(
-            resource_id,
-            Name=f"/services/${{self:service}}/${{sls:stage}}/{name}",
-            Type=type,
-            Value=""
-        ))
+        param = self.add(
+            ssm.Parameter(resource_id, Name=f"/services/${{self:service}}/${{sls:stage}}/{name}", Type=type, Value="")
+        )
         param.properties.__setitem__("Value", value)
 
         return param

@@ -37,9 +37,7 @@ class S3Bucket(Resource):
         if ForceName:
             final_name = BucketName
 
-        bucket.properties.__setitem__(
-            "BucketName", final_name
-        )
+        bucket.properties.__setitem__("BucketName", final_name)
 
         super().__init__(bucket)
 

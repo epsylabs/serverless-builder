@@ -1,5 +1,12 @@
-from troposphere.dynamodb import PointInTimeRecoverySpecification, SSESpecification, GlobalTable, ReplicaSpecification, \
-    ReplicaSSESpecification, StreamSpecification, GlobalTableSSESpecification
+from troposphere.dynamodb import (
+    PointInTimeRecoverySpecification,
+    SSESpecification,
+    GlobalTable,
+    ReplicaSpecification,
+    ReplicaSSESpecification,
+    StreamSpecification,
+    GlobalTableSSESpecification,
+)
 from troposphere.dynamodb import Table as DynamoDBTable, GlobalTable
 
 from serverless.aws.iam.dynamodb import (
@@ -38,9 +45,7 @@ class Table(Resource):
             "PointInTimeRecoverySpecification", PointInTimeRecoverySpecification(PointInTimeRecoveryEnabled=True)
         )
 
-        super().__init__(
-            cls(title=TableName.replace("${sls:stage}", "").strip("-"), TableName=TableName, **kwargs)
-        )
+        super().__init__(cls(title=TableName.replace("${sls:stage}", "").strip("-"), TableName=TableName, **kwargs))
         self.access = None
         self.is_global = is_global
 
@@ -52,7 +57,12 @@ class Table(Resource):
 
     def configure(self, service):
         if service.regions and self.is_global:
-            self.resource.Replicas = [ReplicaSpecification(Region=region, PointInTimeRecoverySpecification=self.PointInTimeRecoverySpecification) for region in service.regions]
+            self.resource.Replicas = [
+                ReplicaSpecification(
+                    Region=region, PointInTimeRecoverySpecification=self.PointInTimeRecoverySpecification
+                )
+                for region in service.regions
+            ]
             self.resource.StreamSpecification = StreamSpecification(StreamViewType="NEW_AND_OLD_IMAGES")
 
         if service.has(Encryption):
@@ -62,7 +72,9 @@ class Table(Resource):
                 sse_kwargs["KMSMasterKeyId"] = EncryptableResource.encryption_key()
             else:
                 for replica in self.resource.Replicas:
-                    replica.SSESpecification = ReplicaSSESpecification(KMSMasterKeyId=EncryptableResource.encryption_alias())
+                    replica.SSESpecification = ReplicaSSESpecification(
+                        KMSMasterKeyId=EncryptableResource.encryption_alias()
+                    )
 
             cls = GlobalTableSSESpecification if self.is_global else SSESpecification
             self.resource.SSESpecification = cls(**sse_kwargs)

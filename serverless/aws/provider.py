@@ -150,8 +150,22 @@ class FunctionBuilder:
 
         return fn
 
-    def s3(self, name, description, bucket, event, rules=None, existing=None, handler=None, timeout=None, layers=None, **kwargs):
-        fn = S3Function(self.service, name, description, bucket, event, rules, existing, handler, timeout, layers, **kwargs)
+    def s3(
+        self,
+        name,
+        description,
+        bucket,
+        event,
+        rules=None,
+        existing=None,
+        handler=None,
+        timeout=None,
+        layers=None,
+        **kwargs,
+    ):
+        fn = S3Function(
+            self.service, name, description, bucket, event, rules, existing, handler, timeout, layers, **kwargs
+        )
         self.service.functions.add(fn)
 
         return fn

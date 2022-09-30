@@ -20,7 +20,7 @@ class DynamoDBStreamEvent(YamlOrderedDict):
         self.maximumRecordAgeInSeconds = maximumRecordAgeInSeconds
         self.maximumRetryAttempts = maximumRetryAttempts
         self.startingPosition = startingPosition
-        self.type="dynamodb"
+        self.type = "dynamodb"
 
         if destinations:
             self.destinations = destinations

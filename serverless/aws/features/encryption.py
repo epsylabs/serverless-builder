@@ -8,34 +8,34 @@ from serverless.service.types import Feature
 
 class Encryption(Feature):
     POLICY = {
-                 "Version": "2012-10-17",
-                 "Statement": [
-                     {
-                         "Sid": "RootPermissions",
-                         "Effect": "Allow",
-                         "Principal": {"AWS": "arn:aws:iam::${aws:accountId}:root"},
-                         "Action": "kms:*",
-                         "Resource": "*",
-                     },
-                     {
-                         "Effect": "Allow",
-                         "Principal": {"Service": "logs.${aws:region}.amazonaws.com"},
-                         "Action": [
-                             "kms:Encrypt*",
-                             "kms:Decrypt*",
-                             "kms:ReEncrypt*",
-                             "kms:GenerateDataKey*",
-                             "kms:Describe*",
-                         ],
-                         "Resource": "*",
-                         "Condition": {
-                             "ArnLike": {
-                                 "kms:EncryptionContext:aws:logs:arn": "arn:aws:logs:${aws:region}:${aws:accountId}:log-group:/services/${self:service}/*"
-                             }
-                         },
-                     },
-                 ],
-             }
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Sid": "RootPermissions",
+                "Effect": "Allow",
+                "Principal": {"AWS": "arn:aws:iam::${aws:accountId}:root"},
+                "Action": "kms:*",
+                "Resource": "*",
+            },
+            {
+                "Effect": "Allow",
+                "Principal": {"Service": "logs.${aws:region}.amazonaws.com"},
+                "Action": [
+                    "kms:Encrypt*",
+                    "kms:Decrypt*",
+                    "kms:ReEncrypt*",
+                    "kms:GenerateDataKey*",
+                    "kms:Describe*",
+                ],
+                "Resource": "*",
+                "Condition": {
+                    "ArnLike": {
+                        "kms:EncryptionContext:aws:logs:arn": "arn:aws:logs:${aws:region}:${aws:accountId}:log-group:/services/${self:service}/*"
+                    }
+                },
+            },
+        ],
+    }
 
     def __init__(self):
         super().__init__()
@@ -45,7 +45,7 @@ class Encryption(Feature):
             Enabled=True,
             PendingWindowInDays=14,
             EnableKeyRotation=True,
-            KeyPolicy=Encryption.POLICY
+            KeyPolicy=Encryption.POLICY,
         )
 
         self.alias = Alias(
@@ -68,12 +68,20 @@ class Encryption(Feature):
                 resource.DependsOn = "ServiceEncryptionKeyAlias"
 
         for fn in service.functions.all():
-            self.key.KeyPolicy["Statement"].append(self.create_log_group_kms_statement("arn:aws:logs:${aws:region}:${aws:accountId}:log-group:/aws/lambda/" + fn.name.spinal))
+            self.key.KeyPolicy["Statement"].append(
+                self.create_log_group_kms_statement(
+                    "arn:aws:logs:${aws:region}:${aws:accountId}:log-group:/aws/lambda/" + fn.name.spinal
+                )
+            )
 
         for resource in service.resources.all():
             if isinstance(resource, LogGroup):
                 if resource.properties.get("KmsKeyId") is not None:
-                    self.key.KeyPolicy["Statement"].append(self.create_log_group_kms_statement("arn:aws:logs:${aws:region}:${aws:accountId}:log-group:" + resource.LogGroupName))
+                    self.key.KeyPolicy["Statement"].append(
+                        self.create_log_group_kms_statement(
+                            "arn:aws:logs:${aws:region}:${aws:accountId}:log-group:" + resource.LogGroupName
+                        )
+                    )
 
     def create_log_group_kms_statement(self, log_group):
         return {
@@ -87,11 +95,7 @@ class Encryption(Feature):
                 "kms:Describe*",
             ],
             "Resource": "*",
-            "Condition": {
-                "ArnLike": {
-                    "kms:EncryptionContext:aws:logs:arn": log_group
-                }
-            },
+            "Condition": {"ArnLike": {"kms:EncryptionContext:aws:logs:arn": log_group}},
         }
 
     def enable(self, service):
