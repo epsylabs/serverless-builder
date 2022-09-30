@@ -1,6 +1,7 @@
 from typing import Optional
 
 from serverless.aws.resources.logs import LogGroup
+from troposphere.logs import LogStream
 from serverless.service.plugins.step_functions import StepFunctions as StepFunctionsPlugin
 from serverless.service.types import Identifier, YamlOrderedDict
 
@@ -298,15 +299,35 @@ class Definition(YamlOrderedDict):
 class StateMachine(YamlOrderedDict):
     yaml_tag = "!YamlOrderedDict"
 
-    def __init__(self, name, description, events=None, type=None, auto_fallback=True, auto_catch=True, service=None):
+    def __init__(
+        self,
+        name,
+        description,
+        events=None,
+        type=None,
+        auto_fallback=True,
+        auto_catch=True,
+        service=None,
+    ):
         self.name = name
         self.tracingConfig = dict(enabled=True)
 
         if type:
             self.type = type
 
-        logs = LogGroup(LogGroupName=f"/stepmachine/{Identifier(self.name).spinal}")
+        log_group_name = f"/stepmachine/{Identifier(self.name).spinal}"
+        logs = LogGroup(LogGroupName=log_group_name)
         service.resources.add(logs)
+        service.resources.add(
+            LogStream(
+                title=Identifier(self.name + "LogStream").resource,
+                LogGroupName=log_group_name,
+                LogStreamName="dummy",
+                DependsOn=[
+                    logs.resource.title
+                ]
+            )
+        )
 
         self.loggingConfig = dict(level="ERROR", includeExecutionData=True, destinations=[logs.get_att("Arn")])
         self.definition = Definition(description, auto_fallback, auto_catch)
