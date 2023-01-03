@@ -66,7 +66,7 @@ class Function(YamlOrderedDict):
             self.iamRoleStatementsName = self.iamRoleStatements.role
             self.iamRoleStatementsInherit = True
 
-        configured = list(filter(lambda x: x.get("Ref") == "PythonRequirementsLambdaLayer", layers or []))
+        configured = list(filter(lambda x: type(x) is dict and x.get("Ref") == "PythonRequirementsLambdaLayer", layers or []))
         if (
             self._service.plugins.get(PythonRequirements)
             and self._service.plugins.get(PythonRequirements).layer
