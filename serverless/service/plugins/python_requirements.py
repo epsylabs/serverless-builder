@@ -34,7 +34,7 @@ class PythonRequirements(Generic):
         export = dict(self)
         export.pop("name", None)
 
-        if not export.get("dockerImage"):
-            export["dockerImage"] = f"lambci/lambda:build-{service.provider.runtime}"
+        if not self.dockerImage:
+            export.pop("dockerImage", None)
 
         service.custom.pythonRequirements = export
