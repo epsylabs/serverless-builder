@@ -39,6 +39,7 @@ provider:
       - Sid: ServiceNameTestListIdempotencyFullAccess
         Effect: Allow
         Action:
+        - dynamodb:BatchGetItem
         - dynamodb:GetItem
         - dynamodb:Query
         - dynamodb:Scan
