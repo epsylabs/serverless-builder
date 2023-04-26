@@ -10,6 +10,7 @@ class DynamoDBReader(IAMPreset):
     def apply(self, policy_builder: PolicyBuilder, sid=None):
         policy_builder.allow(
             permissions=[
+                "dynamodb:BatchGetItem",
                 "dynamodb:GetItem",
                 "dynamodb:Query",
                 "dynamodb:Scan",
@@ -64,6 +65,7 @@ class DynamoDBFullAccess(IAMPreset):
     def apply(self, policy_builder: PolicyBuilder, sid=None):
         policy_builder.allow(
             permissions=[
+                "dynamodb:BatchGetItem",
                 "dynamodb:GetItem",
                 "dynamodb:Query",
                 "dynamodb:Scan",
