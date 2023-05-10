@@ -337,8 +337,15 @@ class StateMachine(YamlOrderedDict):
         self.definition = Definition(description, auto_fallback, auto_catch)
         self.events = events or []
 
-    def task(self, function, end: Optional[bool] = None):
-        return self.definition.add(Task(function, end=end))
+    
+    def task(self, function=None, resource=None, name=None, end: Optional[bool] = None):
+        if function is not None and resource is None:
+            return self.definition.add(Task(function, end=end))
+        elif function is None and resource is not None:
+            return self.definition.add(Task(resource=resource, name=name, end=end))
+        else:
+            raise ValueError("Either 'function' or 'resource' must be provided, but not both.")
+
 
     def map(self, name, steps, **kwargs):
         return self.definition.add(Map(name, steps, **kwargs))
