@@ -339,12 +339,7 @@ class StateMachine(YamlOrderedDict):
 
     
     def task(self, function=None, resource=None, name=None, end: Optional[bool] = None):
-        if function is not None and resource is None:
-            return self.definition.add(Task(function, end=end))
-        elif function is None and resource is not None:
-            return self.definition.add(Task(resource=resource, name=name, end=end))
-        else:
-            raise ValueError("Either 'function' or 'resource' must be provided, but not both.")
+        return self.definition.add(Task(function=function, resource=resource, name=name, end=end))
 
 
     def map(self, name, steps, **kwargs):
