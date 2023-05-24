@@ -27,6 +27,7 @@ PyYAML = "^6.0"
 troposphere = "^4.0.2"
 inflection = "^0.5.1"
 awacs = "^2.1.0"
+urllib3 = "1.26.15"
 
 [tool.poetry.dev-dependencies]
 bump2version = "^1.0.1"
