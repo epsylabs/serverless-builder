@@ -237,11 +237,10 @@ class Branch(YamlOrderedDict):
 class Parallel(Stage):
     yaml_tag = "!Parallel"
 
-    def __init__(self, name, branches, end=False):
+    def __init__(self, name, branches):
         super().__init__("Parallel")
         self.name = name
         self.Branches = branches
-        self.End = end
 
     @property
     def id(self):
@@ -337,14 +336,16 @@ class StateMachine(YamlOrderedDict):
         self.definition = Definition(description, auto_fallback, auto_catch)
         self.events = events or []
 
-    def task(self, function, end: Optional[bool] = None):
-        return self.definition.add(Task(function, end=end))
+    
+    def task(self, function=None, resource=None, name=None, end: Optional[bool] = None):
+        return self.definition.add(Task(function=function, resource=resource, name=name, end=end))
+
 
     def map(self, name, steps, **kwargs):
         return self.definition.add(Map(name, steps, **kwargs))
 
-    def parallel(self, name, branches, end):
-        return self.definition.add(Parallel(name=name, branches=branches, end=end))
+    def parallel(self, name, branches):
+        return self.definition.add(Parallel(name=name, branches=branches))
 
     def wait(
         self, name, seconds: int = None, timestamp: str = None, seconds_path: str = None, timestamp_path: str = None
