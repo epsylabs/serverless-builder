@@ -86,3 +86,19 @@ service.resources.add(table)
 
 service.render()
 ```
+
+# New version release process
+
+- Update the version in pyproject.toml 
+
+    ```
+    # increase the version number as per SemVer standards
+    version = "2.13.17"
+    ```
+
+- Once ready to publish, create a new [github release](https://github.com/epsylabs/serverless-builder/releases)
+    - its a good practice to match the tag with the version number as in pyproject.toml
+    - Select `set as latest release` checkbox
+    - Click `Publish Release` button.
+
+- Once published, it will trigger the `release` gh wf and publish the latest package to PyPi.
