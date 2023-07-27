@@ -16,9 +16,9 @@ class Authorizer(YamlOrderedDict):
 class WebsocketEvent(YamlOrderedDict):
     yaml_tag = "websocket"
 
-    def __init__(self, routeKey: str = "", routeResponseSelectionExpression: str = None, authorizer: Authorizer = None):
+    def __init__(self, route: str, routeResponseSelectionExpression: str = None, authorizer: Authorizer = None):
         super().__init__()
-        self.route = routeKey
+        self.route = route
 
         if routeResponseSelectionExpression:
             self.routeResponseSelectionExpression = routeResponseSelectionExpression
@@ -35,7 +35,7 @@ class WebsocketFunction(Function):
         service,
         name,
         description,
-        routeKey="$default",
+        route="$default",
         routeResponseSelectionExpression=None,
         authorizer=None,
         handler=None,
@@ -48,4 +48,4 @@ class WebsocketFunction(Function):
         super().__init__(
             service, name, description, handler, timeout, layers, use_dlq=use_dlq, use_async_dlq=use_async_dlq, **kwargs
         )
-        self.trigger(WebsocketEvent(routeKey, routeResponseSelectionExpression, authorizer))
+        self.trigger(WebsocketEvent(route, routeResponseSelectionExpression, authorizer))
