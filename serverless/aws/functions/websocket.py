@@ -1,3 +1,5 @@
+from typing import Optional
+
 from serverless.aws.functions.generic import Function
 from serverless.service.types import YamlOrderedDict
 
@@ -5,9 +7,16 @@ from serverless.service.types import YamlOrderedDict
 class Authorizer(YamlOrderedDict):
     yaml_tag = "Authorizer"
 
-    def __init__(self, name: str, identity_source: list = None):
+    def __init__(self, name: Optional[str] = None, arn: Optional[str] = None, identity_source: Optional[list] = None):
         super().__init__()
-        self.name = name
+        if not name and not arn:
+            raise Exception("name or arn must be specified for WebsocketEvent authorizer")
+
+        if name:
+            self.name = name
+
+        if arn:
+            self.arn = arn
 
         if identity_source is not None:
             self.identitySource = identity_source
