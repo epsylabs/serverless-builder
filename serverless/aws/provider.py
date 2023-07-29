@@ -189,8 +189,8 @@ class FunctionBuilder:
 
         return fn
 
-    def websocket(self, name, description, route, **kwargs):
-        fn = WebsocketFunction(self.service, name, description, route, **kwargs)
+    def websocket(self, name, description, events=None, **kwargs):
+        fn = WebsocketFunction(self.service, name, description, events, **kwargs)
         self.service.functions.add(fn)
 
         return fn

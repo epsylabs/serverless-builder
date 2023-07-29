@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 from serverless.aws.functions.generic import Function
 from serverless.service.types import YamlOrderedDict
@@ -44,9 +44,7 @@ class WebsocketFunction(Function):
         service,
         name,
         description,
-        route="$default",
-        routeResponseSelectionExpression=None,
-        authorizer=None,
+        events: List[WebsocketEvent]=None,
         handler=None,
         timeout=None,
         layers=None,
@@ -57,4 +55,11 @@ class WebsocketFunction(Function):
         super().__init__(
             service, name, description, handler, timeout, layers, use_dlq=use_dlq, use_async_dlq=use_async_dlq, **kwargs
         )
-        self.trigger(WebsocketEvent(route, routeResponseSelectionExpression, authorizer))
+
+        if not events:
+            events = [WebsocketEvent("$default", None, None)]
+
+        for event in events:
+            self.trigger(
+                WebsocketEvent(event.route, event.routeResponseSelectionExpression, event.authorizer)
+            )
