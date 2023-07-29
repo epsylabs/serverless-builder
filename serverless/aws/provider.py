@@ -7,6 +7,7 @@ from serverless.aws.functions.http import HTTPFunction
 from serverless.aws.functions.kinesis import KinesisFunction
 from serverless.aws.functions.s3 import S3Function
 from serverless.aws.functions.sqs import SQSFunction
+from serverless.aws.functions.websocket import WebsocketFunction
 from serverless.aws.iam import ServicePolicyBuilder
 from serverless.service.environment import Environment
 from serverless.service.types import Provider as BaseProvider
@@ -184,6 +185,12 @@ class FunctionBuilder:
 
     def sqs(self, name, description, arn, **kwargs):
         fn = SQSFunction(self.service, name, description, arn, **kwargs)
+        self.service.functions.add(fn)
+
+        return fn
+
+    def websocket(self, name, description, events=None, **kwargs):
+        fn = WebsocketFunction(self.service, name, description, events, **kwargs)
         self.service.functions.add(fn)
 
         return fn

@@ -58,3 +58,16 @@ service.builder.function.s3(
         rules=[{"prefix": "list/ids"}],
     )
 ```
+
+### Websockets
+```python
+from serverless.aws.functions.websocket import WebsocketEvent, Authorizer as WebsocketEventAuthorizer
+
+
+service.builder.function.websocket(
+    "handler_connect",
+    "Handles client opening Websocket connection",
+    events=[WebsocketEvent(route="$connect", authorizer=WebsocketEventAuthorizer("HandleAuthorization"))],
+    handler="my_module.handler.handle_connect",
+)
+```
