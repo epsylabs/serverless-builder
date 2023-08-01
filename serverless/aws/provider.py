@@ -24,6 +24,8 @@ class Runtime(yaml.YAMLObject):
     PYTHON_3_7 = "python3.7"
     PYTHON_3_8 = "python3.8"
     PYTHON_3_9 = "python3.9"
+    PYTHON_3_10 = "python3.10"
+    PYTHON_3_11 = "python3.11"
 
     yaml_tag = "!Runtime"
 
