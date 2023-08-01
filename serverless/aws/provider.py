@@ -14,13 +14,10 @@ from serverless.service.types import Provider as BaseProvider
 
 
 class Runtime(yaml.YAMLObject):
-    NODE_10 = "nodejs10"
-    NODE_12 = "nodejs12"
     NODE_14 = "nodejs14"
     NODE_16 = "nodejs16"
+    NODE_18 = "nodejs18"
 
-    PYTHON_2_7 = "python2.7"
-    PYTHON_3_6 = "python3.6"
     PYTHON_3_7 = "python3.7"
     PYTHON_3_8 = "python3.8"
     PYTHON_3_9 = "python3.9"
