@@ -98,7 +98,7 @@ class Function(YamlOrderedDict):
         if use_async_dlq:
             self.use_async_dlq()
 
-        log_group_properties = kwargs.pop("log_group", {}).get("Properties") if kwargs.get("log_group", {}).get("Properties") else dict(RetentionInDays=30)
+        log_group_properties = kwargs.pop("log_group", {}).get("Properties") or dict(RetentionInDays=30)
 
         log_group = dict(Type="AWS::Logs::LogGroup", Properties=log_group_properties)
         if service.has(Encryption):
