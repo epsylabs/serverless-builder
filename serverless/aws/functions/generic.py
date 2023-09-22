@@ -98,9 +98,10 @@ class Function(YamlOrderedDict):
         if use_async_dlq:
             self.use_async_dlq()
 
-        log_group_properties = kwargs.pop("log_group", {}).get("Properties") or dict(RetentionInDays=30)
+        custom_log_group = kwargs.pop("log_group", {})
+        log_group_properties = custom_log_group.get("Properties") or dict(RetentionInDays=30)
 
-        log_group = dict(Type="AWS::Logs::LogGroup", Properties=log_group_properties)
+        log_group = dict(**dict(Type="AWS::Logs::LogGroup", Properties=log_group_properties), **custom_log_group)
         if service.has(Encryption):
             log_group["Properties"]["KmsKeyId"] = EncryptableResource.encryption_arn()
             if not service.regions:

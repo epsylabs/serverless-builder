@@ -21,7 +21,7 @@ service.builder.function.http_any("test-list", "List all tests", "/")
 service.builder.function.http("test", "description", "/", HTTPFunction.POST)
 ```
 
-Call to any of the above functions will generate serverless.com funciton with its corresponding HTTP event e.g.:
+Call to any of the above functions will generate serverless.com function with its corresponding HTTP event e.g.:
 ```yaml
 functions:
   Test:
@@ -69,5 +69,23 @@ service.builder.function.websocket(
     "Handles client opening Websocket connection",
     events=[WebsocketEvent(route="$connect", authorizer=WebsocketEventAuthorizer("HandleAuthorization"))],
     handler="my_module.handler.handle_connect",
+)
+```
+
+### Generic
+```python
+service.builder.function.generic(
+    "my-generic-function",
+    "Handle internal calls",
+    handler="my_project.my_module.handler",
+    
+    # By default every function has LogGroup created by `serverless-builder`
+    # but sometimes you have to customise it, for that you can use `log_group`
+    log_group=dict(
+        DeletionPolicy="Retain",
+        Properties=dict(
+            RetentionInDays=3653,
+        )
+    )
 )
 ```
