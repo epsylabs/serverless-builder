@@ -90,9 +90,6 @@ class Function(YamlOrderedDict):
         if idempotency:
             self.with_idempotency(idempotency)
 
-        for name, value in kwargs.items():
-            setattr(self, name, value)
-
         self.dlq = None
 
         if use_dlq:
@@ -101,13 +98,18 @@ class Function(YamlOrderedDict):
         if use_async_dlq:
             self.use_async_dlq()
 
-        log_group = dict(Type="AWS::Logs::LogGroup", Properties=dict(RetentionInDays=30))
+        log_group_properties = kwargs.pop("log_group", {}).get("Properties") or dict(RetentionInDays=30)
+
+        log_group = dict(Type="AWS::Logs::LogGroup", Properties=log_group_properties)
         if service.has(Encryption):
             log_group["Properties"]["KmsKeyId"] = EncryptableResource.encryption_arn()
             if not service.regions:
                 log_group["DependsOn"] = [EncryptableResource.encryption_key_name() + "Alias"]
 
         service.resources.add(DummyResource(title=self.log_group_name(), **log_group))
+
+        for name, value in kwargs.items():
+            setattr(self, name, value)
 
     @property
     def iam(self):
