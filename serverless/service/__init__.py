@@ -57,7 +57,13 @@ class Service(OrderedDict, yaml.YAMLObject):
         self.service = Identifier(name)
         self.package = Package(["!./**/**", f"{self.service.snake}/**"])
         self.variablesResolutionMode = 20210326
-        self.custom = YamlOrderedDict(vars="${file(./variables.yml):${sls:stage}}", **(custom or {}))
+        if "vars" not in custom:
+            self.custom = YamlOrderedDict(
+                vars="${file(./variables.yml):${sls:stage}}",
+                **(custom or {})
+            )
+        else:
+            self.custom = YamlOrderedDict(**(custom or {}))
         self.config = config or Configuration()
         self.regions = regions
 
