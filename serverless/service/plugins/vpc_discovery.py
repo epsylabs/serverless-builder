@@ -27,7 +27,7 @@ class VpcDiscovery(Generic):
             self.subnets = subnets
 
         if security_group_names:
-            self.subnets = [{"tagKey": "Name", "tagValues": security_group_names}]
+            self.securityGroups = [{"tagKey": "Name", "tagValues": security_group_names}]
         if security_groups:
             self.securityGroups = security_groups
 
