@@ -12,5 +12,5 @@ class Sentry(Integration):
 
     def enable(self, service):
         service.provider.environment["envs"]["SENTRY_DSN"] = self.sentry_dsn
-        service.provider.environment["envs"]["SENTRY_ENVIRONMENT"] = "${sls:stage}"
+        service.provider.environment["envs"]["SENTRY_ENVIRONMENT"] = "${env:SENTRY_ENVIRONMENT, sls:stage}"
         service.provider.environment["envs"]["SENTRY_RELEASE"] = "${env:VERSION, ''}"
