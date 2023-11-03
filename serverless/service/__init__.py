@@ -1,5 +1,6 @@
 import io
 import os
+import shutil
 from collections import OrderedDict
 from pathlib import Path
 from typing import Optional
@@ -57,7 +58,21 @@ class Service(OrderedDict, yaml.YAMLObject):
         self.service = Identifier(name)
         self.package = Package(["!./**/**", f"{self.service.snake}/**"])
         self.variablesResolutionMode = 20210326
-        self.custom = YamlOrderedDict(vars="${file(./variables.yml):${sls:stage}}", **(custom or {}))
+        if config.advanced_variables:
+            src = os.path.dirname(__file__) + "/../static/config.js"
+            dst = os.getcwd() + "/config.js"
+            shutil.copyfile(src, dst)
+
+            self.custom = YamlOrderedDict(
+                var_files=[
+                    "${file(./variables.yml):${sls:stage}}",
+                    "${file(./variables_${env:APP_NAME}.yml):${sls:stage}}",
+                ],
+                vars="${file(./config.js)}",
+                **(custom or {}),
+            )
+        else:
+            self.custom = YamlOrderedDict(vars="${file(./variables.yml):${sls:stage}}", **(custom or {}))
         self.config = config or Configuration()
         self.regions = regions
 
