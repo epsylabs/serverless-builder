@@ -7,4 +7,3 @@ module.exports = async ({ options, resolveVariable }) => {
 
     return final
   }
-  
