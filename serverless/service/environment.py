@@ -9,8 +9,8 @@ class Environment(YamlOrderedDict):
         self.envs = envs or {}
 
         if "LOG_LEVEL" in self.envs:
-            self.envs["AWS_LAMBDA_LOG_LEVEL"] = self.env["LOG_LEVEL"]
-            self.envs["POWERTOOLS_LOG_LEVEL"] = self.env["LOG_LEVEL"]
+            self.envs["AWS_LAMBDA_LOG_LEVEL"] = self.envs["LOG_LEVEL"]
+            self.envs["POWERTOOLS_LOG_LEVEL"] = self.envs["LOG_LEVEL"]
 
     @classmethod
     def to_yaml(cls, dumper, data):
