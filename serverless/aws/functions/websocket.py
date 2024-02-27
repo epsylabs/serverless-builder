@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import List, Optional
 
 from serverless.aws.functions.generic import Function
 from serverless.service.types import YamlOrderedDict

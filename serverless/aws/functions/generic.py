@@ -46,6 +46,7 @@ class Function(YamlOrderedDict):
     ):
         super().__init__()
         self._service = service
+        self.layers = []
 
         self.key = Identifier(name)
         self.name = (
@@ -80,9 +81,6 @@ class Function(YamlOrderedDict):
         self._service.resources.export(
             self.resource_name() + "ArnOutput", self.name.spinal + "-arn", self.arn(), append=False
         )
-
-        if layers:
-            self.layers = layers
 
         if timeout:
             self.timeout = timeout
@@ -249,6 +247,25 @@ class Function(YamlOrderedDict):
         self.environment = env
 
         return self
+    
+    def add_layer(self, name, path, **kwargs):
+        if not getattr(self._service, "layers", None):
+            setattr(self._service, "layers", {})
+        
+        self._service.layers.update(
+            {
+                name: {
+                    "path": path,
+                    "package": {
+                        "include": ["./**"]
+                    }
+                }
+            }
+        )
+
+        self.layers.append(
+            {"Ref": f"{name.capitalize()}LambdaLayer"}
+        )
 
     @classmethod
     def to_yaml(cls, dumper, data):

@@ -4,7 +4,7 @@ from troposphere.iam import Role as IAMRole
 from serverless.aws.iam import PolicyBuilder
 from serverless.aws.resources import Resource
 from serverless.service import Identifier
-from serverless.service.types import ResourceName, ResourceId
+from serverless.service.types import ResourceId, ResourceName
 
 
 class Role(Resource):

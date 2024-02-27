@@ -1,13 +1,7 @@
 from typing import final
-from troposphere.s3 import (
-    Bucket,
-    BucketEncryption,
-    Private,
-    PublicAccessBlockConfiguration,
-    ServerSideEncryptionByDefault,
-    ServerSideEncryptionRule,
-    VersioningConfiguration,
-)
+
+from troposphere.s3 import (Bucket, BucketEncryption, Private, PublicAccessBlockConfiguration,
+                            ServerSideEncryptionByDefault, ServerSideEncryptionRule, VersioningConfiguration)
 
 from serverless.aws.features.encryption import Encryption
 from serverless.aws.resources import Resource

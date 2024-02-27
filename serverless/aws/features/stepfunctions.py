@@ -1,7 +1,8 @@
 from typing import Optional
 
-from serverless.aws.resources.logs import LogGroup
 from troposphere.logs import LogStream
+
+from serverless.aws.resources.logs import LogGroup
 from serverless.service.plugins.step_functions import StepFunctions as StepFunctionsPlugin
 from serverless.service.types import Identifier, YamlOrderedDict
 
