@@ -72,10 +72,7 @@ class Function(YamlOrderedDict):
             and self._service.plugins.get(PythonRequirements).layer
             and not configured
         ):
-            if not layers:
-                layers = []
-
-            layers.append({"Ref": "PythonRequirementsLambdaLayer"})
+            self.layers.append({"Ref": "PythonRequirementsLambdaLayer"})
 
         self._service.resources.export(
             self.resource_name() + "ArnOutput", self.name.spinal + "-arn", self.arn(), append=False
