@@ -37,7 +37,6 @@ class Function(YamlOrderedDict):
         description,
         handler=None,
         timeout=None,
-        layers=None,
         force_name=None,
         idempotency=None,
         use_dlq=False,
