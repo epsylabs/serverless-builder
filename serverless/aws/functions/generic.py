@@ -37,11 +37,11 @@ class Function(YamlOrderedDict):
         description,
         handler=None,
         timeout=None,
+        layers=None,
         force_name=None,
         idempotency=None,
         use_dlq=False,
         use_async_dlq=False,
-        layers=None,
         **kwargs,
     ):
         super().__init__()
