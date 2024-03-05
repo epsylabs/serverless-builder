@@ -41,11 +41,11 @@ class Function(YamlOrderedDict):
         idempotency=None,
         use_dlq=False,
         use_async_dlq=False,
+        layers=None,
         **kwargs,
     ):
         super().__init__()
         self._service = service
-        self.layers = []
 
         self.key = Identifier(name)
         self.name = (
@@ -244,24 +244,11 @@ class Function(YamlOrderedDict):
 
         return self
     
-    def add_layer(self, name, path, **kwargs):
-        if not getattr(self._service, "layers", None):
-            setattr(self._service, "layers", {})
-        
-        self._service.layers.update(
-            {
-                name: {
-                    "path": path,
-                    "package": {
-                        "include": ["./**"]
-                    }
-                }
-            }
-        )
+    def add_layer(self, arn, **kwargs):
+        if not getattr(self, "layers", None):
+            setattr(self, "layers", [])
 
-        self.layers.append(
-            {"Ref": f"{name.capitalize()}LambdaLayer"}
-        )
+        self.layers.append(arn)
 
     @classmethod
     def to_yaml(cls, dumper, data):
