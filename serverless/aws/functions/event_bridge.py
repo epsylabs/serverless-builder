@@ -48,4 +48,9 @@ class EventBridgeFunction(Function):
         super().__init__(
             service, name, description, handler, timeout, layers, use_dlq=use_dlq, use_async_dlq=use_async_dlq, **kwargs
         )
+
+        # Re-use the Lambda DLQ for event trigger failures (unless specified)
+        if use_dlq and self.dlq and not deadLetterQueueArn:
+            deadLetterQueueArn = self.dlq.get_att("Arn")
+
         self.trigger(EventBridgeEvent(eventBus, pattern, deadLetterQueueArn, retryPolicy))
