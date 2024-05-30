@@ -31,6 +31,7 @@ class Table(Resource):
             TableName += "-${sls:stage}"
 
         kwargs.setdefault("DeletionPolicy", "Retain")
+        kwargs.setdefault("DeletionProtectionEnabled", True)
 
         if is_global:
             cls = GlobalTable
