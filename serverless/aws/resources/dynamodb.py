@@ -31,7 +31,6 @@ class Table(Resource):
             TableName += "-${sls:stage}"
 
         kwargs.setdefault("DeletionPolicy", "Retain")
-        kwargs.setdefault("DeletionProtectionEnabled", True)
 
         if is_global:
             cls = GlobalTable
@@ -41,6 +40,7 @@ class Table(Resource):
             kwargs.setdefault(
                 "PointInTimeRecoverySpecification", PointInTimeRecoverySpecification(PointInTimeRecoveryEnabled=True)
             )
+            kwargs.setdefault("DeletionProtectionEnabled", True)
 
         self.PointInTimeRecoverySpecification = kwargs.get(
             "PointInTimeRecoverySpecification", PointInTimeRecoverySpecification(PointInTimeRecoveryEnabled=True)
