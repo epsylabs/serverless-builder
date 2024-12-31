@@ -44,7 +44,7 @@ class WebsocketFunction(Function):
         service,
         name,
         description,
-        events: List[WebsocketEvent]=None,
+        events: List[WebsocketEvent] = None,
         handler=None,
         timeout=None,
         layers=None,
@@ -60,6 +60,4 @@ class WebsocketFunction(Function):
             events = [WebsocketEvent("$default", None, None)]
 
         for event in events:
-            self.trigger(
-                WebsocketEvent(event.route, event.routeResponseSelectionExpression, event.authorizer)
-            )
+            self.trigger(WebsocketEvent(event.route, event.routeResponseSelectionExpression, event.authorizer))

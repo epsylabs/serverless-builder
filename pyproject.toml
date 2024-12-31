@@ -22,11 +22,14 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.9"
 PyYAML = "^6.0"
 troposphere = "^4.0.2"
 inflection = "^0.5.1"
 awacs = "^2.1.0"
+strawberry-graphql = "^0.256.1"
+pydantic = {extras = ["email"], version = "^2.6.1"}
+pydantic-extra-types = "^2.5.0"
 
 [tool.poetry.dev-dependencies]
 bump2version = "^1.0.1"
