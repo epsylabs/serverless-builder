@@ -60,6 +60,9 @@ class ResolverManager(object):
             self._mutations[resolver.name] = resolver
 
     def query(self):
+        if not self._queries:
+            return None
+
         for resolver in self._queries.values():
             Query.add(self.builder, resolver.name, resolver.parameters, self.builder.as_output(resolver.output))
 
@@ -77,6 +80,9 @@ class ResolverManager(object):
         return types
 
     def mutations(self):
+        if not self._mutations:
+            return None
+
         for resolver in self._mutations.values():
             Mutation.add(self.builder, resolver.name, resolver.parameters, self.builder.as_output(resolver.output))
 
