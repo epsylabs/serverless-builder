@@ -8,6 +8,7 @@ from serverless.aws.functions.kinesis import KinesisFunction
 from serverless.aws.functions.s3 import S3Function
 from serverless.aws.functions.sqs import SQSFunction
 from serverless.aws.functions.websocket import WebsocketFunction
+from serverless.aws.functions.appsync import AppSyncFunction
 from serverless.aws.iam import ServicePolicyBuilder
 from serverless.service.environment import Environment
 from serverless.service.types import Provider as BaseProvider
@@ -191,6 +192,12 @@ class FunctionBuilder:
 
     def websocket(self, name, description, events=None, **kwargs):
         fn = WebsocketFunction(self.service, name, description, events, **kwargs)
+        self.service.functions.add(fn)
+
+        return fn
+
+    def appsync(self, name, description, **kwargs):
+        fn = AppSyncFunction(self.service, name, description, **kwargs)
         self.service.functions.add(fn)
 
         return fn

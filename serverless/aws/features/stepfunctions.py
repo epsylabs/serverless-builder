@@ -322,24 +322,17 @@ class StateMachine(YamlOrderedDict):
                 title=Identifier(self.name + "LogStream").resource,
                 LogGroupName=logs.resource.LogGroupName,
                 LogStreamName="dummy",
-                DependsOn=[
-                    logs.resource.title
-                ]
+                DependsOn=[logs.resource.title],
             )
         )
 
         self.loggingConfig = dict(level="ERROR", includeExecutionData=True, destinations=[logs.get_att("Arn")])
-        self.dependsOn = [
-            logs.resource.title,
-            stream.title
-        ]
+        self.dependsOn = [logs.resource.title, stream.title]
         self.definition = Definition(description, auto_fallback, auto_catch)
         self.events = events or []
 
-    
     def task(self, function=None, resource=None, name=None, end: Optional[bool] = None):
         return self.definition.add(Task(function=function, resource=resource, name=name, end=end))
-
 
     def map(self, name, steps, **kwargs):
         return self.definition.add(Map(name, steps, **kwargs))
