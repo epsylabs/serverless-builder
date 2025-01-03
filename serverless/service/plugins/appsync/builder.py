@@ -48,8 +48,9 @@ class AWSDateTime:
 
 
 class SchemaBuilder:
-    def __init__(self, resolver):
+    def __init__(self, resolver, namespace=None):
         self.resolver = resolver
+        self.namespace = namespace
         self.models = {}
         self._types = {strawberry_type: {}, strawberry_input: {}}
         self.strawberry_types = {}
@@ -78,8 +79,8 @@ class SchemaBuilder:
 
         content = str(
             strawberry.Schema(
-                query=manager.query(),
-                mutation=manager.mutations(),
+                query=manager.query(self.namespace),
+                mutation=manager.mutations(self.namespace),
                 scalar_overrides={PhoneNumber: AWSPhone, date: AWSDate, datetime: AWSDateTime},
             )
         )
