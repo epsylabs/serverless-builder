@@ -59,12 +59,19 @@ class ResolverManager(object):
         elif resolver.type.upper() == "MUTATION":
             self._mutations[resolver.name] = resolver
 
-    def query(self):
+    def query(self, namespace=None):
         if not self._queries:
             return None
 
+        container_type = Query
+        if namespace:
+            container_type = type(f"{namespace}Queries", (GraphQLTypes,), {})
+
         for resolver in self._queries.values():
-            Query.add(self.builder, resolver.name, resolver.parameters, self.builder.as_output(resolver.output))
+            container_type.add(self.builder, resolver.name, resolver.parameters, self.builder.as_output(resolver.output))
+
+        if namespace:
+            Query.add(self.builder, namespace.lower(), {}, strawberry.type(container_type))
 
         return strawberry.type(Query)
 
@@ -72,18 +79,25 @@ class ResolverManager(object):
         types = ()
         for resolver in [*self._queries.values()]:  # , *self._mutations.values()]:
             resolver_type = resolver.output
-            if get_origin(resolver_type) is list:
+            if get_origin(resolver_type) is list and get_args(resolver_type):
                 resolver_type = get_args(resolver_type)[0]
 
             types += (self.builder.as_output(resolver_type),)
 
         return types
 
-    def mutations(self):
+    def mutations(self, namespace=None):
         if not self._mutations:
             return None
 
+        container_type = Mutation
+        if namespace:
+            container_type = type(f"{namespace}Mutations", (GraphQLTypes,), {})
+
         for resolver in self._mutations.values():
-            Mutation.add(self.builder, resolver.name, resolver.parameters, self.builder.as_output(resolver.output))
+            container_type.add(self.builder, resolver.name, resolver.parameters, self.builder.as_output(resolver.output))
+
+        if namespace:
+            Mutation.add(self.builder, namespace.lower(), {}, strawberry.type(container_type))
 
         return strawberry.type(Mutation)
