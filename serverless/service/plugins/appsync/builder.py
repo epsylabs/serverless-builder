@@ -54,37 +54,44 @@ class SchemaBuilder:
         self.namespace = namespace
         self.models = {}
         self._types = {strawberry_type: {}, strawberry_input: {}, Enum: {}}
+        self._forced = []
 
-    def add_type(self, model):
+    def add_type(self, model, forced=False):
         if issubclass(model, Enum):
-            self._types[Enum][self._extract_name(model)] = strawberry.enum(model)
+            item = strawberry.enum(model)
+            self._types[Enum][self._extract_name(model)] = item
         else:
-            self._types[strawberry_type][self._extract_name(model)] = strawberry_type(model=model, all_fields=True)(
-                type(model.__name__, (), {})
-            )
+            item = strawberry_type(model=model, all_fields=True)(type(model.__name__, (), {}))
+            self._types[strawberry_type][self._extract_name(model)] = item
+
+        if forced and item:
+            self._forced.append(item)
 
         self.models[self._extract_name(model)] = model
 
         return self
 
-    def add_input(self, model):
-        self._types[strawberry_input][self._extract_name(model)] = strawberry_input(model=model, all_fields=True)(
-            type(model.__name__, (), {})
-        )
+    def add_input(self, model, forced=False):
+        item = strawberry_input(model=model, all_fields=True)(type(model.__name__, (), {}))
+
+        self._types[strawberry_input][self._extract_name(model)] = item
+
+        if forced:
+            self._forced.append(item)
 
         self.models[self._extract_name(model)] = model
 
         return self
 
-    def import_types(self, models_module):
+    def import_types(self, models_module, forced=False):
         for model in self._get_pydantic_models(models_module):
-            self.add_type(model)
+            self.add_type(model, forced)
 
         return self
 
-    def import_inputs(self, models_module):
+    def import_inputs(self, models_module, force=False):
         for model in self._get_pydantic_models(models_module):
-            self.add_input(model)
+            self.add(model, force)
 
         return self
 
@@ -98,8 +105,9 @@ class SchemaBuilder:
 
         content = str(
             strawberry.Schema(
-                query=manager.query(self.namespace),
+                query=manager.query(self.namespace) or strawberry_type(),
                 mutation=manager.mutations(self.namespace),
+                types=set(self._forced) if self._forced else (),
                 scalar_overrides={PhoneNumber: AWSPhone, date: AWSDate, datetime: AWSDateTime},
             )
         )

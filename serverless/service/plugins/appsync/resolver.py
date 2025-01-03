@@ -5,6 +5,8 @@ from strawberry.annotation import StrawberryAnnotation
 from strawberry.types.arguments import StrawberryArgument
 from strawberry.types.field import StrawberryField
 
+from serverless.service import Identifier
+
 
 class GraphQLTypes(object):
     @classmethod
@@ -54,10 +56,10 @@ class ResolverManager(object):
         self._mutations = {}
 
     def register(self, resolver):
-        if resolver.type.upper() == "QUERY":
-            self._queries[resolver.name] = resolver
-        elif resolver.type.upper() == "MUTATION":
+        if resolver.type.upper() == "MUTATION":
             self._mutations[resolver.name] = resolver
+        else:
+            self._queries[resolver.name] = resolver
 
     def query(self, namespace=None):
         if not self._queries:
@@ -65,7 +67,7 @@ class ResolverManager(object):
 
         container_type = Query
         if namespace:
-            container_type = type(f"{namespace}Queries", (GraphQLTypes,), {})
+            container_type = type(Identifier(f"{namespace}Query").pascal, (GraphQLTypes,), {})
 
         for resolver in self._queries.values():
             container_type.add(
@@ -83,7 +85,7 @@ class ResolverManager(object):
 
         container_type = Mutation
         if namespace:
-            container_type = type(f"{namespace}Mutations", (GraphQLTypes,), {})
+            container_type = type(Identifier(f"{namespace}Mutation").pascal, (GraphQLTypes,), {})
 
         for resolver in self._mutations.values():
             container_type.add(

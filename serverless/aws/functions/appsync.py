@@ -1,7 +1,7 @@
 import itertools
 
 from serverless.aws.functions.generic import Function
-from serverless.service.types import YamlOrderedDict
+from serverless.service.types import YamlOrderedDict, Identifier
 from serverless.service.plugins.appsync import AppSync
 
 
@@ -29,14 +29,29 @@ class AppSyncFunction(Function):
             return
 
         plugin = service.plugins.get(AppSync)
+        prefix = plugin.namespace if plugin.namespace else ""
 
         plugin.dataSources[str(self.key.pascal)] = {
             "type": "AWS_LAMBDA",
             "config": {"functionName": str(self.key.pascal)},
         }
 
-        for resolver in graphql_app._resolver_registry.resolvers.keys():
-            plugin.resolvers[resolver] = {"kind": "UNIT", "dataSource": str(self.key.pascal)}
+        extras_map = {extra.resolver.lower(): extra for extra in plugin.resolver_extras}
+
+        for name, resolver in graphql_app._resolver_registry.resolvers.items():
+            gql_type, gql_field = name.split(".")
+
+            extras = extras_map.get(name.lower())
+
+            if not extras or extras.prefix:
+                gql_type = Identifier(prefix + str(gql_type)).camel
+
+            defintion = {"type": gql_type, "field": gql_field, "kind": "UNIT", "dataSource": str(self.key.pascal)}
+
+            if extras:
+                defintion.update({"maxBatchSize": extras.max_batch_size})
+
+            plugin.resolvers[str(Identifier(gql_type).camel) + str(Identifier(gql_field).camel)] = defintion
 
     @classmethod
     def to_yaml(cls, dumper, data):
