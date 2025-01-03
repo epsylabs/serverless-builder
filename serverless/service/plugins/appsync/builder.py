@@ -1,9 +1,10 @@
 import inspect
-import typing
 import re
+import typing
+from datetime import date, datetime
+from enum import Enum
 from pathlib import Path
 from typing import get_type_hints, List, Type, get_args, get_origin
-from datetime import date, datetime
 
 import strawberry
 from pydantic import BaseModel
@@ -52,20 +53,38 @@ class SchemaBuilder:
         self.resolver = resolver
         self.namespace = namespace
         self.models = {}
-        self._types = {strawberry_type: {}, strawberry_input: {}}
-        self.strawberry_types = {}
+        self._types = {strawberry_type: {}, strawberry_input: {}, Enum: {}}
 
-    def add_model(self, model):
-        self.strawberry_types[self._extract_name(model)] = strawberry_type(model=model, all_fields=True)(
-            type(model.__name__, (), {})
-        )
+    def add_type(self, model):
+        if issubclass(model, Enum):
+            self._types[Enum][self._extract_name(model)] = strawberry.enum(model)
+        else:
+            self._types[strawberry_type][self._extract_name(model)] = strawberry_type(model=model, all_fields=True)(
+                type(model.__name__, (), {})
+            )
+
         self.models[self._extract_name(model)] = model
 
         return self
 
-    def import_models(self, models_module):
+    def add_input(self, model):
+        self._types[strawberry_input][self._extract_name(model)] = strawberry_input(model=model, all_fields=True)(
+            type(model.__name__, (), {})
+        )
+
+        self.models[self._extract_name(model)] = model
+
+        return self
+
+    def import_types(self, models_module):
         for model in self._get_pydantic_models(models_module):
-            self.add_model(model)
+            self.add_type(model)
+
+        return self
+
+    def import_inputs(self, models_module):
+        for model in self._get_pydantic_models(models_module):
+            self.add_input(model)
 
         return self
 

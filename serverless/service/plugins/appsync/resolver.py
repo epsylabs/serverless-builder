@@ -68,23 +68,14 @@ class ResolverManager(object):
             container_type = type(f"{namespace}Queries", (GraphQLTypes,), {})
 
         for resolver in self._queries.values():
-            container_type.add(self.builder, resolver.name, resolver.parameters, self.builder.as_output(resolver.output))
+            container_type.add(
+                self.builder, resolver.name, resolver.parameters, self.builder.as_output(resolver.output)
+            )
 
         if namespace:
             Query.add(self.builder, namespace.lower(), {}, strawberry.type(container_type))
 
         return strawberry.type(Query)
-
-    def types(self):
-        types = ()
-        for resolver in [*self._queries.values()]:  # , *self._mutations.values()]:
-            resolver_type = resolver.output
-            if get_origin(resolver_type) is list and get_args(resolver_type):
-                resolver_type = get_args(resolver_type)[0]
-
-            types += (self.builder.as_output(resolver_type),)
-
-        return types
 
     def mutations(self, namespace=None):
         if not self._mutations:
@@ -95,7 +86,9 @@ class ResolverManager(object):
             container_type = type(f"{namespace}Mutations", (GraphQLTypes,), {})
 
         for resolver in self._mutations.values():
-            container_type.add(self.builder, resolver.name, resolver.parameters, self.builder.as_output(resolver.output))
+            container_type.add(
+                self.builder, resolver.name, resolver.parameters, self.builder.as_output(resolver.output)
+            )
 
         if namespace:
             Mutation.add(self.builder, namespace.lower(), {}, strawberry.type(container_type))
