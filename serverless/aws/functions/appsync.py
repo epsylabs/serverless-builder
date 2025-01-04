@@ -1,4 +1,5 @@
 import itertools
+from pathlib import Path
 
 from serverless.aws.functions.generic import Function
 from serverless.service.types import YamlOrderedDict, Identifier
@@ -29,7 +30,6 @@ class AppSyncFunction(Function):
             return
 
         plugin = service.plugins.get(AppSync)
-        prefix = plugin.namespace if plugin.namespace else ""
 
         plugin.dataSources[str(self.key.pascal)] = {
             "type": "AWS_LAMBDA",
@@ -38,20 +38,61 @@ class AppSyncFunction(Function):
 
         extras_map = {extra.resolver.lower(): extra for extra in plugin.resolver_extras}
 
-        for name, resolver in graphql_app._resolver_registry.resolvers.items():
+        has_query = False
+        has_mutation = False
+
+        import __main__ as main
+
+        template = None
+        if graphql_app._batch_resolver_registry.resolvers:
+            template = Path(main.__file__).parent.absolute().joinpath("resolver.response.vtl")
+            with open(template, "w+") as f:
+                f.write("$util.toJson($context.result)")
+
+        for name, resolver in {
+            **graphql_app._resolver_registry.resolvers,
+            **graphql_app._batch_resolver_registry.resolvers,
+        }.items():
             gql_type, gql_field = name.split(".")
+            if gql_type.lower().endswith("query"):
+                has_query = True
+
+            if gql_type.lower().endswith("mutation"):
+                has_mutation = True
 
             extras = extras_map.get(name.lower())
 
-            if not extras or extras.prefix:
-                gql_type = Identifier(prefix + str(gql_type)).camel
-
             defintion = {"type": gql_type, "field": gql_field, "kind": "UNIT", "dataSource": str(self.key.pascal)}
 
-            if extras:
-                defintion.update({"maxBatchSize": extras.max_batch_size})
+            if name in graphql_app._batch_resolver_registry.resolvers:
+                extras.max_batch_size = extras.max_batch_size or 10
+                extras.response = extras.response or Path(template).name
+
+            if hasattr(extras, "max_batch_size") and extras.max_batch_size:
+                defintion["maxBatchSize"] = extras.max_batch_size
+
+            if hasattr(extras, "response") and extras.response:
+                defintion["response"] = extras.response
+
+            if hasattr(extras, "request") and extras.request:
+                defintion["request"] = extras.request
 
             plugin.resolvers[str(Identifier(gql_type).camel) + str(Identifier(gql_field).camel)] = defintion
+
+        if plugin.namespace:
+            if has_query:
+                plugin.resolvers["Query"] = {
+                    "type": "Query",
+                    "field": Identifier(plugin.namespace).camel.lower(),
+                    "functions": [],
+                }
+
+            if has_mutation:
+                plugin.resolvers["Mutation"] = {
+                    "type": "Mutation",
+                    "field": Identifier(plugin.namespace).camel.lower(),
+                    "functions": [],
+                }
 
     @classmethod
     def to_yaml(cls, dumper, data):

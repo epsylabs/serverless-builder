@@ -8,6 +8,7 @@ from typing import get_type_hints, List, Type, get_args, get_origin
 
 import strawberry
 from pydantic import BaseModel
+from aws_lambda_powertools.event_handler import AppSyncResolver
 from pydantic_extra_types.phone_numbers import PhoneNumber
 from strawberry.experimental.pydantic import input as strawberry_input
 from strawberry.experimental.pydantic import type as strawberry_type
@@ -49,7 +50,7 @@ class AWSDateTime:
 
 
 class SchemaBuilder:
-    def __init__(self, resolver, namespace=None):
+    def __init__(self, resolver: AppSyncResolver, namespace=None):
         self.resolver = resolver
         self.namespace = namespace
         self.models = {}
@@ -97,15 +98,17 @@ class SchemaBuilder:
 
     def render(self):
         manager = ResolverManager(self)
-
         for name, definition in self.resolver._resolver_registry.resolvers.items():
             parameters, output = self._get_function_signature(definition["func"])
+
+            if name in self.resolver._batch_resolver_registry.resolvers:
+                parameters = []
 
             manager.register(Resolver(name, parameters, output))
 
         content = str(
             strawberry.Schema(
-                query=manager.query(self.namespace) or strawberry_type(),
+                query=manager.query(self.namespace),
                 mutation=manager.mutations(self.namespace),
                 types=set(self._forced) if self._forced else (),
                 scalar_overrides={PhoneNumber: AWSPhone, date: AWSDate, datetime: AWSDateTime},

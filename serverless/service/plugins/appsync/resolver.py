@@ -56,9 +56,9 @@ class ResolverManager(object):
         self._mutations = {}
 
     def register(self, resolver):
-        if resolver.type.upper() == "MUTATION":
+        if resolver.type.upper().endswith("MUTATION"):
             self._mutations[resolver.name] = resolver
-        else:
+        elif resolver.type.upper().endswith("QUERY"):
             self._queries[resolver.name] = resolver
 
     def query(self, namespace=None):

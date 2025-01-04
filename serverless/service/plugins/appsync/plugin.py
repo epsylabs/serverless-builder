@@ -22,11 +22,13 @@ class CognitoAuthentication(YamlOrderedDict):
 
 
 class ResolverExtra(object):
-    def __init__(self, resolver, prefix=False, max_batch_size=None):
+    def __init__(self, resolver, prefix=False, max_batch_size=None, request=None, response=None):
         super().__init__()
         self.resolver = resolver
         self.prefix = prefix
         self.max_batch_size = max_batch_size
+        self.request = request
+        self.response = response
 
 
 class AppSync(Generic):
