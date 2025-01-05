@@ -2,6 +2,7 @@ import itertools
 from pathlib import Path
 
 from serverless.aws.functions.generic import Function
+from serverless.service.plugins.appsync.plugin import ResolverExtra
 from serverless.service.types import YamlOrderedDict, Identifier
 from serverless.service.plugins.appsync import AppSync
 
@@ -60,7 +61,7 @@ class AppSyncFunction(Function):
             if gql_type.lower().endswith("mutation"):
                 has_mutation = True
 
-            extras = extras_map.get(name.lower())
+            extras = extras_map.get(name.lower(), ResolverExtra(name))
 
             defintion = {"type": gql_type, "field": gql_field, "kind": "UNIT", "dataSource": str(self.key.pascal)}
 
@@ -68,13 +69,13 @@ class AppSyncFunction(Function):
                 extras.max_batch_size = extras.max_batch_size or 10
                 extras.response = extras.response or Path(template).name
 
-            if hasattr(extras, "max_batch_size") and extras.max_batch_size:
+            if extras.max_batch_size:
                 defintion["maxBatchSize"] = extras.max_batch_size
 
-            if hasattr(extras, "response") and extras.response:
+            if extras.response:
                 defintion["response"] = extras.response
 
-            if hasattr(extras, "request") and extras.request:
+            if extras.request:
                 defintion["request"] = extras.request
 
             plugin.resolvers[str(Identifier(gql_type).camel) + str(Identifier(gql_field).camel)] = defintion
