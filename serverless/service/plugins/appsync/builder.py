@@ -131,21 +131,30 @@ class SchemaBuilder:
     def as_type(self, pydantic_type: type[BaseModel], output_type):
         resolver_type = pydantic_type
 
-        if get_origin(pydantic_type) is list:
+        is_list = get_origin(pydantic_type) == list
+        if is_list:
+            resolver_type = get_args(pydantic_type)[0]
+
+        is_optional = get_origin(resolver_type) is typing.Union and type(None) in get_args(resolver_type)
+        if is_optional:
             resolver_type = get_args(pydantic_type)[0]
 
         if issubclass(resolver_type, BaseModel):
             if resolver_type.__name__ in self._types[output_type]:
-                return self._types[output_type][resolver_type.__name__]
+                resolved =  self._types[output_type][resolver_type.__name__]
 
-            resolved = output_type(model=resolver_type, all_fields=True)(type(resolver_type.__name__, (), {}))
+            else:
+                resolved = output_type(model=resolver_type, all_fields=True)(type(resolver_type.__name__, (), {}))
 
-            self._types[output_type][resolver_type.__name__] = resolved
+                self._types[output_type][resolver_type.__name__] = resolved
         else:
             resolved = resolver_type
 
-        if get_origin(pydantic_type) is list:
-            return typing.List[resolved]
+        if is_list:
+            resolved = typing.List[resolved]
+
+        if is_optional:
+            resolved = typing.Optional[resolved]
 
         return resolved
 
