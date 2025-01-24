@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "serverless-builder"
-version = "2.17.8"
+version = "2.17.9"
 description = "Python interface to easily generate `serverless.yml`."
 keywords = ["library", "serverless"]
 authors = ["Epsy <engineering@epsyhealth.com>"]
