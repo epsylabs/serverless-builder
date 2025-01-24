@@ -12,6 +12,7 @@ from aws_lambda_powertools.event_handler import AppSyncResolver
 from pydantic_extra_types.phone_numbers import PhoneNumber
 from strawberry.experimental.pydantic import input as strawberry_input
 from strawberry.experimental.pydantic import type as strawberry_type
+from strawberry.schema_directive import Location
 
 from serverless.service.plugins.appsync.resolver import ResolverManager, Resolver
 
@@ -47,6 +48,9 @@ class AWSDateTime:
     @staticmethod
     def parse_value(value: str) -> datetime:
         return datetime.fromisoformat(value)
+
+
+
 
 
 class SchemaBuilder:
@@ -96,7 +100,7 @@ class SchemaBuilder:
 
         return self
 
-    def render(self):
+    def render(self, output_file=None):
         manager = ResolverManager(self)
         for name, definition in self.resolver._resolver_registry.resolvers.items():
             parameters, output = self._get_function_signature(definition["func"])
@@ -119,16 +123,18 @@ class SchemaBuilder:
 
         content = re.sub(r"scalar AWS(DateTime|Phone|Date)\n+", "", content, 0, re.MULTILINE)
 
-        with open(Path(main.__file__).stem + ".graphql", "w+") as f:
-            f.write(content)
+        if not output_file:
+            output_file = open(Path(main.__file__).stem + ".graphql", "w+")
 
-    def as_output(self, pydantic_type: type[BaseModel]):
-        return self.as_type(pydantic_type, strawberry_type)
+        output_file.write(content)
+
+    def as_output(self, pydantic_type: type[BaseModel], directives=None):
+        return self.as_type(pydantic_type, strawberry_type, directives=directives)
 
     def as_input(self, pydantic_type: type[BaseModel]):
         return self.as_type(pydantic_type, strawberry_input)
 
-    def as_type(self, pydantic_type: type[BaseModel], output_type):
+    def as_type(self, pydantic_type: type[BaseModel], output_type, directives=None):
         resolver_type = pydantic_type
 
         is_list = get_origin(pydantic_type) == list
@@ -144,7 +150,7 @@ class SchemaBuilder:
                 resolved =  self._types[output_type][resolver_type.__name__]
 
             else:
-                resolved = output_type(model=resolver_type, all_fields=True)(type(resolver_type.__name__, (), {}))
+                resolved = output_type(model=resolver_type, all_fields=True, directives=directives)(type(resolver_type.__name__, (), {}))
 
                 self._types[output_type][resolver_type.__name__] = resolved
         else:
