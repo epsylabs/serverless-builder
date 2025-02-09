@@ -108,7 +108,7 @@ class ResolverManager(object):
         if namespace:
             scope, container_type = self._build_namespace(namespace, "Mutation")
 
-        for resolver in self._queries.values():
+        for resolver in self._mutations.values():
             container_type.add(
                 self.builder, resolver.name, resolver.parameters, self.builder.as_output(resolver.output)
             )
