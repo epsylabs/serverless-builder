@@ -82,13 +82,15 @@ class AppSyncFunction(Function):
 
         if plugin.namespace:
             parts = plugin.namespace.split(".")
+            print(plugin.topNamespaceResolver)
 
             if has_query:
-                plugin.resolvers["Query"] = {
-                    "type": "Query",
-                    "field": Identifier(parts[0]).camel.lower(),
-                    "functions": [],
-                }
+                if len(parts) == 1 or plugin.topNamespaceResolver:
+                    plugin.resolvers["Query"] = {
+                        "type": "Query",
+                        "field": Identifier(parts[0]).camel.lower(),
+                        "functions": [],
+                    }
                 if len(parts) > 1:
                     plugin.resolvers[Identifier(parts[0] + "Query").camel] = {
                         "type": Identifier(parts[0] + "Query").camel,
@@ -97,11 +99,12 @@ class AppSyncFunction(Function):
                     }
 
             if has_mutation:
-                plugin.resolvers["Mutation"] = {
-                    "type": "Mutation",
-                    "field": Identifier(parts[0]).camel.lower(),
-                    "functions": [],
-                }
+                if len(parts) == 1 or plugin.topNamespaceResolver:
+                    plugin.resolvers["Mutation"] = {
+                        "type": "Mutation",
+                        "field": Identifier(parts[0]).camel.lower(),
+                        "functions": [],
+                    }
 
                 if len(parts) > 1:
                     plugin.resolvers[Identifier(parts[0] + "Mutation").camel] = {

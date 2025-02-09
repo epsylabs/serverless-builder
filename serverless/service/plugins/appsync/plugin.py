@@ -48,6 +48,7 @@ class AppSync(Generic):
         additional_authentications=None,
         namespace=None,
         namespace_excluded=None,
+        include_top_namespace_resolver=True,
         resolver_extras: Union[List[ResolverExtra], None] = None,
         **kwargs
     ):
@@ -61,11 +62,13 @@ class AppSync(Generic):
         self.namespace = namespace
         self.resolver_extras = resolver_extras or []
         self.update(kwargs)
+        self.topNamespaceResolver = include_top_namespace_resolver
 
     def enable(self, service):
         export = dict(self)
         export["name"] = str(service.service)
         export.pop("namespace")
         export.pop("resolver_extras")
+        export.pop("topNamespaceResolver")
 
         service.appSync = export
