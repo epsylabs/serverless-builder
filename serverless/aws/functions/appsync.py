@@ -82,8 +82,7 @@ class AppSyncFunction(Function):
 
         if plugin.namespace:
             parts = plugin.namespace.split(".")
-            print(plugin.topNamespaceResolver)
-
+            
             if has_query:
                 if len(parts) == 1 or plugin.topNamespaceResolver:
                     plugin.resolvers["Query"] = {
