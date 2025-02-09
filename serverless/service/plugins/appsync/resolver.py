@@ -60,6 +60,22 @@ class ResolverManager(object):
             self._mutations[resolver.name] = resolver
         elif resolver.type.upper().endswith("QUERY"):
             self._queries[resolver.name] = resolver
+            
+    def _build_namespace(self, namespace, namespace_type="Query"):
+        parts = namespace.split(".")
+
+        if len(parts) > 2:
+            raise Exception("Only two levels of nesting are supported")
+
+        scope_type = type(Identifier(f"{parts[0]}{namespace_type}").pascal, (GraphQLTypes,), {})
+
+        if len(parts) == 2:
+            sub_scope_type = type(Identifier(f"{parts[1]}{namespace_type}").pascal, (GraphQLTypes,), {})
+            scope_type.add(self.builder, parts[1], {}, strawberry.type(sub_scope_type))
+
+            return scope_type, sub_scope_type
+
+        return scope_type, scope_type
 
     def query(self, namespace=None):
         if not self._queries:
@@ -67,7 +83,7 @@ class ResolverManager(object):
 
         container_type = Query
         if namespace:
-            container_type = type(Identifier(f"{namespace}Query").pascal, (GraphQLTypes,), {})
+            scope, container_type = self._build_namespace(namespace, "Query")
 
         for resolver in self._queries.values():
             container_type.add(
@@ -75,7 +91,12 @@ class ResolverManager(object):
             )
 
         if namespace:
-            Query.add(self.builder, namespace.lower(), {}, strawberry.type(container_type))
+            parts = namespace.split(".")
+            Query.add(self.builder, parts[0], {}, strawberry.type(scope))
+
+            if len(parts) == 2:
+                scope.add(self.builder, parts[1], {}, strawberry.type(container_type))
+
 
         return strawberry.type(Query)
 
@@ -85,14 +106,18 @@ class ResolverManager(object):
 
         container_type = Mutation
         if namespace:
-            container_type = type(Identifier(f"{namespace}Mutation").pascal, (GraphQLTypes,), {})
+            scope, container_type = self._build_namespace(namespace, "Mutation")
 
-        for resolver in self._mutations.values():
+        for resolver in self._queries.values():
             container_type.add(
                 self.builder, resolver.name, resolver.parameters, self.builder.as_output(resolver.output)
             )
 
         if namespace:
-            Mutation.add(self.builder, namespace.lower(), {}, strawberry.type(container_type))
+            parts = namespace.split(".")
+            Mutation.add(self.builder, parts[0], {}, strawberry.type(scope))
+
+            if len(parts) == 2:
+                scope.add(self.builder, parts[1], {}, strawberry.type(container_type))
 
         return strawberry.type(Mutation)

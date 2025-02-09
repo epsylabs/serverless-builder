@@ -81,19 +81,34 @@ class AppSyncFunction(Function):
             plugin.resolvers[str(Identifier(gql_type).camel) + str(Identifier(gql_field).camel)] = defintion
 
         if plugin.namespace:
+            parts = plugin.namespace.split(".")
+
             if has_query:
                 plugin.resolvers["Query"] = {
                     "type": "Query",
-                    "field": Identifier(plugin.namespace).camel.lower(),
+                    "field": Identifier(parts[0]).camel.lower(),
                     "functions": [],
                 }
+                if len(parts) > 1:
+                    plugin.resolvers[Identifier(parts[0] + "Query").camel] = {
+                        "type": Identifier(parts[0] + "Query").camel,
+                        "field": Identifier(parts[1]).camel.lower(),
+                        "functions": [],
+                    }
 
             if has_mutation:
                 plugin.resolvers["Mutation"] = {
                     "type": "Mutation",
-                    "field": Identifier(plugin.namespace).camel.lower(),
+                    "field": Identifier(parts[0]).camel.lower(),
                     "functions": [],
                 }
+
+                if len(parts) > 1:
+                    plugin.resolvers[Identifier(parts[0] + "Mutation").camel] = {
+                        "type": Identifier(parts[0] + "Mutation").camel,
+                        "field": Identifier(parts[1]).camel.lower(),
+                        "functions": [],
+                    }
 
     @classmethod
     def to_yaml(cls, dumper, data):
