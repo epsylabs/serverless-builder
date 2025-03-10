@@ -1,4 +1,4 @@
-from typing import Union, List
+from typing import List, Union
 
 from serverless.service.plugins.generic import Generic
 from serverless.service.types import YamlOrderedDict

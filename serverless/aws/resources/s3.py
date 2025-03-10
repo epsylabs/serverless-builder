@@ -1,4 +1,5 @@
 from typing import final
+
 from troposphere.s3 import (
     Bucket,
     BucketEncryption,

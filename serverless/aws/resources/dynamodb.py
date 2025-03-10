@@ -1,13 +1,13 @@
 from troposphere.dynamodb import (
-    PointInTimeRecoverySpecification,
-    SSESpecification,
     GlobalTable,
+    GlobalTableSSESpecification,
+    PointInTimeRecoverySpecification,
     ReplicaSpecification,
     ReplicaSSESpecification,
+    SSESpecification,
     StreamSpecification,
-    GlobalTableSSESpecification,
 )
-from troposphere.dynamodb import Table as DynamoDBTable, GlobalTable
+from troposphere.dynamodb import Table as DynamoDBTable
 
 from serverless.aws.iam.dynamodb import (
     DynamoDBDelete,
@@ -16,11 +16,11 @@ from serverless.aws.iam.dynamodb import (
     DynamoDBWriteOnly,
     DynamoDBWriter,
 )
-from ..types import Ref, Equals
 
 from ...service import Identifier
 from ..features.encryption import Encryption
 from ..iam import IAMPreset, PolicyBuilder
+from ..types import Equals, Ref
 from . import Resource
 from .kms import EncryptableResource
 

@@ -1,5 +1,6 @@
 import yaml
 
+from serverless.aws.functions.appsync import AppSyncFunction
 from serverless.aws.functions.dynamodb import DynamoDBStreamFunction
 from serverless.aws.functions.event_bridge import EventBridgeFunction
 from serverless.aws.functions.generic import Function
@@ -8,7 +9,6 @@ from serverless.aws.functions.kinesis import KinesisFunction
 from serverless.aws.functions.s3 import S3Function
 from serverless.aws.functions.sqs import SQSFunction
 from serverless.aws.functions.websocket import WebsocketFunction
-from serverless.aws.functions.appsync import AppSyncFunction
 from serverless.aws.iam import ServicePolicyBuilder
 from serverless.service.environment import Environment
 from serverless.service.types import Provider as BaseProvider

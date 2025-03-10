@@ -3,18 +3,19 @@ import re
 import typing
 from datetime import date, datetime
 from enum import Enum
+from functools import wraps
 from pathlib import Path
-from typing import get_type_hints, List, Type, get_args, get_origin
+from typing import List, Type, get_args, get_origin, get_type_hints
 
 import strawberry
-from pydantic import BaseModel
 from aws_lambda_powertools.event_handler import AppSyncResolver
+from pydantic import BaseModel
 from pydantic_extra_types.phone_numbers import PhoneNumber
 from strawberry.experimental.pydantic import input as strawberry_input
 from strawberry.experimental.pydantic import type as strawberry_type
 from strawberry.schema_directive import Location
 
-from serverless.service.plugins.appsync.resolver import ResolverManager, Resolver
+from serverless.service.plugins.appsync.resolver import Resolver, ResolverManager
 
 
 @strawberry.scalar
@@ -50,7 +51,98 @@ class AWSDateTime:
         return datetime.fromisoformat(value)
 
 
+def resolve_wrapped(func):
+    if hasattr(func, "__wrapped__"):
+        return resolve_wrapped(func.__wrapped__)
+    else:
+        return func
 
+
+def schema_directive(func, directive):
+    org_func = resolve_wrapped(func)
+
+    if not hasattr(org_func, "schema_directives"):
+        org_func.schema_directives = []
+
+    org_func.schema_directives.append(directive)
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
+def aws_lambda(function: str):
+    def decorator(func):
+        @strawberry.schema_directive(locations=[Location.FIELD_DEFINITION, Location.OBJECT], name="aws_lambda")
+        class Directive:
+            function: str
+
+        return schema_directive(func, Directive(function=function))
+
+    return decorator
+
+
+def aws_auth(cognito_groups: typing.List[str] = None):
+    def decorator(func):
+        @strawberry.schema_directive(locations=[Location.FIELD_DEFINITION], name="aws_auth")
+        class Directive:
+            cognito_groups: list[str] = strawberry.directive_field(name="cognito_groups")
+
+        return schema_directive(func, Directive(cognito_groups=cognito_groups))
+
+    return decorator
+
+
+def aws_publish(subscriptions: typing.List[str] = None):
+    def decorator(func):
+        @strawberry.schema_directive(locations=[Location.FIELD_DEFINITION], name="aws_publish")
+        class Directive:
+            subscriptions: list[str]
+
+        return schema_directive(func, Directive(subscriptions=subscriptions))
+
+    return decorator
+
+
+def aws_cognito_user_pools(cognito_groups: typing.List[str] = None):
+    def decorator(func):
+        @strawberry.schema_directive(
+            locations=[Location.FIELD_DEFINITION, Location.INPUT_OBJECT, Location.OBJECT], name="aws_cognito_user_pools"
+        )
+        class Directive:
+            cognito_groups: list[str] = strawberry.directive_field(name="cognito_groups")
+
+        return schema_directive(func, Directive(cognito_groups=cognito_groups))
+
+    return decorator
+
+
+def aws_subscribe(func):
+    @strawberry.schema_directive(locations=[Location.FIELD_DEFINITION], name="aws_subscribe")
+    class Directive:
+        pass
+
+    return schema_directive(func, Directive())
+
+
+def aws_iam(func):
+    @strawberry.schema_directive(
+        locations=[Location.OBJECT, Location.FIELD_DEFINITION, Location.INPUT_OBJECT], name="aws_iam"
+    )
+    class Directive:
+        pass
+
+    return schema_directive(func, Directive())
+
+
+def aws_api_key(func):
+    @strawberry.schema_directive(locations=[Location.OBJECT, Location.FIELD_DEFINITION], name="aws_api_key")
+    class Directive:
+        pass
+
+    return schema_directive(func, Directive())
 
 
 class SchemaBuilder:
@@ -103,12 +195,12 @@ class SchemaBuilder:
     def render(self, output_file=None):
         manager = ResolverManager(self)
         for name, definition in self.resolver._resolver_registry.resolvers.items():
-            parameters, output = self._get_function_signature(definition["func"])
+            parameters, output, directives = self._get_function_signature(definition["func"])
 
             if name in self.resolver._batch_resolver_registry.resolvers:
                 parameters = []
 
-            manager.register(Resolver(name, parameters, output))
+            manager.register(Resolver(name, parameters, output, directives))
 
         content = str(
             strawberry.Schema(
@@ -122,6 +214,7 @@ class SchemaBuilder:
         import __main__ as main
 
         content = re.sub(r"scalar AWS(DateTime|Phone|Date)\n+", "", content, 0, re.MULTILINE)
+        content = re.sub(r"directive @.* on .*\n+", "", content, 0, re.MULTILINE)
 
         if not output_file:
             output_file = open(Path(main.__file__).stem + ".graphql", "w+")
@@ -147,10 +240,12 @@ class SchemaBuilder:
 
         if issubclass(resolver_type, BaseModel):
             if resolver_type.__name__ in self._types[output_type]:
-                resolved =  self._types[output_type][resolver_type.__name__]
+                resolved = self._types[output_type][resolver_type.__name__]
 
             else:
-                resolved = output_type(model=resolver_type, all_fields=True, directives=directives)(type(resolver_type.__name__, (), {}))
+                resolved = output_type(model=resolver_type, all_fields=True, directives=directives)(
+                    type(resolver_type.__name__, (), {})
+                )
 
                 self._types[output_type][resolver_type.__name__] = resolved
         else:
@@ -174,13 +269,22 @@ class SchemaBuilder:
             if inspect.isclass(obj) and issubclass(obj, BaseModel) and obj.__module__ == module.__name__
         ]
 
+    def _get_directives(self, func):
+        directives = []
+        wrapped = func
+        while wrapped:
+            if hasattr(wrapped, "schema_directives"):
+                directives.extend(wrapped.schema_directives)
+
+            wrapped = getattr(wrapped, "__wrapped__", None)
+
+        return directives
+
     def _get_function_signature(self, func):
         signature = inspect.signature(func)
-
+        directives = self._get_directives(func)
         type_hints = get_type_hints(func)
-
         parameters = {param_name: type_hints.get(param_name, "No type hint") for param_name in signature.parameters}
-
         return_type = type_hints.get("return", "No return type hint")
 
-        return parameters, return_type
+        return parameters, return_type, directives

@@ -1,5 +1,6 @@
-from serverless.service.plugins.generic import Generic
 import troposphere.ssm as ssm
+
+from serverless.service.plugins.generic import Generic
 
 
 class DomainManager(Generic):

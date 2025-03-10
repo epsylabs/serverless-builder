@@ -1,13 +1,11 @@
+import importlib
 import itertools
 from pathlib import Path
 
 from serverless.aws.functions.generic import Function
-from serverless.service.plugins.appsync.plugin import ResolverExtra
-from serverless.service.types import YamlOrderedDict, Identifier
 from serverless.service.plugins.appsync import AppSync
-
-
-import importlib
+from serverless.service.plugins.appsync.plugin import ResolverExtra
+from serverless.service.types import Identifier, YamlOrderedDict
 
 
 def import_variable(module_name: str, variable_name: str):
@@ -82,7 +80,7 @@ class AppSyncFunction(Function):
 
         if plugin.namespace:
             parts = plugin.namespace.split(".")
-            
+
             if has_query:
                 if len(parts) == 1 or plugin.topNamespaceResolver:
                     plugin.resolvers["Query"] = {

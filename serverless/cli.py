@@ -1,6 +1,6 @@
 import json
 from os import getcwd
-from os.path import join, isfile
+from os.path import isfile, join
 
 import boto3
 import click

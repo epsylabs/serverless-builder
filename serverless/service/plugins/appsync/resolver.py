@@ -1,4 +1,4 @@
-from typing import get_origin, get_args
+from typing import get_args, get_origin
 
 import strawberry
 from strawberry.annotation import StrawberryAnnotation
@@ -10,8 +10,8 @@ from serverless.service import Identifier
 
 class GraphQLTypes(object):
     @classmethod
-    def add(cls, builder, name, parameters, type_hint):
-        field = StrawberryField(python_name=name)
+    def add(cls, builder, name, parameters, type_hint, directives=None):
+        field = StrawberryField(python_name=name, directives=directives or [])
         field.arguments = [
             StrawberryArgument(
                 python_name=name,
@@ -34,10 +34,11 @@ class Mutation(GraphQLTypes):
 
 
 class Resolver(object):
-    def __init__(self, name, parameters, output):
+    def __init__(self, name, parameters, output, directives=None):
         self.type, self.name = name.split(".")
         self.parameters = parameters
         self.output = output
+        self.directives = directives
 
     @property
     def inner_type(self):
@@ -60,7 +61,7 @@ class ResolverManager(object):
             self._mutations[resolver.name] = resolver
         elif resolver.type.upper().endswith("QUERY"):
             self._queries[resolver.name] = resolver
-            
+
     def _build_namespace(self, namespace, namespace_type="Query"):
         parts = namespace.split(".")
 
@@ -87,7 +88,11 @@ class ResolverManager(object):
 
         for resolver in self._queries.values():
             container_type.add(
-                self.builder, resolver.name, resolver.parameters, self.builder.as_output(resolver.output)
+                self.builder,
+                resolver.name,
+                resolver.parameters,
+                self.builder.as_output(resolver.output),
+                resolver.directives,
             )
 
         if namespace:
@@ -96,7 +101,6 @@ class ResolverManager(object):
 
             if len(parts) == 2:
                 scope.add(self.builder, parts[1], {}, strawberry.type(container_type))
-
 
         return strawberry.type(Query)
 
