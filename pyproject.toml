@@ -27,7 +27,7 @@ PyYAML = "^6.0"
 troposphere = "^4.0.2"
 inflection = "^0.5.1"
 awacs = "^2.1.0"
-strawberry-graphql = "^0.256.1"
+strawberry-graphql = "^0.265.1"
 pydantic = {extras = ["email"], version = "^2.6.1"}
 pydantic-extra-types = "^2.5.0"
 
