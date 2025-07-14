@@ -30,9 +30,14 @@ class AppSyncFunction(Function):
 
         plugin = service.plugins.get(AppSync)
 
+        datasource_config = {"functionName": str(self.key.pascal)}
+
+        if "provisionedConcurrency" in kwargs or "concurrencyAutoscaling" in kwargs:
+            datasource_config["functionAlias"] = kwargs.get("concurrencyAutoscaling", {}).get("alias", "provisioned")
+
         plugin.dataSources[str(self.key.pascal)] = {
             "type": "AWS_LAMBDA",
-            "config": {"functionName": str(self.key.pascal)},
+            "config": datasource_config
         }
 
         extras_map = {extra.resolver.lower(): extra for extra in plugin.resolver_extras}
