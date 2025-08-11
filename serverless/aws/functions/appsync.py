@@ -1,11 +1,10 @@
 import importlib
-import itertools
 from pathlib import Path
 
 from serverless.aws.functions.generic import Function
 from serverless.service.plugins.appsync import AppSync
 from serverless.service.plugins.appsync.plugin import ResolverExtra
-from serverless.service.types import Identifier, YamlOrderedDict
+from serverless.service.types import Identifier
 
 
 def import_variable(module_name: str, variable_name: str):
@@ -33,7 +32,11 @@ class AppSyncFunction(Function):
         datasource_config = {"functionName": str(self.key.pascal)}
 
         if "provisionedConcurrency" in kwargs or "concurrencyAutoscaling" in kwargs:
-            datasource_config["functionAlias"] = kwargs.get("concurrencyAutoscaling", {}).get("alias", "provisioned")
+            if isinstance(kwargs.get("concurrencyAutoscaling"), dict):
+                datasource_config["functionAlias"] = kwargs.get("concurrencyAutoscaling", {}).get("alias", "provisioned")
+            else:
+                datasource_config["functionAlias"] = "provisioned"
+
 
         plugin.dataSources[str(self.key.pascal)] = {
             "type": "AWS_LAMBDA",
