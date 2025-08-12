@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Optional
 
+from troposphere import Equals, Not
 from troposphere.cloudwatch import Alarm, MetricDimension
 from troposphere.dynamodb import AttributeDefinition, KeySchema, TimeToLiveSpecification
 
@@ -17,6 +18,7 @@ from serverless.service.environment import Environment
 from serverless.service.plugins.iam_roles import IAMRoles
 from serverless.service.plugins.lambda_dlq import LambdaDLQ
 from serverless.service.plugins.python_requirements import PythonRequirements
+from serverless.service.resources import Condition
 from serverless.service.types import Identifier, YamlOrderedDict
 
 
@@ -231,8 +233,8 @@ class Function(YamlOrderedDict):
 
         return self
 
-    def with_alias(self, alias_name="provisioned"):
-        self._service.resources.add(Alias(self, alias_name))
+    def with_alias(self, alias_name="provisioned", condition=None):
+        self._service.resources.add(Alias(self, alias_name, condition=condition))
 
     def with_idempotency(self, table_name=None):
         table_name = table_name or f"{self.name.pascal.replace('${sls:stage}', '')}Idempotency-" + "${sls:stage}"

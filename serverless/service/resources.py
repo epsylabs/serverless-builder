@@ -7,6 +7,12 @@ from troposphere import AWSObject
 from serverless.aws.resources import Resource
 
 
+class Condition:
+    def __init__(self, title, cond):
+        self.title = title
+        self.cond = cond
+
+
 class ResourceManager(yaml.YAMLObject):
     yaml_tag = "!Resources"
 
@@ -67,8 +73,13 @@ class ResourceManager(yaml.YAMLObject):
         return dumper.represent_dict(
             dict(
                 Description=data.description,
-                Resources={resource.title: resource.to_dict() for resource in data.resources},
-                Conditions={condition.title: condition for condition in data.conditions},
+                Resources={
+                    resource.title: resource.to_dict() for resource in data.resources
+                },
+                Conditions={
+                    condition.title: condition.cond.to_dict()
+                    for condition in data.conditions
+                },
                 Outputs={name: output for name, output in data.outputs.items()},
             )
         )

@@ -33,9 +33,19 @@ class AppSyncFunction(Function):
 
         if "provisionedConcurrency" in kwargs or "concurrencyAutoscaling" in kwargs:
             if isinstance(kwargs.get("concurrencyAutoscaling"), dict):
-                datasource_config["functionAlias"] = kwargs.get("concurrencyAutoscaling", {}).get("alias", "provisioned")
+                fn_alias = kwargs.get("concurrencyAutoscaling", {}).get("alias", "provisioned")
             else:
-                datasource_config["functionAlias"] = "provisioned"
+                fn_alias = "provisioned"
+
+            service.custom.datasourceConfigMap = {
+                '0': {},                  # when provisionedConcurrency == "0" → no alias
+                'default': {
+                    'functionAlias': 'provisioned'
+                }
+            }
+
+            datasource_config["<<"] = '${self:custom.datasourceConfigMap.${self:custom.vars.provisioning.provisionedConcurrency}, self:custom.datasourceConfigMap.default}'
+
 
 
         plugin.dataSources[str(self.key.pascal)] = {
