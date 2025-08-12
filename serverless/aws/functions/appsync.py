@@ -29,7 +29,9 @@ class AppSyncFunction(Function):
 
         plugin = service.plugins.get(AppSync)
 
-        datasource_config = {"functionName": str(self.key.pascal)}
+        datasource_config = {
+            'functionName': str(self.key.pascal)
+        }
 
         if "provisionedConcurrency" in kwargs or "concurrencyAutoscaling" in kwargs:
             if isinstance(kwargs.get("concurrencyAutoscaling"), dict):
@@ -37,15 +39,17 @@ class AppSyncFunction(Function):
             else:
                 fn_alias = "provisioned"
 
-            service.custom.datasourceConfigMap = {
-                '0': {},                  # when provisionedConcurrency == "0" → no alias
+            service.custom["ds" + str(self.key.pascal)] = {
+                0: {
+                    'functionName': str(self.key.pascal)
+                },
                 'default': {
-                    'functionAlias': 'provisioned'
+                    'functionName': str(self.key.pascal),
+                    'functionAlias': fn_alias
                 }
             }
 
-            datasource_config["<<"] = '${self:custom.datasourceConfigMap.${self:custom.vars.provisioning.provisionedConcurrency}, self:custom.datasourceConfigMap.default}'
-
+            datasource_config = '${self:custom.ds' + str(self.key.pascal) + '.${self:custom.vars.provisioning.provisionedConcurrency}, self:custom.ds'+ str(self.key.pascal) +'.default}'
 
 
         plugin.dataSources[str(self.key.pascal)] = {
