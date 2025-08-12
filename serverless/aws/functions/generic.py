@@ -9,6 +9,7 @@ from serverless.aws.features.encryption import Encryption
 from serverless.aws.iam import FunctionPolicyBuilder
 from serverless.aws.resources import DummyResource
 from serverless.aws.resources.dynamodb import Table
+from serverless.aws.resources.functions import Alias
 from serverless.aws.resources.kms import EncryptableResource
 from serverless.aws.resources.sqs import Queue
 from serverless.aws.types import SQSArn
@@ -229,6 +230,9 @@ class Function(YamlOrderedDict):
             self.vpcDiscovery = dict(securityGroups=[dict(tagKey="Name", tagValues=security_group_names.copy())])
 
         return self
+
+    def with_alias(self, alias_name="provisioned"):
+        self._service.resources.add(Alias(self, alias_name))
 
     def with_idempotency(self, table_name=None):
         table_name = table_name or f"{self.name.pascal.replace('${sls:stage}', '')}Idempotency-" + "${sls:stage}"
