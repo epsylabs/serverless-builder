@@ -64,11 +64,19 @@ class AppSyncFunction(Function):
 
         import __main__ as main
 
-        template = None
-        if graphql_app._batch_resolver_registry.resolvers:
-            template = Path(main.__file__).parent.absolute().joinpath("resolver.response.vtl")
-            with open(template, "w+") as f:
-                f.write("$util.toJson($context.result)")
+        batch_resolver = Path(main.__file__).parent.absolute().joinpath("batch.response.vtl")
+        with open(batch_resolver, "w+") as f:
+            f.write("$util.toJson($context.result)")
+
+        mutation_resolver = Path(main.__file__).parent.absolute().joinpath("mutation.response.vtl")
+        with open(mutation_resolver, "w+") as f:
+            f.write("""
+#if(!$util.isNull($ctx.result.error))
+  $util.error($ctx.result.error.message, $ctx.result.error.type, {}, $ctx.result.error.info)
+#else
+  $util.toJson($ctx.result)
+#end
+""".strip())
 
         for name, resolver in {
             **graphql_app._resolver_registry.resolvers,
@@ -87,7 +95,10 @@ class AppSyncFunction(Function):
 
             if name in graphql_app._batch_resolver_registry.resolvers:
                 extras.max_batch_size = extras.max_batch_size or 10
-                extras.response = extras.response or Path(template).name
+                extras.response = extras.response or Path(batch_resolver).name
+
+            if gql_type.lower().endswith("mutation"):
+                extras.response = extras.response or Path(mutation_resolver).name
 
             if extras.max_batch_size:
                 defintion["maxBatchSize"] = extras.max_batch_size
