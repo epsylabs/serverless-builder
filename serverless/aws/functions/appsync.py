@@ -71,11 +71,25 @@ class AppSyncFunction(Function):
         mutation_resolver = Path(main.__file__).parent.absolute().joinpath("mutation.response.vtl")
         with open(mutation_resolver, "w+") as f:
             f.write("""
-#if(!$util.isNull($ctx.result.error))
-  $util.error($ctx.result.error.message, $ctx.result.error.type, {}, $ctx.result.error.info)
-#else
-  $util.toJson($ctx.result)
+#if (!$util.isNull($ctx.error))
+  $util.error(
+    $util.defaultIfNull($ctx.error.message, "UnhandledError"),
+    $util.defaultIfNull($ctx.error.type, "Lambda:Unhandled"),
+    $util.defaultIfNull($ctx.error.data, {}),
+    $util.defaultIfNull($ctx.error.errorInfo, {})
+  )
 #end
+
+#if (!$util.isNull($ctx.result) && !$util.isNull($ctx.result.error))
+  $util.error(
+    $util.defaultIfNull($ctx.result.error.message, "UnknownError"),
+    $util.defaultIfNull($ctx.result.error.type, "BadRequest"),
+    $util.defaultIfNull($ctx.result.error.data, {}),
+    $util.defaultIfNull($ctx.result.error.info, {})
+  )
+#end
+
+$util.toJson($ctx.result)
 """.strip())
 
         for name, resolver in {
